@@ -1,0 +1,44 @@
+name: true_leaf_inventory_app
+version: 1.0.0+1
+publish_to: none
+description: A new Flutter project.
+environment:
+  sdk: '>=3.1.4 <4.0.0'
+
+dependencies:
+  cupertino_icons: ^1.0.2
+  get: 4.6.6
+  sizer: ^2.0.15
+
+  # Integration Plugin
+  cookie_jar: 3.0.0
+  dio: ^4.0.6
+  dio_cookie_manager: ^2.0.0
+  crypto: ^3.0.2
+  flutter_easyloading: ^3.0.5
+  get_storage: ^2.1.1
+  cached_network_image: ^3.2.3
+  url_launcher: any
+  dropdown_search: ^5.0.6
+  flutter_svg: ^2.0.9
+  intl: ^0.18.1
+  flutter_animate: ^4.4.0
+  #  syncfusion_flutter_datagrid:
+  syncfusion_flutter_datepicker: 23.2.4
+  flutter_staggered_grid_view: ^0.4.0
+  dynamic_height_grid_view: ^0.0.4
+  #  syncfusion_flutter_datagrid:
+
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^2.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
