@@ -44,7 +44,6 @@ class GetDataListResponseData {
   int? stock;
   int? maximumSellingPrice;
   final Tax? taxDetail;
-
   int? boxSize;
   String? imageUrl;
   int? taxId;
@@ -55,9 +54,12 @@ class GetDataListResponseData {
   dynamic tax;
   String? status;
   dynamic number;
+  dynamic isEdit;
   String? date;
+  TextEditingController? quantityCount;
   String? description;
   final dynamic productId;
+  dynamic isUnitSelected;
   final dynamic addedById;
   final Product? product;
   final AddedBy? addedBy;
@@ -124,6 +126,7 @@ class GetDataListResponseData {
     this.sellingPrice,
     this.stock,
     this.categoryType,
+    this.quantityCount,
     this.maximumSellingPrice,
     this.boxSize,
     this.imageUrl,
@@ -136,6 +139,8 @@ class GetDataListResponseData {
     this.title,
     this.taxDetail,
     this.order_date,
+    this.isUnitSelected,
+    this.isEdit,
     this.expensePending,
     this.tax,
     this.status,
@@ -208,6 +213,7 @@ class GetDataListResponseData {
         taxType = json['taxType'] ?? "",
         sellingPrice = json['selling_price'] as int?,
         stock = json['stock'] as int?,
+        quantityCount = json['quantityCount'] ?? TextEditingController(text: "0"),
         orderPaid = json['order_paid'] as int?,
         maximumSellingPrice = json['maximum_selling_price'] as int?,
         boxSize = json['box_size'] as int?,
@@ -215,6 +221,7 @@ class GetDataListResponseData {
         taxId = json['tax_id'] as int?,
         subCategoryId = json['sub_category_id'] as int?,
         productImage = json['product_image'],
+        isEdit = json['isEdit'] ?? false,
         media = json['media'] as List?,
         taxDetail = (json['tax_details'] as Map<String, dynamic>?) != null ? Tax.fromJson(json['tax_details'] as Map<String, dynamic>) : null,
         title = json['title'] as String?,
@@ -230,6 +237,7 @@ class GetDataListResponseData {
         supplierEmail = json['supplier_email'],
         amount = json['amount'],
         invoiceId = json['invoice_id'],
+        isUnitSelected = json['isUnitSelected'] ?? 0,
         paymentId = json['payment_id'],
         expenseId = json['expense_id'] as int?,
         address = json['address'] as String?,
@@ -282,6 +290,8 @@ class GetDataListResponseData {
         'name': name,
         'category_order': categoryOrder,
         'category_id': categoryId,
+        'isEdit': isEdit,
+        'quantityCount': quantityCount,
         'created_at': createdAt,
         'order_date': order_date,
         'updated_at': updatedAt,
@@ -289,6 +299,7 @@ class GetDataListResponseData {
         'selling_price': sellingPrice,
         'stock': stock,
         'maximum_selling_price': maximumSellingPrice,
+        'isUnitSelected': isUnitSelected,
         'box_size': boxSize,
         'subCategoryType': subCategoryType,
         'categoryType': categoryType,

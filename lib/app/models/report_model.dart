@@ -12,9 +12,16 @@ class ReportModel {
   final List<Products>? products;
   final int? accept;
   final int? review;
+  final int? unpaid;
+  final int? paid;
+  final int? totalOrder;
+  final CustomerDetails? customerDetails;
 
   ReportModel({
     this.inventories,
+    this.unpaid,
+    this.paid,
+    this.totalOrder,
     this.status,
     this.suppliers,
     this.orders,
@@ -22,12 +29,17 @@ class ReportModel {
     this.expenseItems,
     this.products,
     this.accept,
+    this.customerDetails,
     this.review,
   });
 
   ReportModel.fromJson(Map<String, dynamic> json)
       : accept = json['accept'] as int?,
         review = json['review'] as int?,
+        unpaid = json['unpaid'] as int?,
+        paid = json['paid'] as int?,
+        totalOrder = json['total_order'] as int?,
+        customerDetails = (json['customer_details'] as Map<String, dynamic>?) != null ? CustomerDetails.fromJson(json['customer_details'] as Map<String, dynamic>) : null,
         inventories = (json['inventories'] as List?)?.map((dynamic e) => Inventories.fromJson(e as Map<String, dynamic>)).toList(),
         status = (json['status'] as List?)?.map((dynamic e) => e as String).toList(),
         orders = (json['orders'] as List?)?.map((dynamic e) => Orders.fromJson(e as Map<String, dynamic>)).toList(),
@@ -38,6 +50,10 @@ class ReportModel {
 
   Map<String, dynamic> toJson() => {
         'accept': accept,
+        'unpaid': unpaid,
+        'paid': paid,
+        'total_order': totalOrder,
+        'customer_details': customerDetails?.toJson(),
         'review': review,
         'inventories': inventories?.map((e) => e.toJson()).toList(),
         'status': status,
@@ -46,6 +62,132 @@ class ReportModel {
         'suppliers': suppliers?.map((e) => e.toJson()).toList(),
         'expense_items': expenseItems?.map((e) => e.toJson()).toList(),
         'products': products?.map((e) => e.toJson()).toList()
+      };
+}
+
+class Customer {
+  final int? id;
+  final String? name;
+  final String? address;
+  final String? phoneNumber;
+  final dynamic email;
+  final String? createdAt;
+  final String? updatedAt;
+  final dynamic deletedAt;
+  final String? pincode;
+  final String? companyName;
+  final dynamic contactName;
+  final String? paymentTerms;
+  final dynamic creditNoteBalance;
+
+  Customer({
+    this.id,
+    this.name,
+    this.address,
+    this.phoneNumber,
+    this.email,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+    this.pincode,
+    this.companyName,
+    this.contactName,
+    this.paymentTerms,
+    this.creditNoteBalance,
+  });
+
+  Customer.fromJson(Map<String, dynamic> json)
+      : id = json['id'] as int?,
+        name = json['name'] as String?,
+        address = json['address'] as String?,
+        phoneNumber = json['phone_number'] as String?,
+        email = json['email'],
+        createdAt = json['created_at'] as String?,
+        updatedAt = json['updated_at'] as String?,
+        deletedAt = json['deleted_at'],
+        pincode = json['pincode'] as String?,
+        companyName = json['company_name'] as String?,
+        contactName = json['contact_name'],
+        paymentTerms = json['payment_terms'] as String?,
+        creditNoteBalance = json['credit_note_balance'];
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'address': address,
+        'phone_number': phoneNumber,
+        'email': email,
+        'created_at': createdAt,
+        'updated_at': updatedAt,
+        'deleted_at': deletedAt,
+        'pincode': pincode,
+        'company_name': companyName,
+        'contact_name': contactName,
+        'payment_terms': paymentTerms,
+        'credit_note_balance': creditNoteBalance
+      };
+}
+
+class CustomerDetails {
+  final int? id;
+  final String? name;
+  final String? address;
+  final String? phoneNumber;
+  final dynamic email;
+  final String? createdAt;
+  final String? updatedAt;
+  final dynamic deletedAt;
+  final String? pincode;
+  final String? companyName;
+  final dynamic contactName;
+  final String? paymentTerms;
+  final dynamic creditNoteBalance;
+
+  CustomerDetails({
+    this.id,
+    this.name,
+    this.address,
+    this.phoneNumber,
+    this.email,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+    this.pincode,
+    this.companyName,
+    this.contactName,
+    this.paymentTerms,
+    this.creditNoteBalance,
+  });
+
+  CustomerDetails.fromJson(Map<String, dynamic> json)
+      : id = json['id'] as int?,
+        name = json['name'] as String?,
+        address = json['address'] as String?,
+        phoneNumber = json['phone_number'] as String?,
+        email = json['email'],
+        createdAt = json['created_at'] as String?,
+        updatedAt = json['updated_at'] as String?,
+        deletedAt = json['deleted_at'],
+        pincode = json['pincode'] as String?,
+        companyName = json['company_name'] as String?,
+        contactName = json['contact_name'],
+        paymentTerms = json['payment_terms'] as String?,
+        creditNoteBalance = json['credit_note_balance'];
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'address': address,
+        'phone_number': phoneNumber,
+        'email': email,
+        'created_at': createdAt,
+        'updated_at': updatedAt,
+        'deleted_at': deletedAt,
+        'pincode': pincode,
+        'company_name': companyName,
+        'contact_name': contactName,
+        'payment_terms': paymentTerms,
+        'credit_note_balance': creditNoteBalance
       };
 }
 

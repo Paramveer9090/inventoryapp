@@ -222,6 +222,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                   )
                 : CustomTable(
                     dataLength: controller.myOrderList.length,
+                    margin: EdgeInsets.zero,
                     columns: [
                       DataColumn(
                         label: AppText(
@@ -303,22 +304,27 @@ class MyOrdersView extends GetView<MyOrdersController> {
                               DataCell(AppText(
                                 orderReport.value.orderDate!.split(" ").first,
                                 color: AppColors.whiteColor,
+                                fontSize: 11.sp,
                               )),
                               DataCell(AppText(
                                 orderReport.value.payment!.orderNumber.toString(),
                                 color: AppColors.whiteColor,
+                                fontSize: 11.sp,
                               )),
                               DataCell(AppText(
                                 orderReport.value.customer == null ? "" : orderReport.value.customer!.name.toString(),
                                 color: AppColors.whiteColor,
+                                fontSize: 11.sp,
                               )),
                               DataCell(AppText(
                                 orderReport.value.orderTotal.toString(),
                                 color: AppColors.whiteColor,
+                                fontSize: 11.sp,
                               )),
                               DataCell(AppText(
                                 orderReport.value.statusTime.toString(),
                                 color: AppColors.whiteColor,
+                                fontSize: 11.sp,
                               )),
                               DataCell(
                                 CustomTableCellActionButtons(

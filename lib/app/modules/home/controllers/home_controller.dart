@@ -13,6 +13,7 @@ class HomeController extends GetxController {
   var isSelected = 0.obs;
   var isDrawerSelected = 0.obs;
   var addOrder = false.obs;
+  var isCustomerDetails = false.obs;
 
   List screens = [
     DashboardView(),

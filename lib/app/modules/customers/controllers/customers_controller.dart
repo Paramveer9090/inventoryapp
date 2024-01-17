@@ -6,6 +6,7 @@ class CustomersController extends GetxController {
   List<Customers> customerList = <Customers>[];
   List<Customers> filterList = [];
   var noData = "".obs;
+  var id = "".obs;
 
   @override
   void onInit() {

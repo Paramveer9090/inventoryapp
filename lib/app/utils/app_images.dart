@@ -46,4 +46,8 @@ class AppImages {
   static const String ic_pickDate = "$imagePath/ic_pickDate.png";
   static const String accepted = "$imagePath/accepted.png";
   static const String underReview = "$imagePath/under-review.png";
+  static const String ic_stock = "$imagePath/ic_stock.png";
+  static const String ic_paid = "$imagePath/ic_paid.png";
+  static const String total_order = "$imagePath/total_order.png";
+  static const String ic_unpaid = "$imagePath/ic_unpaid.png";
 }

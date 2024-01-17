@@ -27,8 +27,6 @@ class CustomTable extends StatefulWidget {
 }
 
 class _CustomTableState extends State<CustomTable> {
-  static const double dataPagerHeight = 60;
-
   int rowCount = 0;
   int pageIndex = 0;
   var pageLength = 0;
@@ -62,14 +60,10 @@ class _CustomTableState extends State<CustomTable> {
               children: [
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: /* SfDataGrid(
-                    source: widget.source!,
-                    columns: widget.columns,
-                  ),*/
-                      DataTable(
+                  child: DataTable(
                     clipBehavior: Clip.hardEdge,
                     showBottomBorder: false,
-                    columnSpacing: 48,
+                    columnSpacing: 45,
                     border: TableBorder.all(
                       width: 0.5,
                       color: AppColors.whiteColor,

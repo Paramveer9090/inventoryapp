@@ -40,16 +40,16 @@ class AppButton extends StatelessWidget {
                 ? Image.asset(
                     image!,
                     color: AppColors.whiteColor,
-                    height: 4.h,
-                    width: 4.h,
+                    height: 3.h,
+                    width: 3.h,
                   )
                 : Container(),
-            SizedBox(width: 2.h),
+            SizedBox(width: isImage! ? 2.h : 0),
             Center(
               child: AppText(
                 title,
                 color: AppColors.whiteColor,
-                fontSize: fontSize ?? 16.sp,
+                fontSize: fontSize ?? 15.sp,
               ),
             ),
           ],

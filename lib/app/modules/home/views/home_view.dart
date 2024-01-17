@@ -1,3 +1,5 @@
+import 'package:true_leaf_inventory_app/app/modules/customer_details/views/customer_details_view.dart';
+import 'package:true_leaf_inventory_app/app/modules/customers/controllers/customers_controller.dart';
 import 'package:true_leaf_inventory_app/app/modules/orders/controllers/orders_controller.dart';
 import 'package:true_leaf_inventory_app/app/modules/orders/views/orders_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/products/views/products_view.dart';
@@ -37,7 +39,9 @@ class HomeView extends GetView<HomeController> {
                     ? AppStrings.productDetails
                     : controller.addOrder.value
                         ? AppStrings.orders
-                        : controller.titleList[controller.isSelected.value],
+                        : controller.isCustomerDetails.value
+                            ? AppStrings.customersDetails
+                            : controller.titleList[controller.isSelected.value],
                 fontSize: 14.sp,
                 color: AppColors.whiteColor,
               ),
@@ -70,7 +74,21 @@ class HomeView extends GetView<HomeController> {
                             color: AppColors.whiteColor,
                           ),
                         )
-                      : Container(),
+                      : controller.isCustomerDetails.value
+                          ? GestureDetector(
+                              onTap: () {
+                                controller.isCustomerDetails.value = false;
+                                print(controller.isCustomerDetails.value);
+                                print("controller.isCustomerDetails.value");
+                                Get.find<CustomersController>().update();
+                                controller.update();
+                              },
+                              child: Icon(
+                                Icons.arrow_back_outlined,
+                                color: AppColors.whiteColor,
+                              ),
+                            )
+                          : Container(),
               actions: [
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 2.2.h),
@@ -107,7 +125,7 @@ class HomeView extends GetView<HomeController> {
             bottomNavigationBar: Container(
               color: Colors.white,
               child: Container(
-                height: 80,
+                height: 10.h,
                 decoration: BoxDecoration(
                   color: AppColors.primaryColor,
                   borderRadius: BorderRadius.vertical(
@@ -127,6 +145,9 @@ class HomeView extends GetView<HomeController> {
                           if (controller.addOrder.value) {
                             controller.addOrder.value = false;
                           }
+                          if (controller.isCustomerDetails.value) {
+                            controller.isCustomerDetails.value = false;
+                          }
 
                           controller.isSelected.value = index;
                           controller.update();
@@ -136,8 +157,8 @@ class HomeView extends GetView<HomeController> {
                         },
                         child: Image.asset(
                           controller.isSelected.value == index ? controller.selectedIconList[index] : controller.iconList[index],
-                          height: 4.h,
-                          width: 4.h,
+                          height: 3.5.h,
+                          width: 3.5.h,
                         ),
                       ),
                     ),

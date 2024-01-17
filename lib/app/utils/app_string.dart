@@ -33,6 +33,7 @@ class AppStrings {
   static const String expense = "Expense";
   static const String expensePayment = "Expense Payment";
   static const String customers = "Customers";
+  static const String customersDetails = "Customers Details";
   static const String myOrders = "My Orders";
   static const String orders = "Orders";
   static const String order = "Order";

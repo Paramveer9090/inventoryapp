@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import '../modules/change_password/bindings/change_password_binding.dart';
 import '../modules/change_password/views/change_password_view.dart';
+import '../modules/customer_details/bindings/customer_details_binding.dart';
+import '../modules/customer_details/views/customer_details_view.dart';
 import '../modules/customers/bindings/customers_binding.dart';
 import '../modules/customers/views/customers_view.dart';
 import '../modules/dashboard/bindings/dashboard_binding.dart';
@@ -78,6 +80,11 @@ class AppPages {
       name: _Paths.DASHBOARD,
       page: () => const DashboardView(),
       binding: DashboardBinding(),
+    ),
+    GetPage(
+      name: _Paths.CUSTOMER_DETAILS,
+      page: () => const CustomerDetailsView(),
+      binding: CustomerDetailsBinding(),
     ),
   ];
 }

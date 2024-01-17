@@ -16,7 +16,7 @@ class DashboardView extends GetView<DashboardController> {
       init: DashboardController(),
       builder: (controller) {
         return ListView(
-          padding: EdgeInsets.symmetric(horizontal: 2.h),
+          padding: EdgeInsets.symmetric(horizontal: 1.5.h),
           children: [
             SizedBox(height: 2.h),
             Row(
@@ -31,9 +31,10 @@ class DashboardView extends GetView<DashboardController> {
                 Expanded(
                     child: DashboardViewButton(
                   title: "Under Review",
-                  imageIcon: AppImages.accepted,
+                  imageIcon: AppImages.underReview,
                   orderCount: controller.isReview.value,
                   boxColor: Color(0xffFFD9DF),
+                  textColor: AppColors.secondPrimaryColor,
                 )),
               ],
             ),
@@ -41,9 +42,12 @@ class DashboardView extends GetView<DashboardController> {
             AppText(
               "My last 5 orders",
               fontSize: 15.sp,
+              fontWeight: FontWeight.w600,
             ),
+            SizedBox(height: 1.h),
             CustomTable(
               dataLength: controller.myOrderList.length,
+              margin: EdgeInsets.zero,
               isBottom: false,
               columns: [
                 DataColumn(
@@ -126,22 +130,27 @@ class DashboardView extends GetView<DashboardController> {
                         DataCell(AppText(
                           orderReport.value.orderDate!.split(" ").first,
                           color: AppColors.whiteColor,
+                          fontSize: 11.sp,
                         )),
                         DataCell(AppText(
                           orderReport.value.payment!.orderNumber.toString(),
                           color: AppColors.whiteColor,
+                          fontSize: 11.sp,
                         )),
                         DataCell(AppText(
                           orderReport.value.customer == null ? "" : orderReport.value.customer!.name.toString(),
                           color: AppColors.whiteColor,
+                          fontSize: 11.sp,
                         )),
                         DataCell(AppText(
                           orderReport.value.orderTotal.toString(),
                           color: AppColors.whiteColor,
+                          fontSize: 11.sp,
                         )),
                         DataCell(AppText(
                           orderReport.value.statusTime.toString(),
                           color: AppColors.whiteColor,
+                          fontSize: 11.sp,
                         )),
                         DataCell(
                           CustomTableCellActionButtons(
@@ -197,8 +206,22 @@ class DashboardViewButton extends StatelessWidget {
   final orderCount;
   final title;
   final boxColor;
+  final fontSize;
+  final textColor;
+  final isNext;
+  final double? scale;
 
-  const DashboardViewButton({super.key, this.imageIcon, this.orderCount, this.title, this.boxColor});
+  const DashboardViewButton({
+    super.key,
+    this.imageIcon,
+    this.orderCount,
+    this.title,
+    this.scale,
+    this.boxColor,
+    this.textColor,
+    this.fontSize,
+    this.isNext = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -212,27 +235,38 @@ class DashboardViewButton extends StatelessWidget {
           children: [
             Image.asset(
               imageIcon,
-              scale: 2.5,
+              scale: scale,
+              height: 3.2.h,
+              width: 3.2.h,
             ),
-            SizedBox(height: 2.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                AppText(
-                  orderCount,
-                  fontSize: 30.sp,
-                ),
-                Icon(
-                  Icons.arrow_forward,
-                  color: AppColors.arrowColor,
-                ),
-              ],
+            SizedBox(height: 1.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 0.2.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: AppText(
+                      orderCount,
+                      maxLines: 1,
+                      fontSize: fontSize ?? 25.sp,
+                      color: textColor ?? AppColors.blackColor,
+                    ),
+                  ),
+                  isNext
+                      ? Icon(
+                          Icons.arrow_forward,
+                          color: AppColors.arrowColor,
+                        )
+                      : Container(),
+                ],
+              ),
             ),
             SizedBox(height: 0.5.h),
             AppText(
               title,
-              fontSize: 14.sp,
-              color: AppColors.arrowColor,
+              fontSize: 10.sp,
+              color: isNext == false ? AppColors.whiteColor : AppColors.arrowColor,
             ),
           ],
         ),
