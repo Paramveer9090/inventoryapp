@@ -1,4 +1,5 @@
 import 'package:get_storage/get_storage.dart';
+import 'package:true_leaf_inventory_app/app/modules/orders/controllers/orders_controller.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 /// <<< To store data in phone storage --------- >>>
@@ -50,6 +51,13 @@ class GetStorageData {
     box.write(key, allData);
   }
 
+  /// Save List
+  saveList(String key, value) {
+    final box = GetStorage();
+    // String allData = jsonEncode(value);
+    box.write(key, value);
+  }
+
   readObject(String key) {
     final box = GetStorage();
     if (containKey(key) && box.read(key) != null) {
@@ -57,14 +65,14 @@ class GetStorageData {
       return jsonDecode(result);
     }
     return null;
+  }
 
-    // LoginSignUpData? value=null;
-    // final box = GetStorage();
-    //
-    // if (containKey(key) && box.read(key) != null) {
-    //   var result = box.read(key);
-    //   value = LoginSignUpData.fromJson(jsonDecode(result));
-    // }
-    // return value;
+  readList(String key) {
+    final box = GetStorage();
+    if (containKey(key) && box.read(key) != null) {
+      List<OrderItemResponseData> result = box.read<List<OrderItemResponseData>>(getStorageData.cartData) ?? [];
+      return result;
+    }
+    return null;
   }
 }
