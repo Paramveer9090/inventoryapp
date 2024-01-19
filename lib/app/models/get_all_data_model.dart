@@ -1,4 +1,3 @@
-import 'package:true_leaf_inventory_app/app/models/report_model.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 class GetDataListResponseModel {
@@ -6,21 +5,33 @@ class GetDataListResponseModel {
   final List<Suppliers>? suppliers;
   final List<Customers>? customers;
   final List<Payments>? payments;
+  final int? totalOrder;
+  final int? deliver;
+  final int? pending;
 
   GetDataListResponseModel({
     this.data,
     this.customers,
     this.suppliers,
     this.payments,
+    this.totalOrder,
+    this.deliver,
+    this.pending,
   });
 
   GetDataListResponseModel.fromJson(Map<String, dynamic> json)
-      : suppliers = (json['suppliers'] as List?)?.map((dynamic e) => Suppliers.fromJson(e as Map<String, dynamic>)).toList(),
+      : totalOrder = json['total_order'] as int?,
+        deliver = json['deliver'] as int?,
+        pending = json['pending'] as int?,
+        suppliers = (json['suppliers'] as List?)?.map((dynamic e) => Suppliers.fromJson(e as Map<String, dynamic>)).toList(),
         customers = (json['customers'] as List?)?.map((dynamic e) => Customers.fromJson(e as Map<String, dynamic>)).toList(),
         payments = (json['payments'] as List?)?.map((dynamic e) => Payments.fromJson(e as Map<String, dynamic>)).toList(),
         data = (json['data'] as List?)?.map((dynamic e) => GetDataListResponseData.fromJson(e as Map<String, dynamic>)).toList();
 
   Map<String, dynamic> toJson() => {
+        'total_order': totalOrder,
+        'deliver': deliver,
+        'pending': pending,
         'customers': customers?.map((e) => e.toJson()).toList(),
         'data': data?.map((e) => e.toJson()).toList(),
         'payments': payments?.map((e) => e.toJson()).toList(),
@@ -38,6 +49,7 @@ class GetDataListResponseData {
   String? taxType;
   final String? createdAt;
   final String? order_date;
+  final String? delivery_note;
   final String? updatedAt;
   final dynamic deletedAt;
   int? sellingPrice;
@@ -146,6 +158,7 @@ class GetDataListResponseData {
     this.status,
     this.number,
     this.date,
+    this.delivery_note,
     this.description,
     this.productId,
     this.addedById,
@@ -207,6 +220,7 @@ class GetDataListResponseData {
         categoryId = json['category_id'],
         createdAt = json['created_at'] as String?,
         updatedAt = json['updated_at'] as String?,
+        delivery_note = json['delivery_note'] as String?,
         deletedAt = json['deleted_at'],
         subCategoryType = json['subCategoryType'] ?? "",
         categoryType = json['categoryType'] ?? "",
@@ -301,6 +315,7 @@ class GetDataListResponseData {
         'maximum_selling_price': maximumSellingPrice,
         'isUnitSelected': isUnitSelected,
         'box_size': boxSize,
+        'delivery_note': delivery_note,
         'subCategoryType': subCategoryType,
         'categoryType': categoryType,
         'order_paid': orderPaid,

@@ -10,6 +10,7 @@ class MyOrdersController extends GetxController {
   var isOverDueSelected = false.obs;
   var fromDateString = "".obs;
   var toDateString = "".obs;
+  var id = "".obs;
 
   @override
   void onInit() {
@@ -87,7 +88,7 @@ class MyOrdersController extends GetxController {
 
   getOrderReportAPI({var isLoading = true}) async {
     final data = await APIFunction().apiCall(
-      apiName: Constants.get_order_report,
+      apiName: Constants.get_sales_person_orderreport,
       context: Get.context!,
       token: accessToken,
       type: "get",

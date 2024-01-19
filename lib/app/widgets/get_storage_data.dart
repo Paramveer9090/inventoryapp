@@ -4,6 +4,7 @@ import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 /// <<< To store data in phone storage --------- >>>
 class GetStorageData {
   String loginData = "loginData";
+  String cartData = "cartData";
 
   /// <<< To save object data --------- >>>
   saveString(String key, value) async {

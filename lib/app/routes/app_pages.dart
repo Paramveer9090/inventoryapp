@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/cart/bindings/cart_binding.dart';
+import '../modules/cart/views/cart_view.dart';
 import '../modules/change_password/bindings/change_password_binding.dart';
 import '../modules/change_password/views/change_password_view.dart';
 import '../modules/customer_details/bindings/customer_details_binding.dart';
@@ -8,12 +10,20 @@ import '../modules/customers/bindings/customers_binding.dart';
 import '../modules/customers/views/customers_view.dart';
 import '../modules/dashboard/bindings/dashboard_binding.dart';
 import '../modules/dashboard/views/dashboard_view.dart';
+import '../modules/driver_dashboard/bindings/driver_dashboard_binding.dart';
+import '../modules/driver_dashboard/views/driver_dashboard_view.dart';
+import '../modules/driver_order/bindings/driver_order_binding.dart';
+import '../modules/driver_order/views/driver_order_view.dart';
+import '../modules/driver_order_detail/bindings/driver_order_detail_binding.dart';
+import '../modules/driver_order_detail/views/driver_order_detail_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/my_orders/bindings/my_orders_binding.dart';
 import '../modules/my_orders/views/my_orders_view.dart';
+import '../modules/order_details/bindings/order_details_binding.dart';
+import '../modules/order_details/views/order_details_view.dart';
 import '../modules/orders/bindings/orders_binding.dart';
 import '../modules/orders/views/orders_view.dart';
 import '../modules/product_details/bindings/product_details_binding.dart';
@@ -85,6 +95,31 @@ class AppPages {
       name: _Paths.CUSTOMER_DETAILS,
       page: () => const CustomerDetailsView(),
       binding: CustomerDetailsBinding(),
+    ),
+    GetPage(
+      name: _Paths.CART,
+      page: () => const CartView(),
+      binding: CartBinding(),
+    ),
+    GetPage(
+      name: _Paths.ORDER_DETAILS,
+      page: () => const OrderDetailsView(),
+      binding: OrderDetailsBinding(),
+    ),
+    GetPage(
+      name: _Paths.DRIVER_ORDER,
+      page: () => const DriverOrderView(),
+      binding: DriverOrderBinding(),
+    ),
+    GetPage(
+      name: _Paths.DRIVER_DASHBOARD,
+      page: () => const DriverDashboardView(),
+      binding: DriverDashboardBinding(),
+    ),
+    GetPage(
+      name: _Paths.DRIVER_ORDER_DETAIL,
+      page: () => const DriverOrderDetailView(),
+      binding: DriverOrderDetailBinding(),
     ),
   ];
 }

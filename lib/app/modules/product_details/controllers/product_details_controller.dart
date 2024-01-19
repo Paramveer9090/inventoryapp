@@ -15,7 +15,7 @@ class ProductDetailsController extends GetxController {
     super.onInit();
   }
 
-  /// Supplier Expense
+  /// Product Details
   productDetails() async {
     final data = await APIFunction().apiCall(
       apiName: "${Constants.products}/${id}",

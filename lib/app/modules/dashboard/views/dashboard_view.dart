@@ -157,10 +157,12 @@ class DashboardView extends GetView<DashboardController> {
                             showDeleteButton: false,
                             isWhite: true,
                             onView: () {
-                              // Get.toNamed(Routes.DETAILS_SCREEN, arguments: {
-                              // "id": orderReport.value.id.toString(),
-                              // "screen": "order",
-                              // });
+                              Get.put(MyOrdersController());
+                              Get.find<MyOrdersController>().id.value = orderReport.value.id.toString();
+                              Get.find<HomeController>().isSelected.value = 2;
+                              Get.find<HomeController>().isOrderDetails.value = true;
+                              Get.find<HomeController>().update();
+                              controller.update();
                             },
                             onEdit: () {
                               // Get.toNamed(Routes.ADD_ORDER, arguments: {

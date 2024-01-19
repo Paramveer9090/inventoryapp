@@ -76,15 +76,15 @@ class OrdersView extends GetView<OrdersController> {
                                     var amountTax;
 
                                     /// add
-                                    controller.orderItemList.add(OrderItemResponseData(
-                                      productName: controller.productList[index].name.toString(),
-                                      product_id: controller.productList[index].id.toString(),
-                                      salesPrice: TextEditingController(text: controller.productList[index].sellingPrice.toString()),
-                                      stock: TextEditingController(text: controller.productList[index].stock.toString()),
-                                      tax: controller.productList[index].tax,
-                                      taxId: controller.productList[index].taxId.toString(),
-                                      taxData: controller.productList[index].taxDetail!.title,
-                                    ));
+                                    // controller.orderItemList.add(OrderItemResponseData(
+                                    //   productName: controller.productList[index].name.toString(),
+                                    //   product_id: controller.productList[index].id.toString(),
+                                    //   salesPrice: TextEditingController(text: controller.productList[index].sellingPrice.toString()),
+                                    //   stock: TextEditingController(text: controller.productList[index].stock.toString()),
+                                    //   tax: controller.productList[index].tax,
+                                    //   taxId: controller.productList[index].taxId.toString(),
+                                    //   taxData: controller.productList[index].taxDetail!.title,
+                                    // ));
 
                                     controller.isSubCategory.value = false;
                                     //
@@ -112,13 +112,11 @@ class OrdersView extends GetView<OrdersController> {
                                     //   controller.orderTax.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
                                     //   controller.orderFinalTotal.value = (double.parse(controller.orderTotal.value) + double.parse(controller.orderTax.value)).toString();
                                     // }
-
-                                    print("controller.orderTotal.value");
-                                    print(controller.orderItemList);
-                                    print(controller.orderItemList[index]);
-                                    print(controller.orderTotal.value);
-                                    print(controller.orderTax.value);
-                                    print(controller.orderFinalTotal.value);
+                                    //
+                                    // print("controller.orderTotal.value");
+                                    // print(controller.orderTotal.value);
+                                    // print(controller.orderTax.value);
+                                    // print(controller.orderFinalTotal.value);
                                     controller.update();
                                   },
                                   child: Card(
@@ -209,11 +207,9 @@ class OrdersView extends GetView<OrdersController> {
                                                           onTap: () {
                                                             controller.productList[index].isUnitSelected = subIndex;
                                                             controller.update();
-                                                            controller.orderItemList.add(OrderItemResponseData(
-                                                              boxUnit: controller.productList[index].isUnitSelected,
-                                                            ));
-                                                            print(controller.orderItemList.length);
-                                                            print("controller.orderItemList[0].boxUnit");
+                                                            // controller.orderItemList.add(OrderItemResponseData(
+                                                            //   boxUnit: controller.productList[index].isUnitSelected,
+                                                            // ));
 
                                                             /// Counting
                                                             // var amount;
@@ -349,56 +345,63 @@ class OrdersView extends GetView<OrdersController> {
                                                                 color: Color(0xffe9e7ea),
                                                               )),
                                                         ),
-                                                        onChanged: (value) {
-                                                          controller.update();
-                                                          var amount;
-                                                          var amountTax;
-                                                          print(value);
-                                                          print("valuevaluevaluevaluevalue");
-                                                          if (value.isNotEmpty) {
-                                                            print(controller.orderItemList[index].boxUnit);
-                                                            print(controller.productList[index].boxSize);
-                                                            print(controller.productList[index].quantityCount!.text);
-                                                            print(controller.productList[index].sellingPrice);
-                                                            print(controller.productList[index].taxDetail!.tax);
-                                                            print("controller.orderItemList[index].boxUnit");
-
-                                                            /// First get index wise amount
-                                                            if (controller.orderItemList[index].boxUnit == 1) {
-                                                              amountTax = (((double.parse(controller.productList[index].boxSize.toString()) * double.parse(controller.productList[index].quantityCount!.text)) *
-                                                                          double.parse(controller.productList[index].sellingPrice.toString())) *
-                                                                      double.parse(controller.productList[index].taxDetail!.tax.toString())) /
-                                                                  100;
-                                                              amount = (double.parse(controller.productList[index].boxSize.toString()) * double.parse(controller.productList[index].quantityCount!.text)) *
-                                                                  int.parse(controller.productList[index].sellingPrice.toString());
-                                                              controller.orderItemList[index].amountWithoutTax = amount.toString();
-                                                              controller.orderItemList[index].amountOnlyTax = amountTax.toString();
-                                                            } else {
-                                                              amountTax = ((double.parse(controller.productList[index].quantityCount!.text) * double.parse(controller.productList[index].sellingPrice.toString())) *
-                                                                      double.parse(controller.productList[index].taxDetail!.tax.toString())) /
-                                                                  100;
-                                                              amount = (double.parse(controller.productList[index].quantityCount!.text)) * double.parse(controller.productList[index].sellingPrice.toString());
-                                                              controller.orderItemList[index].amountWithoutTax = amount.toString();
-                                                              controller.orderItemList[index].amountOnlyTax = amountTax.toString();
-                                                            }
-
-                                                            /// count order total
-                                                            print(controller.orderItemList.length);
-                                                            print("controller.orderItemList.length");
-                                                            // for (int i = 0; i < controller.orderItemList.length; i++) {
-                                                            //   controller.orderTotal.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
-                                                            //   controller.orderTax.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
-                                                            //   controller.orderFinalTotal.value = (double.parse(controller.orderTotal.value) + double.parse(controller.orderTax.value)).toString();
-                                                            // }
-                                                            controller.update();
-                                                          }
-                                                        },
+                                                        // onChanged: (value) {
+                                                        //   controller.update();
+                                                        //   var amount;
+                                                        //   var amountTax;
+                                                        //   print(value);
+                                                        //   print("valuevaluevaluevaluevalue");
+                                                        //   if (value.isNotEmpty) {
+                                                        //     print(controller.productList[index].boxSize);
+                                                        //     print(controller.productList[index].quantityCount!.text);
+                                                        //     print(controller.productList[index].sellingPrice);
+                                                        //     print(controller.productList[index].taxDetail!.tax);
+                                                        //     print("controller.orderItemList[index].boxUnit");
+                                                        //
+                                                        //     /// First get index wise amount
+                                                        //     if (controller.orderItemList[index].boxUnit == 1) {
+                                                        //       amountTax = (((double.parse(controller.productList[index].boxSize.toString()) * double.parse(controller.productList[index].quantityCount!.text)) *
+                                                        //                   double.parse(controller.productList[index].sellingPrice.toString())) *
+                                                        //               double.parse(controller.productList[index].taxDetail!.tax.toString())) /
+                                                        //           100;
+                                                        //       amount = (double.parse(controller.productList[index].boxSize.toString()) * double.parse(controller.productList[index].quantityCount!.text)) *
+                                                        //           int.parse(controller.productList[index].sellingPrice.toString());
+                                                        //       controller.orderItemList[index].amountWithoutTax = amount.toString();
+                                                        //       controller.orderItemList[index].amountOnlyTax = amountTax.toString();
+                                                        //     } else {
+                                                        //       amountTax = ((double.parse(controller.productList[index].quantityCount!.text) * double.parse(controller.productList[index].sellingPrice.toString())) *
+                                                        //               double.parse(controller.productList[index].taxDetail!.tax.toString())) /
+                                                        //           100;
+                                                        //       amount = (double.parse(controller.productList[index].quantityCount!.text)) * double.parse(controller.productList[index].sellingPrice.toString());
+                                                        //       controller.orderItemList[index].amountWithoutTax = amount.toString();
+                                                        //       controller.orderItemList[index].amountOnlyTax = amountTax.toString();
+                                                        //     }
+                                                        //
+                                                        //     /// count order total
+                                                        //     print(controller.orderItemList.length);
+                                                        //     print("controller.orderItemList.length");
+                                                        //     // for (int i = 0; i < controller.orderItemList.length; i++) {
+                                                        //     //   controller.orderTotal.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
+                                                        //     //   controller.orderTax.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
+                                                        //     //   controller.orderFinalTotal.value = (double.parse(controller.orderTotal.value) + double.parse(controller.orderTax.value)).toString();
+                                                        //     // }
+                                                        //     controller.update();
+                                                        //   }
+                                                        // },
                                                       ),
                                                     ),
                                                     SizedBox(width: 1.h),
                                                     GestureDetector(
-                                                      onTap: () {
-                                                        controller.productList[index].quantityCount!.text = (int.parse(controller.productList[index].quantityCount!.text) + 1).toString();
+                                                      onTap: () async {
+                                                        controller.productId.value = await controller.productList[index].id.toString();
+                                                        controller.productName.value = await controller.productList[index].name.toString();
+                                                        controller.productList[index].quantityCount!.text = await (int.parse(controller.productList[index].quantityCount!.text) + 1).toString();
+                                                        controller.update();
+                                                        if (controller.productList[index].id.toString() == controller.orderItemList[index].product_id.toString()) {
+                                                          controller.orderItemList[index].quality!.text = await controller.productList[index].quantityCount!.text;
+                                                          cartStoreData.write(getStorageData.cartData, controller.orderItemList);
+                                                        }
+
                                                         controller.update();
                                                       },
                                                       child: Container(
@@ -416,29 +419,29 @@ class OrdersView extends GetView<OrdersController> {
                                                     ),
                                                   ],
                                                 ),
-                                                Padding(
-                                                  padding: EdgeInsets.only(top: 2, left: 5),
-                                                  child: AppText(
-                                                    controller.productList[index].quantityCount!.text.isEmpty
-                                                        ? "Please Enter Quantity"
-                                                        : controller.orderItemList[index].boxUnit == 1
-                                                            ? (double.parse(controller.productList[index].boxSize.toString()) * double.parse(controller.productList[index].quantityCount!.text)) >
-                                                                    double.parse(controller.productList[index].stock.toString())
-                                                                ? "Quantity can't be greater than In Stock"
-                                                                : controller.orderItemList[index].boxUnit == 0
-                                                                    ? double.parse(controller.productList[index].quantityCount!.text) > double.parse(controller.productList[index].stock.toString())
-                                                                        ? "Quantity can't be greater than In Stock"
-                                                                        : ""
-                                                                    : ""
-                                                            : controller.orderItemList[index].boxUnit == 0
-                                                                ? double.parse(controller.productList[index].quantityCount!.text) > double.parse(controller.productList[index].stock.toString())
-                                                                    ? "Quantity can't be greater than In Stock"
-                                                                    : ""
-                                                                : "",
-                                                    color: AppColors.darkRedColor,
-                                                    fontSize: 10.sp,
-                                                  ),
-                                                ),
+                                                // Padding(
+                                                //   padding: EdgeInsets.only(top: 2, left: 5),
+                                                //   child: AppText(
+                                                //     controller.productList[index].quantityCount!.text.isEmpty
+                                                //         ? "Please Enter Quantity"
+                                                //         : controller.orderItemList[index].boxUnit == 1
+                                                //             ? (double.parse(controller.productList[index].boxSize.toString()) * double.parse(controller.productList[index].quantityCount!.text)) >
+                                                //                     double.parse(controller.productList[index].stock.toString())
+                                                //                 ? "Quantity can't be greater than In Stock"
+                                                //                 : controller.orderItemList[index].boxUnit == 0
+                                                //                     ? double.parse(controller.productList[index].quantityCount!.text) > double.parse(controller.productList[index].stock.toString())
+                                                //                         ? "Quantity can't be greater than In Stock"
+                                                //                         : ""
+                                                //                     : ""
+                                                //             : controller.orderItemList[index].boxUnit == 0
+                                                //                 ? double.parse(controller.productList[index].quantityCount!.text) > double.parse(controller.productList[index].stock.toString())
+                                                //                     ? "Quantity can't be greater than In Stock"
+                                                //                     : ""
+                                                //                 : "",
+                                                //     color: AppColors.darkRedColor,
+                                                //     fontSize: 10.sp,
+                                                //   ),
+                                                // ),
                                                 Align(
                                                   alignment: Alignment.bottomRight,
                                                   child: GestureDetector(
@@ -469,20 +472,24 @@ class OrdersView extends GetView<OrdersController> {
                               crossAxisCount: 2,
                               builder: (ctx, index) {
                                 return GestureDetector(
-                                  onTap: () {
+                                  onTap: () async {
                                     if (controller.isSubCategory.value) {
-                                      controller.orderItemList.add(OrderItemResponseData(
-                                        subCategoryName: controller.categoryList[index].name.toString(),
-                                        sub_category_id: controller.categoryList[index].id.toString(),
-                                      ));
+                                      controller.subCategoryName.value = await controller.categoryList[index].name.toString();
+                                      controller.subCategoryId.value = await controller.categoryList[index].id.toString();
+                                      // controller.orderItemList.add(OrderItemResponseData(
+                                      //   subCategoryName: controller.categoryList[index].name.toString(),
+                                      //   sub_category_id: controller.categoryList[index].id.toString(),
+                                      // ));
+
                                       controller.getProduct(subCategoryId: controller.categoryList[index].id, type: "subCategory");
                                     } else {
                                       controller.isSubCategory.value = true;
-                                      controller.categoryName.value = controller.categoryList[index].name.toString();
-                                      controller.orderItemList.add(OrderItemResponseData(
-                                        categoryName: controller.categoryList[index].name.toString(),
-                                        category_id: controller.categoryList[index].id.toString(),
-                                      ));
+                                      controller.categoryName.value = await controller.categoryList[index].name.toString();
+                                      controller.categoryId.value = await controller.categoryList[index].id.toString();
+                                      // controller.orderItemList.add(OrderItemResponseData(
+                                      //   categoryName: controller.categoryList[index].name.toString(),
+                                      //   category_id: controller.categoryList[index].id.toString(),
+                                      // ));
                                       controller.getCategoriesAPI(categoryId: controller.categoryList[index].id);
                                     }
                                     controller.update();
@@ -539,3 +546,59 @@ class OrdersView extends GetView<OrdersController> {
     );
   }
 }
+
+/*
+                                                        if (controller.orderItemList.isEmpty) {
+                                                          print("index add thy 6e ak");
+                                                          controller.orderItemList.add(
+                                                            OrderItemResponseData(
+                                                              indexValue: 0,
+                                                              category_id: controller.categoryId.value,
+                                                              categoryName: controller.categoryName.value,
+                                                              sub_category_id: controller.subCategoryId.value,
+                                                              subCategoryName: controller.subCategoryName.value,
+                                                              product_id: controller.productList[index].id.toString(),
+                                                              productName: controller.productList[index].name,
+                                                              sellingPrice: controller.productList[index].sellingPrice.toString(),
+                                                              stock: controller.productList[index].stock.toString(),
+                                                              tax: controller.productList[index].taxDetail?.tax,
+                                                              taxId: controller.productList[index].taxDetail?.id.toString(),
+                                                              taxName: controller.productList[index].taxDetail?.title,
+                                                              boxUnit: controller.productList[index].isUnitSelected,
+                                                              boxSize: controller.productList[index].boxSize.toString(),
+                                                              quality: TextEditingController(text: controller.productList[index].quantityCount!.text),
+                                                            ),
+                                                          );
+                                                        } else if (controller.orderItemList.isNotEmpty) {
+                                                          for (int i = 0; i < controller.orderItemList.length; i++) {
+                                                            print(controller.orderItemList[i].product_id);
+                                                            print(controller.productList[index].id);
+                                                            if (controller.orderItemList[i].product_id.toString() == controller.productList[index].id.toString()) {
+                                                              print("value add 6e");
+                                                            } else {
+                                                              print("value add nathi");
+                                                              controller.orderItemList[i].indexValue = controller.orderItemList[i].indexValue! + 1;
+                                                              controller.orderItemList.add(
+                                                                OrderItemResponseData(
+                                                                  indexValue: controller.orderItemList[i].indexValue,
+                                                                  category_id: controller.categoryId.value,
+                                                                  categoryName: controller.categoryName.value,
+                                                                  sub_category_id: controller.subCategoryId.value,
+                                                                  subCategoryName: controller.subCategoryName.value,
+                                                                  product_id: controller.productList[index].id.toString(),
+                                                                  productName: controller.productList[index].name,
+                                                                  sellingPrice: controller.productList[index].sellingPrice.toString(),
+                                                                  stock: controller.productList[index].stock.toString(),
+                                                                  tax: controller.productList[index].taxDetail?.tax,
+                                                                  taxId: controller.productList[index].taxDetail?.id.toString(),
+                                                                  taxName: controller.productList[index].taxDetail?.title,
+                                                                  boxUnit: controller.productList[index].isUnitSelected,
+                                                                  boxSize: controller.productList[index].boxSize.toString(),
+                                                                  quality: TextEditingController(text: controller.productList[index].quantityCount!.text),
+                                                                ),
+                                                              );
+                                                            }
+                                                          }
+                                                        }
+                                                        print(controller.orderItemList.length);
+                                                        print("controller.orderItemList.length");*/

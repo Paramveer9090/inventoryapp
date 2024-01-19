@@ -5,16 +5,29 @@ class OrdersController extends GetxController {
   List<GetDataListResponseData> categoryList = <GetDataListResponseData>[];
   List<GetDataListResponseData> productList = <GetDataListResponseData>[];
   List<GetDataListResponseData> tempProductList = <GetDataListResponseData>[];
+
   List<OrderItemResponseData> orderItemList = <OrderItemResponseData>[];
+
+
+  var cartIndex = 0;
 
   var isProduct = false.obs;
   var isSubCategory = false.obs;
   var isCategory = true.obs;
-  var categoryName = "".obs;
+
   var noData = "".obs;
   var orderTotal = "".obs;
   var orderTax = "".obs;
   var orderFinalTotal = "".obs;
+
+  /// API Data Params
+
+  var categoryId = "".obs;
+  var categoryName = "".obs;
+  var subCategoryId = "".obs;
+  var subCategoryName = "".obs;
+  var productName = "".obs;
+  var productId = "".obs;
 
   @override
   void onInit() {
@@ -110,9 +123,25 @@ class OrdersController extends GetxController {
             ),
           ),
         );
-        orderItemList.add(OrderItemResponseData(
-          boxUnit: tempProductList[i].isUnitSelected,
-        ));
+        orderItemList.add(
+          OrderItemResponseData(
+            indexValue: i,
+            category_id: categoryId.value,
+            categoryName: categoryName.value,
+            sub_category_id: subCategoryId.toString(),
+            subCategoryName: subCategoryName.value,
+            product_id: tempProductList[i].id.toString(),
+            productName: tempProductList[i].name,
+            sellingPrice: tempProductList[i].sellingPrice.toString(),
+            stock: tempProductList[i].stock.toString(),
+            tax: tempProductList[i].taxDetail?.tax,
+            taxId: tempProductList[i].taxDetail?.id.toString(),
+            taxName: tempProductList[i].taxDetail?.title,
+            boxUnit: tempProductList[i].isUnitSelected,
+            boxSize: tempProductList[i].boxSize.toString(),
+            quality: TextEditingController(text: tempProductList[i].quantityCount!.text),
+          ),
+        );
         update();
       } else if (tempProductList[i].categoryId.toString() == subCategoryId.toString() && tempProductList[i].categoryId != null && type == "category") {
         productList.add(
@@ -139,9 +168,25 @@ class OrdersController extends GetxController {
             ),
           ),
         );
-        orderItemList.add(OrderItemResponseData(
-          boxUnit: tempProductList[i].isUnitSelected,
-        ));
+        orderItemList.add(
+          OrderItemResponseData(
+            indexValue: i,
+            category_id: categoryId.value,
+            categoryName: categoryName.value,
+            sub_category_id: subCategoryId.value,
+            subCategoryName: subCategoryName.value,
+            product_id: tempProductList[i].id.toString(),
+            productName: tempProductList[i].name,
+            sellingPrice: tempProductList[i].sellingPrice.toString(),
+            stock: tempProductList[i].stock.toString(),
+            tax: tempProductList[i].taxDetail?.tax,
+            taxId: tempProductList[i].taxDetail?.id.toString(),
+            taxName: tempProductList[i].taxDetail?.title,
+            boxUnit: tempProductList[i].isUnitSelected,
+            boxSize: tempProductList[i].boxSize.toString(),
+            quality: TextEditingController(text: tempProductList[i].quantityCount!.text),
+          ),
+        );
         update();
       }
     }
@@ -150,6 +195,7 @@ class OrdersController extends GetxController {
 
 /// model
 class OrderItemResponseData {
+  int? indexValue;
   String? categoryName;
   String? category_id;
   String? subCategoryName;
@@ -157,15 +203,13 @@ class OrderItemResponseData {
   String? productName;
   String? product_id;
   String? boxSize;
-  TextEditingController? stock;
+  String? stock;
   TextEditingController? quality;
-  TextEditingController? salesPrice;
-  TextEditingController? minSellingPrice;
-  TextEditingController? maxSellingPrice;
+  String? sellingPrice;
   int boxUnit;
   int? tax;
   String? taxId;
-  String? taxData;
+  String? taxName;
   String? amountWithoutTax;
   String? amountOnlyTax;
 
@@ -178,15 +222,14 @@ class OrderItemResponseData {
     this.stock,
     this.product_id,
     this.boxSize,
-    this.taxData,
+    this.taxName,
     this.sub_category_id,
     this.productName,
     this.taxId,
-    this.minSellingPrice,
-    this.maxSellingPrice,
     this.boxUnit = 1,
     this.quality,
-    this.salesPrice,
+    this.sellingPrice,
     this.tax,
+    this.indexValue,
   });
 }

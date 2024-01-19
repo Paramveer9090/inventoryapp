@@ -37,6 +37,7 @@ class AppStrings {
   static const String myOrders = "My Orders";
   static const String orders = "Orders";
   static const String order = "Order";
+  static const String orderDetail = "Order Detail";
   static const String orderPayment = "Order Payment";
   static const String logout = "Logout";
 
@@ -115,6 +116,7 @@ class AppStrings {
   static const String orderDate = 'Order Date';
   static const String addCreditNote = 'Add Credit Note';
   static const String addUsers = 'Add Users';
+  static const String cart = 'Cart';
 
   /// Error String
 

@@ -8,7 +8,9 @@ class AppButton extends StatelessWidget {
   final Color? color;
   final double? fontSize;
   final String? image;
+  final IconData? icon;
   final bool? isImage;
+  final bool? isIcon;
 
   AppButton({
     required this.title,
@@ -18,7 +20,9 @@ class AppButton extends StatelessWidget {
     this.fontSize,
     this.color,
     this.image,
+    this.icon,
     this.isImage = false,
+    this.isIcon = false,
   });
 
   @override
@@ -36,15 +40,21 @@ class AppButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            isImage!
-                ? Image.asset(
-                    image!,
+            isIcon!
+                ? Icon(
+                    icon,
+                    size: 3.h,
                     color: AppColors.whiteColor,
-                    height: 3.h,
-                    width: 3.h,
                   )
-                : Container(),
-            SizedBox(width: isImage! ? 2.h : 0),
+                : isImage!
+                    ? Image.asset(
+                        image!,
+                        color: AppColors.whiteColor,
+                        height: 3.h,
+                        width: 3.h,
+                      )
+                    : Container(),
+            SizedBox(width: isImage! || isIcon! ? 2.h : 0),
             Center(
               child: AppText(
                 title,

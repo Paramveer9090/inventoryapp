@@ -1,9 +1,5 @@
-import 'package:true_leaf_inventory_app/app/utils/app_images.dart';
-import 'package:true_leaf_inventory_app/app/utils/app_string.dart';
-import 'package:true_leaf_inventory_app/app/utils/validators.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 import 'package:true_leaf_inventory_app/app/widgets/app_button.dart';
-
 import '../controllers/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {

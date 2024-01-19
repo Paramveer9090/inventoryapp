@@ -58,7 +58,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         Container(
           padding: EdgeInsets.all(3),
           decoration: BoxDecoration(
-            color: AppColors.greyLightColor,
+            color: AppColors.textFillColor,
             borderRadius: BorderRadius.circular(10),
           ),
           child: TextFormField(
@@ -84,17 +84,17 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                 visible: widget.suffixVisibility,
                 child: widget.suffixVisibility == true
                     ? GestureDetector(
-                  onTap: toggle,
-                  child: Container(
-                    margin: EdgeInsets.only(right: 1.h, top: 1.h, bottom: 1.h),
-                    child: Image.asset(
-                      widget.obscureText! ? AppImages.ic_hide : AppImages.ic_eye,
-                      height: 1.h,
-                      width: 1.h,
-                      color: Color(0xff43474e),
-                    ),
-                  ),
-                )
+                        onTap: toggle,
+                        child: Container(
+                          margin: EdgeInsets.only(right: 1.h, top: 1.h, bottom: 1.h),
+                          child: Image.asset(
+                            widget.obscureText! ? AppImages.ic_hide : AppImages.ic_eye,
+                            height: 1.h,
+                            width: 1.h,
+                            color: Color(0xff43474e),
+                          ),
+                        ),
+                      )
                     : SizedBox(),
               ),
             ),

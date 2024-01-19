@@ -311,6 +311,7 @@ class OrderItem {
   final int? boxSize;
   final int? tax;
   final String? title;
+  final String? image_url;
   final int? quantity;
   final int? sellingPrice;
   final int? maximumSellingPrice;
@@ -333,6 +334,7 @@ class OrderItem {
     this.sellingPrice,
     this.maximumSellingPrice,
     this.salePrice,
+    this.image_url,
     this.exp_date,
     this.title,
   });
@@ -344,6 +346,7 @@ class OrderItem {
         categoryId = json['category_id'] as int?,
         name = json['name'] as String?,
         exp_date = json['exp_date'] as String?,
+        image_url = json['image_url'] as String?,
         productId = json['product_id'] as int?,
         stock = json['stock'] as int?,
         isBox = json['is_box'] as int?,
@@ -375,6 +378,7 @@ class OrderItem {
         'purchase_price': purchasePrice,
         'box_size': boxSize,
         'tax': tax,
+        'image_url': image_url,
         'title': title
       };
 }

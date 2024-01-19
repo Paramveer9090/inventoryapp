@@ -14,6 +14,11 @@ abstract class Routes {
   static const ORDERS = _Paths.ORDERS;
   static const DASHBOARD = _Paths.DASHBOARD;
   static const CUSTOMER_DETAILS = _Paths.CUSTOMER_DETAILS;
+  static const CART = _Paths.CART;
+  static const ORDER_DETAILS = _Paths.ORDER_DETAILS;
+  static const DRIVER_ORDER = _Paths.DRIVER_ORDER;
+  static const DRIVER_DASHBOARD = _Paths.DRIVER_DASHBOARD;
+  static const DRIVER_ORDER_DETAIL = _Paths.DRIVER_ORDER_DETAIL;
 }
 
 abstract class _Paths {
@@ -29,4 +34,9 @@ abstract class _Paths {
   static const ORDERS = '/orders';
   static const DASHBOARD = '/dashboard';
   static const CUSTOMER_DETAILS = '/customer-details';
+  static const CART = '/cart';
+  static const ORDER_DETAILS = '/order-details';
+  static const DRIVER_ORDER = '/driver-order';
+  static const DRIVER_DASHBOARD = '/driver-dashboard';
+  static const DRIVER_ORDER_DETAIL = '/driver-order-detail';
 }
