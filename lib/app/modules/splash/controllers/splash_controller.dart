@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:true_leaf_inventory_app/app/routes/app_pages.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 class SplashController extends GetxController {

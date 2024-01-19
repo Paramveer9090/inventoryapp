@@ -8,7 +8,6 @@ class OrdersController extends GetxController {
 
   List<OrderItemResponseData> orderItemList = <OrderItemResponseData>[];
 
-
   var cartIndex = 0;
 
   var isProduct = false.obs;
@@ -138,6 +137,7 @@ class OrdersController extends GetxController {
             taxId: tempProductList[i].taxDetail?.id.toString(),
             taxName: tempProductList[i].taxDetail?.title,
             boxUnit: tempProductList[i].isUnitSelected,
+            productImage: tempProductList[i].imageUrl,
             boxSize: tempProductList[i].boxSize.toString(),
             quality: TextEditingController(text: tempProductList[i].quantityCount!.text),
           ),
@@ -184,6 +184,7 @@ class OrdersController extends GetxController {
             taxName: tempProductList[i].taxDetail?.title,
             boxUnit: tempProductList[i].isUnitSelected,
             boxSize: tempProductList[i].boxSize.toString(),
+            productImage: tempProductList[i].imageUrl,
             quality: TextEditingController(text: tempProductList[i].quantityCount!.text),
           ),
         );
@@ -212,10 +213,12 @@ class OrderItemResponseData {
   String? taxName;
   String? amountWithoutTax;
   String? amountOnlyTax;
+  String? productImage;
 
   OrderItemResponseData({
     this.categoryName,
     this.category_id,
+    this.productImage,
     this.amountWithoutTax,
     this.subCategoryName,
     this.amountOnlyTax,

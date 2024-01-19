@@ -4,7 +4,7 @@ import 'package:true_leaf_inventory_app/app/widgets/get_storage_data.dart';
 
 Utils utils = Utils();
 GetStorageData getStorageData = GetStorageData();
-final cartStoreData = GetStorage();
+// final cartStoreData = GetStorage();
 
 class Constants {
   /// Save String

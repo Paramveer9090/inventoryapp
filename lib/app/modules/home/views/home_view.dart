@@ -87,7 +87,17 @@ class HomeView extends GetView<HomeController> {
                         controller.isCart.value
                             ? GestureDetector(
                                 onTap: () {
-                                  controller.isCart.value = false;
+                                  if (controller.isSelected.value == 5) {
+                                    controller.isSelected.value = 0;
+                                  }
+
+                                  print(controller.isSelected.value);
+                                  Future.delayed(
+                                    Duration(milliseconds: 1),
+                                    () {
+                                      controller.isCart.value = false;
+                                    },
+                                  );
                                   controller.update();
                                 },
                                 child: Icon(
@@ -129,6 +139,7 @@ class HomeView extends GetView<HomeController> {
                           if (await controller.isCustomerDetails.value) {
                             controller.isCustomerDetails.value = false;
                           }
+
                           controller.isCart.value = true;
                           controller.update();
                         },
@@ -153,7 +164,7 @@ class HomeView extends GetView<HomeController> {
                                   ),
                                   child: Center(
                                     child: AppText(
-                                      "0",
+                                      cartLength.toString(),
                                       color: AppColors.whiteColor,
                                     ),
                                   ),
@@ -190,6 +201,9 @@ class HomeView extends GetView<HomeController> {
                                 }
                                 if (controller.isCustomerDetails.value) {
                                   controller.isCustomerDetails.value = false;
+                                }
+                                if (controller.isCart.value) {
+                                  controller.isCart.value = false;
                                 }
 
                                 controller.isSelected.value = index;
@@ -323,103 +337,105 @@ class HomeView extends GetView<HomeController> {
                   ),
                 ),
               )
-            : Scaffold(
-                backgroundColor: AppColors.primaryColor,
-                appBar: AppBar(
-                  forceMaterialTransparency: true,
-                  centerTitle: true,
-                  backgroundColor: AppColors.primaryColor,
-                  title: AppText(
-                    controller.isOrderDetails.value ? AppStrings.orderDetail : controller.titleDeliveryList[controller.isSelected.value],
-                    fontSize: 14.sp,
-                    color: AppColors.whiteColor,
-                  ),
-                  leading: controller.isOrderDetails.value
-                      ? GestureDetector(
-                          onTap: () {
-                            controller.isOrderDetails.value = false;
-                            Get.find<DriverOrderController>().update();
-                            controller.update();
-                          },
-                          child: Icon(
-                            Icons.arrow_back_outlined,
-                            color: AppColors.whiteColor,
-                          ),
-                        )
-                      : Container(),
-                  actions: [
-                    GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return DeletePopup(
-                              isDelete: true,
+            : accessToken != null
+                ? Scaffold(
+                    backgroundColor: AppColors.primaryColor,
+                    appBar: AppBar(
+                      forceMaterialTransparency: true,
+                      centerTitle: true,
+                      backgroundColor: AppColors.primaryColor,
+                      title: AppText(
+                        controller.isOrderDetails.value ? AppStrings.orderDetail : controller.titleDeliveryList[controller.isSelected.value],
+                        fontSize: 14.sp,
+                        color: AppColors.whiteColor,
+                      ),
+                      leading: controller.isOrderDetails.value
+                          ? GestureDetector(
                               onTap: () {
-                                controller.logout();
+                                controller.isOrderDetails.value = false;
+                                Get.find<DriverOrderController>().update();
+                                controller.update();
+                              },
+                              child: Icon(
+                                Icons.arrow_back_outlined,
+                                color: AppColors.whiteColor,
+                              ),
+                            )
+                          : Container(),
+                      actions: [
+                        GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return DeletePopup(
+                                  isDelete: true,
+                                  onTap: () {
+                                    controller.logout();
+                                  },
+                                );
                               },
                             );
                           },
-                        );
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 1.8.h),
-                        child: Icon(
-                          Icons.login_outlined,
-                          color: AppColors.whiteColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                bottomNavigationBar: Container(
-                  color: Colors.white,
-                  child: Container(
-                    height: 10.h,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryColor,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(30),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ...List.generate(
-                          controller.iconDeliveryList.length,
-                          (index) => GestureDetector(
-                            onTap: () {
-                              controller.isSelected.value = index;
-                              if (controller.isOrderDetails.value) {
-                                controller.isOrderDetails.value = false;
-                              }
-                              controller.update();
-                            },
-                            child: Image.asset(
-                              controller.isSelected.value == index ? controller.selectedDeliveryIconList[index] : controller.iconDeliveryList[index],
-                              height: 3.5.h,
-                              width: 3.5.h,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 1.8.h),
+                            child: Icon(
+                              Icons.login_outlined,
+                              color: AppColors.whiteColor,
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-                body: Container(
-                  height: double.infinity,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColors.whiteColor,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(30),
+                    bottomNavigationBar: Container(
+                      color: Colors.white,
+                      child: Container(
+                        height: 10.h,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryColor,
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(30),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ...List.generate(
+                              controller.iconDeliveryList.length,
+                              (index) => GestureDetector(
+                                onTap: () {
+                                  controller.isSelected.value = index;
+                                  if (controller.isOrderDetails.value) {
+                                    controller.isOrderDetails.value = false;
+                                  }
+                                  controller.update();
+                                },
+                                child: Image.asset(
+                                  controller.isSelected.value == index ? controller.selectedDeliveryIconList[index] : controller.iconDeliveryList[index],
+                                  height: 3.5.h,
+                                  width: 3.5.h,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  child: Center(
-                    child: controller.screensDelivery[controller.isSelected.value],
-                  ),
-                ),
-              );
+                    body: Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppColors.whiteColor,
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(30),
+                        ),
+                      ),
+                      child: Center(
+                        child: controller.screensDelivery[controller.isSelected.value],
+                      ),
+                    ),
+                  )
+                : Container();
       },
     );
   }

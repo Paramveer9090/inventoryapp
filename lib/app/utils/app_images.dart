@@ -52,4 +52,5 @@ class AppImages {
   static const String ic_unpaid = "$imagePath/ic_unpaid.png";
   static const String deliverd = "$imagePath/deliverd.png";
   static const String pending = "$imagePath/pending.png";
+  static const String ic_delete = "$imagePath/ic_delete.png";
 }

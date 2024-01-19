@@ -399,9 +399,22 @@ class OrdersView extends GetView<OrdersController> {
                                                         controller.update();
                                                         if (controller.productList[index].id.toString() == controller.orderItemList[index].product_id.toString()) {
                                                           controller.orderItemList[index].quality!.text = await controller.productList[index].quantityCount!.text;
-                                                          cartStoreData.write(getStorageData.cartData, controller.orderItemList);
-                                                        }
+                                                          for (int i = 0; i < controller.orderItemList.length; i++) {
+                                                            if (controller.orderItemList[i].quality!.text != "0") {
+                                                              cartLength = cartLength + 1;
+                                                            }
+                                                          }
 
+                                                          await getStorageData.saveList(getStorageData.cartData, controller.orderItemList);
+                                                          await getStorageData.saveString("cartLength", cartLength);
+                                                        } else {
+                                                          print("else ma jai 6e");
+                                                        }
+                                                        // List<OrderItemResponseData> myList = [];
+                                                        // myList = await cartStoreData.read<List<OrderItemResponseData>>(getStorageData.cartData) ?? [];
+                                                        // for (int i = 0; i < myList.length; i++) {
+                                                        //   print(myList[i].quality!.text);
+                                                        // }
                                                         controller.update();
                                                       },
                                                       child: Container(
