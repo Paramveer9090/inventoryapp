@@ -188,7 +188,7 @@ class DashboardView extends GetView<DashboardController> {
                   title: "My Orders",
                   isImage: true,
                   image: AppImages.orders,
-                  onTap: () {
+                  onTap: () async {
                     Get.find<HomeController>().isSelected.value = 2;
                     Get.find<HomeController>().update();
                   },

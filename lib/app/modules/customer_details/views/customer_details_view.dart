@@ -173,6 +173,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                           Get.find<HomeController>().isCustomerDetails.value = false;
                           Get.find<HomeController>().addOrder.value = true;
                           Get.find<HomeController>().isSelected.value = 5;
+                          Get.find<HomeController>().isCustomerId.value = id;
                           Get.find<HomeController>().update();
                         },
                       ),

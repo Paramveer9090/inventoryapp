@@ -43,7 +43,7 @@ class CartView extends GetView<CartController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AppText(
-                          controller.orderItem[index].productName.toString(),
+                          controller.orderItem[index].name.toString(),
                           fontSize: 15.sp,
                         ),
                         AppText(
@@ -51,11 +51,13 @@ class CartView extends GetView<CartController> {
                           fontSize: 15.sp,
                           color: Color(0XFF44474d),
                         ),
-                        AppText(
-                          "Taxes: ${controller.orderItem[index].tax.toString()}%",
-                          fontSize: 15.sp,
-                          color: Color(0XFF44474d),
-                        ),
+                        controller.orderItem[index].taxDetail != null
+                            ? AppText(
+                                "Taxes: ${controller.orderItem[index].taxDetail!.tax.toString()}%",
+                                fontSize: 15.sp,
+                                color: Color(0XFF44474d),
+                              )
+                            : Container(),
                         SizedBox(height: 1.h),
                         Row(
                           children: [
@@ -70,12 +72,12 @@ class CartView extends GetView<CartController> {
                                       width: 15,
                                       padding: EdgeInsets.all(1.5),
                                       decoration: BoxDecoration(
-                                        color: (controller.orderItem[index].boxUnit == 0 && subIndex == 0) || (controller.orderItem[index].boxUnit == 1 && subIndex == 1) ? AppColors.tableColor : Color(0XFF44474d),
+                                        color: (controller.orderItem[index].isUnitSelected == 0 && subIndex == 0) || (controller.orderItem[index].isUnitSelected == 1 && subIndex == 1) ? AppColors.tableColor : Color(0XFF44474d),
                                         borderRadius: BorderRadius.circular(50),
                                       ),
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: (controller.orderItem[index].boxUnit == 0 && subIndex == 0) || (controller.orderItem[index].boxUnit == 1 && subIndex == 1) ? AppColors.tableColor : AppColors.whiteColor,
+                                          color: (controller.orderItem[index].isUnitSelected == 0 && subIndex == 0) || (controller.orderItem[index].isUnitSelected == 1 && subIndex == 1) ? AppColors.tableColor : AppColors.whiteColor,
                                           border: Border.all(
                                             color: AppColors.whiteColor,
                                           ),
@@ -119,7 +121,7 @@ class CartView extends GetView<CartController> {
                                   border: Border.all(
                                     color: Color(0xffe9e7ea),
                                   )),
-                              child: AppText(controller.orderItem[index].quality!.text),
+                              child: AppText(controller.orderItem[index].quantityCount.toString()),
                             ),
                             SizedBox(width: 1.h),
                             GestureDetector(

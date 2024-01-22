@@ -1,9 +1,11 @@
+import 'package:get_storage/get_storage.dart';
+import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
 import 'package:true_leaf_inventory_app/app/modules/orders/controllers/orders_controller.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 class CartController extends GetxController {
-  List<OrderItemResponseData> myList = [];
-  List<OrderItemResponseData> orderItem = [];
+  List<GetDataListResponseData> orderItem = [];
+  List<dynamic> jsonDataList = [];
 
   @override
   void onInit() {
@@ -13,38 +15,12 @@ class CartController extends GetxController {
 
   getCartData() async {
     print("it's a cart data");
-    print(getStorageData.readList(getStorageData.cartData));
-    // myList = await cartStoreData.read<List<OrderItemResponseData>>(getStorageData.cartData) ?? [];
-    myList = await getStorageData.readList(getStorageData.cartData) ?? [];
-
-    if (myList.isNotEmpty) {
-      for (int i = 0; i < myList.length; i++) {
-        print(myList[i].quality!.text);
-        print("myList[i].quality!.text");
-        if (myList[i].quality!.text != "0") {
-          orderItem.add(
-            OrderItemResponseData(
-              indexValue: i,
-              category_id: myList[i].category_id,
-              categoryName: myList[i].categoryName,
-              sub_category_id: myList[i].sub_category_id,
-              subCategoryName: myList[i].subCategoryName,
-              product_id: myList[i].product_id.toString(),
-              productName: myList[i].productName,
-              sellingPrice: myList[i].sellingPrice.toString(),
-              stock: myList[i].stock.toString(),
-              tax: myList[i].tax,
-              taxId: myList[i].taxId,
-              taxName: myList[i].taxName,
-              boxUnit: myList[i].boxUnit,
-              productImage: myList[i].productImage,
-              boxSize: myList[i].boxSize.toString(),
-              quality: TextEditingController(text: myList[i].quality!.text),
-            ),
-          );
-          update();
-        }
-      }
-    }
+    print(getStorageData.readObject("cartValueList"));
+    jsonDataList = await getStorageData.readObject("cartValueList");
+    orderItem = jsonDataList.map((item) => GetDataListResponseData.fromJson(item)).toList();
+    print(orderItem);
+    print(orderItem.length);
+    print("myListmyListmyListmyListmyList");
+    update();
   }
 }

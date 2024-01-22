@@ -1,7 +1,6 @@
 import 'package:true_leaf_inventory_app/app/modules/cart/views/cart_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/customers/controllers/customers_controller.dart';
 import 'package:true_leaf_inventory_app/app/modules/driver_order/controllers/driver_order_controller.dart';
-import 'package:true_leaf_inventory_app/app/modules/driver_order/views/driver_order_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/orders/views/orders_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/products/views/products_view.dart';
 
@@ -164,7 +163,7 @@ class HomeView extends GetView<HomeController> {
                                   ),
                                   child: Center(
                                     child: AppText(
-                                      cartLength.toString(),
+                                      "0",
                                       color: AppColors.whiteColor,
                                     ),
                                   ),
@@ -329,7 +328,7 @@ class HomeView extends GetView<HomeController> {
                       child: controller.isDrawerSelected.value == 1 && controller.isSelected.value == 4
                           ? ProductsView()
                           : controller.addOrder.value
-                              ? OrdersView()
+                              ? OrdersView(customerId: controller.isCustomerId.value)
                               : controller.isCart.value
                                   ? CartView()
                                   : controller.screens[controller.isSelected.value],

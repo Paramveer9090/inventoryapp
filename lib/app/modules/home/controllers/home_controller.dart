@@ -7,7 +7,7 @@ import 'package:true_leaf_inventory_app/app/modules/my_orders/views/my_orders_vi
 import '../../../widgets/all_import.dart';
 
 var accessToken;
-var cartLength = 0;
+// var cartLength = 0;
 
 class HomeController extends GetxController {
   final GlobalKey<ScaffoldState> key = GlobalKey();
@@ -15,6 +15,7 @@ class HomeController extends GetxController {
   LoginSignUpData? loginData;
   var isSelected = 0.obs;
   var isDrawerSelected = 0.obs;
+  var isCustomerId = "".obs;
   var addOrder = false.obs;
   var isCustomerDetails = false.obs;
   var isOrderDetails = false.obs;
@@ -85,14 +86,15 @@ class HomeController extends GetxController {
     AppStrings.changePassword,
   ];
 
+  var cartLength;
+  List dummyList = [];
+
   getLoginData() async {
     final data = await getStorageData.readObject(getStorageData.loginData);
     accessToken = await getStorageData.readString(Constants.access_token);
-    cartLength = getStorageData.readString("cartLength") ?? 0;
     if (data != null) {
       loginData = LoginSignUpData.fromJson(data);
     }
-
     update();
   }
 

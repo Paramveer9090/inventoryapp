@@ -1,6 +1,4 @@
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:true_leaf_inventory_app/app/utils/app_images.dart';
-
 import '../../../widgets/all_import.dart';
 
 class SplashView extends GetView<SplashController> {

@@ -52,9 +52,9 @@ class GetDataListResponseData {
   final String? delivery_note;
   final String? updatedAt;
   final dynamic deletedAt;
-  int? sellingPrice;
+  dynamic sellingPrice;
   int? stock;
-  int? maximumSellingPrice;
+  dynamic maximumSellingPrice;
   final Tax? taxDetail;
   int? boxSize;
   String? imageUrl;
@@ -68,7 +68,7 @@ class GetDataListResponseData {
   dynamic number;
   dynamic isEdit;
   String? date;
-  TextEditingController? quantityCount;
+  dynamic quantityCount;
   String? description;
   final dynamic productId;
   dynamic isUnitSelected;
@@ -225,11 +225,11 @@ class GetDataListResponseData {
         subCategoryType = json['subCategoryType'] ?? "",
         categoryType = json['categoryType'] ?? "",
         taxType = json['taxType'] ?? "",
-        sellingPrice = json['selling_price'] as int?,
+        sellingPrice = json['selling_price'],
         stock = json['stock'] as int?,
-        quantityCount = json['quantityCount'] ?? TextEditingController(text: "0"),
+        quantityCount = json['quantityCount'],
         orderPaid = json['order_paid'] as int?,
-        maximumSellingPrice = json['maximum_selling_price'] as int?,
+        maximumSellingPrice = json['maximum_selling_price'],
         boxSize = json['box_size'] as int?,
         imageUrl = json['image_url'] as String?,
         taxId = json['tax_id'] as int?,

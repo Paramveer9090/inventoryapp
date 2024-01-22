@@ -54,8 +54,8 @@ class GetStorageData {
   /// Save List
   saveList(String key, value) {
     final box = GetStorage();
-    // String allData = jsonEncode(value);
-    box.write(key, value);
+    String allData = jsonEncode(value);
+    box.write(key, allData);
   }
 
   readObject(String key) {
@@ -63,15 +63,6 @@ class GetStorageData {
     if (containKey(key) && box.read(key) != null) {
       var result = box.read(key);
       return jsonDecode(result);
-    }
-    return null;
-  }
-
-  readList(String key) {
-    final box = GetStorage();
-    if (containKey(key) && box.read(key) != null) {
-      List<OrderItemResponseData> result = box.read<List<OrderItemResponseData>>(getStorageData.cartData) ?? [];
-      return result;
     }
     return null;
   }

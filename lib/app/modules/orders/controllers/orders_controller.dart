@@ -6,7 +6,7 @@ class OrdersController extends GetxController {
   List<GetDataListResponseData> productList = <GetDataListResponseData>[];
   List<GetDataListResponseData> tempProductList = <GetDataListResponseData>[];
 
-  List<OrderItemResponseData> orderItemList = <OrderItemResponseData>[];
+  // List<OrderItemResponseData> orderItemList = <OrderItemResponseData>[];
 
   var cartIndex = 0;
 
@@ -27,6 +27,7 @@ class OrdersController extends GetxController {
   var subCategoryName = "".obs;
   var productName = "".obs;
   var productId = "".obs;
+  TextEditingController quantityText = TextEditingController();
 
   @override
   void onInit() {
@@ -56,6 +57,7 @@ class OrdersController extends GetxController {
     if (model.data!.isNotEmpty) {
       categoryList = model.data!;
       print("sub category get thy 6e");
+      print("sub category length ${categoryList.length}");
       noData.value = "";
       update();
     } else {
@@ -115,33 +117,33 @@ class OrdersController extends GetxController {
             taxId: tempProductList[i].taxId,
             subCategoryId: tempProductList[i].subCategoryId,
             productImage: tempProductList[i].productImage,
-            quantityCount: TextEditingController(text: "0"),
+            quantityCount: "0",
             isUnitSelected: 1,
             taxDetail: Tax(
               tax: tempProductList[i].taxDetail!.tax,
             ),
           ),
         );
-        orderItemList.add(
-          OrderItemResponseData(
-            indexValue: i,
-            category_id: categoryId.value,
-            categoryName: categoryName.value,
-            sub_category_id: subCategoryId.toString(),
-            subCategoryName: subCategoryName.value,
-            product_id: tempProductList[i].id.toString(),
-            productName: tempProductList[i].name,
-            sellingPrice: tempProductList[i].sellingPrice.toString(),
-            stock: tempProductList[i].stock.toString(),
-            tax: tempProductList[i].taxDetail?.tax,
-            taxId: tempProductList[i].taxDetail?.id.toString(),
-            taxName: tempProductList[i].taxDetail?.title,
-            boxUnit: tempProductList[i].isUnitSelected,
-            productImage: tempProductList[i].imageUrl,
-            boxSize: tempProductList[i].boxSize.toString(),
-            quality: TextEditingController(text: tempProductList[i].quantityCount!.text),
-          ),
-        );
+        // orderItemList.add(
+        //   OrderItemResponseData(
+        //     indexValue: i,
+        //     category_id: categoryId.value,
+        //     categoryName: categoryName.value,
+        //     sub_category_id: subCategoryId.toString(),
+        //     subCategoryName: subCategoryName.value,
+        //     product_id: tempProductList[i].id.toString(),
+        //     productName: tempProductList[i].name,
+        //     sellingPrice: tempProductList[i].sellingPrice.toString(),
+        //     stock: tempProductList[i].stock.toString(),
+        //     tax: tempProductList[i].taxDetail?.tax,
+        //     taxId: tempProductList[i].taxDetail?.id.toString(),
+        //     taxName: tempProductList[i].taxDetail?.title,
+        //     boxUnit: tempProductList[i].isUnitSelected,
+        //     productImage: tempProductList[i].imageUrl,
+        //     boxSize: tempProductList[i].boxSize.toString(),
+        //     quality: TextEditingController(text: tempProductList[i].quantityCount!.text),
+        //   ),
+        // );
         update();
       } else if (tempProductList[i].categoryId.toString() == subCategoryId.toString() && tempProductList[i].categoryId != null && type == "category") {
         productList.add(
@@ -150,7 +152,7 @@ class OrdersController extends GetxController {
             name: tempProductList[i].name,
             sellingPrice: tempProductList[i].sellingPrice,
             stock: tempProductList[i].stock,
-            quantityCount: TextEditingController(text: "0"),
+            quantityCount: "0",
             createdAt: tempProductList[i].createdAt,
             updatedAt: tempProductList[i].updatedAt,
             deletedAt: tempProductList[i].deletedAt,
@@ -168,33 +170,47 @@ class OrdersController extends GetxController {
             ),
           ),
         );
-        orderItemList.add(
-          OrderItemResponseData(
-            indexValue: i,
-            category_id: categoryId.value,
-            categoryName: categoryName.value,
-            sub_category_id: subCategoryId.value,
-            subCategoryName: subCategoryName.value,
-            product_id: tempProductList[i].id.toString(),
-            productName: tempProductList[i].name,
-            sellingPrice: tempProductList[i].sellingPrice.toString(),
-            stock: tempProductList[i].stock.toString(),
-            tax: tempProductList[i].taxDetail?.tax,
-            taxId: tempProductList[i].taxDetail?.id.toString(),
-            taxName: tempProductList[i].taxDetail?.title,
-            boxUnit: tempProductList[i].isUnitSelected,
-            boxSize: tempProductList[i].boxSize.toString(),
-            productImage: tempProductList[i].imageUrl,
-            quality: TextEditingController(text: tempProductList[i].quantityCount!.text),
-          ),
-        );
+        // orderItemList.add(
+        //   OrderItemResponseData(
+        //     indexValue: i,
+        //     category_id: categoryId.value,
+        //     categoryName: categoryName.value,
+        //     sub_category_id: subCategoryId.value,
+        //     subCategoryName: subCategoryName.value,
+        //     product_id: tempProductList[i].id.toString(),
+        //     productName: tempProductList[i].name,
+        //     sellingPrice: tempProductList[i].sellingPrice.toString(),
+        //     stock: tempProductList[i].stock.toString(),
+        //     tax: tempProductList[i].taxDetail?.tax,
+        //     taxId: tempProductList[i].taxDetail?.id.toString(),
+        //     taxName: tempProductList[i].taxDetail?.title,
+        //     boxUnit: tempProductList[i].isUnitSelected,
+        //     boxSize: tempProductList[i].boxSize.toString(),
+        //     productImage: tempProductList[i].imageUrl,
+        //     quality: TextEditingController(text: tempProductList[i].quantityCount!.text),
+        //   ),
+        // );
         update();
       }
+      print("productList length");
+      print(productList.length);
     }
   }
 }
 
 /// model
+class OrderItemResponseModel {
+  final List<OrderItemResponseData>? orderDataList;
+
+  OrderItemResponseModel({this.orderDataList});
+
+  OrderItemResponseModel.fromJson(Map<String, dynamic> json) : orderDataList = (json['orderDataList'] as List?)?.map((dynamic e) => OrderItemResponseData.fromJson(e as Map<String, dynamic>)).toList();
+
+  Map<String, dynamic> toJson() => {
+        'orderDataList': orderDataList?.map((e) => e.toJson()).toList(),
+      };
+}
+
 class OrderItemResponseData {
   int? indexValue;
   String? categoryName;
@@ -235,4 +251,45 @@ class OrderItemResponseData {
     this.tax,
     this.indexValue,
   });
+
+  OrderItemResponseData.fromJson(Map<String, dynamic> json)
+      : categoryName = json['categoryName'],
+        category_id = json['category_id'],
+        productImage = json['productImage'],
+        amountWithoutTax = json['amountWithoutTax'],
+        subCategoryName = json['subCategoryName'],
+        amountOnlyTax = json['amountOnlyTax'],
+        stock = json['stock'],
+        product_id = json['product_id'],
+        boxSize = json['boxSize'],
+        taxName = json['taxName'],
+        sub_category_id = json['sub_category_id'],
+        productName = json['productName'],
+        taxId = json['taxId'],
+        boxUnit = json['boxUnit'],
+        quality = json['quality'],
+        sellingPrice = json['sellingPrice'],
+        indexValue = json['indexValue'],
+        tax = json['tax'];
+
+  Map<String, dynamic> toJson() => {
+        'categoryName': categoryName,
+        'category_id': category_id,
+        'productImage': productImage,
+        'amountWithoutTax': amountWithoutTax,
+        'subCategoryName': subCategoryName,
+        'amountOnlyTax': amountOnlyTax,
+        'stock': stock,
+        'product_id': product_id,
+        'boxSize': boxSize,
+        'taxName': taxName,
+        'sub_category_id': sub_category_id,
+        'productName': productImage,
+        'taxId': taxId,
+        'boxUnit': boxUnit,
+        'quality': quality,
+        'sellingPrice': sellingPrice,
+        'tax': tax,
+        'indexValue': indexValue,
+      };
 }

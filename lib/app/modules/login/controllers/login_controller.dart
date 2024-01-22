@@ -28,6 +28,7 @@ class LoginController extends GetxController {
         if (model.data![0].roles![0].title != "Admin" && model.data![0].roles![0].title != "Website Admin") {
           getStorageData.saveString(Constants.access_token, model.accessToken);
           getStorageData.saveString(Constants.login_id, model.data![0].id);
+
           await getStorageData.saveObject(getStorageData.loginData, model.data![0]);
           Get.offAllNamed(Routes.HOME);
         } else {
