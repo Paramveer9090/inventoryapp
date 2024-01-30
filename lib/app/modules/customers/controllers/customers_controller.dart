@@ -1,5 +1,4 @@
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
-import 'package:true_leaf_inventory_app/app/models/report_model.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 class CustomersController extends GetxController {
@@ -12,6 +11,19 @@ class CustomersController extends GetxController {
   void onInit() {
     getCustomerAPI();
     super.onInit();
+  }
+
+  deleteCartAPI() async {
+    final data = await APIFunction().apiCall(
+      apiName: "${Constants.cart}/$customerCartId",
+      context: Get.context!,
+      token: accessToken,
+      type: "delete",
+    );
+    cartLength = "0";
+    Get.find<HomeController>().isCustomerDetails.value = true;
+    Get.find<HomeController>().update();
+    update();
   }
 
   /// get Customer API

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 class APIFunction {
@@ -22,7 +24,7 @@ class APIFunction {
       );
       return response;
     } else if (type == "put") {
-      print("rawData -------->>> ${rawData}");
+      log("rawData -------->>> ${rawData}");
       var response = await HttpUtil(token!, isLoading, context).put(
         apiName,
         data: rawData,

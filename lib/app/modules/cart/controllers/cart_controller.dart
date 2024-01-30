@@ -1,26 +1,203 @@
-import 'package:get_storage/get_storage.dart';
-import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
-import 'package:true_leaf_inventory_app/app/modules/orders/controllers/orders_controller.dart';
+import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 class CartController extends GetxController {
-  List<GetDataListResponseData> orderItem = [];
-  List<dynamic> jsonDataList = [];
+  List<CartDetails> orderItemList = [];
+  GetDetailsData? getDetailsData;
+  var isCongratulations = false.obs;
+  var amountTax;
+  var amount;
+  var orderTotal = "".obs;
+  var orderTax = "".obs;
+  var orderFinalTotal = "".obs;
+  LoginSignUpData? loginData;
+  var isAddedData = false.obs;
+  var isWrongData = false.obs;
+  var productName = "".obs;
+  var productId = "".obs;
+  var noData = "".obs;
 
   @override
   void onInit() {
+    getLoginData();
     getCartData();
     super.onInit();
   }
 
+  getLoginData() async {
+    final data = getStorageData.readObject(getStorageData.loginData);
+    if (data != null) {
+      loginData = LoginSignUpData.fromJson(data);
+    }
+    update();
+  }
+
+  deleteCartAPI({id, index}) async {
+    Get.back();
+    print(customerCartId);
+    print(id);
+    final data = await APIFunction().apiCall(
+      apiName: "${Constants.cart}/$customerCartId/$id",
+      context: Get.context!,
+      token: accessToken,
+      type: "delete",
+    );
+    await orderItemList.removeAt(index);
+
+    for (int i = 0; i < orderItemList.length; i++) {
+      if (orderItemList[i].isBox == 1) {
+        amountTax = (((double.parse(orderItemList[i].boxSize.toString()) * double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price!.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
+        amount = (double.parse(orderItemList[i].boxSize.toString()) * double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price!.toString());
+        orderItemList[i].amountWithoutTax = amount.toString();
+        orderItemList[i].amountOnlyTax = amountTax.toString();
+        orderItemList[i].finalAmount = (amount + amountTax).toString();
+      } else {
+        amountTax = ((double.parse(orderItemList[i].quantity.toString()) * double.parse(orderItemList[i].price.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
+        amount = (double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price.toString());
+        orderItemList[i].amountWithoutTax = amount.toString();
+        orderItemList[i].amountOnlyTax = amountTax.toString();
+        orderItemList[i].finalAmount = (amount + amountTax).toString();
+      }
+    }
+
+    orderTotal.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
+    orderTax.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
+    orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toString();
+
+    cartLength = (int.parse(cartLength) - 1).toString();
+    update();
+  }
+
+  deleteCartListAPI() async {
+    final data = await APIFunction().apiCall(
+      apiName: "${Constants.cart}/$customerCartId",
+      context: Get.context!,
+      token: accessToken,
+      type: "delete",
+    );
+    cartLength = "0";
+    update();
+  }
+
   getCartData() async {
-    print("it's a cart data");
-    print(getStorageData.readObject("cartValueList"));
-    jsonDataList = await getStorageData.readObject("cartValueList");
+    if (await customerCartId.isEmpty) {
+      customerCartId = "0";
+    } else {
+      customerCartId = customerCartId;
+    }
+    update();
+    final data = await APIFunction().apiCall(
+      apiName: "${Constants.cart}/${customerCartId}",
+      context: Get.context!,
+      token: accessToken,
+      type: "get",
+    );
+
+    GetDetailsResponseModel model = GetDetailsResponseModel.fromJson(data);
+
+    if (model.data!.cartDetails!.isNotEmpty) {
+      noData.value = "";
+      getDetailsData = await model.data!;
+      orderItemList = await model.data!.cartDetails!;
+
+      for (int i = 0; i < orderItemList.length; i++) {
+        if (orderItemList[i].isBox == 1) {
+          amountTax = (((double.parse(orderItemList[i].boxSize.toString()) * double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price!.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
+          amount = (double.parse(orderItemList[i].boxSize.toString()) * double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price!.toString());
+          orderItemList[i].amountWithoutTax = amount.toString();
+          orderItemList[i].amountOnlyTax = amountTax.toString();
+          orderItemList[i].finalAmount = (amount + amountTax).toString();
+        } else {
+          amountTax = ((double.parse(orderItemList[i].quantity.toString()) * double.parse(orderItemList[i].price.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
+          amount = (double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price.toString());
+          orderItemList[i].amountWithoutTax = amount.toString();
+          orderItemList[i].amountOnlyTax = amountTax.toString();
+          orderItemList[i].finalAmount = (amount + amountTax).toString();
+        }
+      }
+
+      orderTotal.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
+      orderTax.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
+      orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toString();
+
+      update();
+    } else {
+      noData.value = "No data found";
+      print("In else part");
+      update();
+    }
+  }
+
+  postOrderAPI() async {
+    List categoryList = [];
+    List subCategoryList = [];
+    List productList = [];
+    List packageList = [];
+    List quantityList = [];
+    List salesPriceList = [];
+    List taxList = [];
+    List isBoxList = [];
+    List descriptionList = [];
+    for (int i = 0; i < orderItemList.length; i++) {
+      categoryList.add(orderItemList[i].categoryId);
+      subCategoryList.add(orderItemList[i].subCategoryId);
+      productList.add(orderItemList[i].productId);
+      packageList.add(orderItemList[i].boxSize);
+      quantityList.add(orderItemList[i].quantity);
+      salesPriceList.add(orderItemList[i].price);
+      taxList.add(orderItemList[i].taxId);
+      isBoxList.add(orderItemList[i].isBox);
+      descriptionList.add(orderItemList[i].description!.text);
+    }
+
+    if (categoryList.isNotEmpty) {
+      try {
+        String rawData =
+            '{"sales_manager_id": ${loginData!.id},"customer_id": "${getDetailsData!.customerId}","item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${0},"extra_discount": "${0}","order_total": "${orderFinalTotal.value}","comments": "${descriptionList}","delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${DateTime.now().toString().split(".").first}"}';
+
+        final data = await APIFunction().apiCall(
+          apiName: Constants.orders,
+          context: Get.context!,
+          token: accessToken,
+          type: "expense",
+          rawData: rawData,
+        );
+
+        GetDetailsResponseModel model = GetDetailsResponseModel.fromJson(data);
+
+        if (model.data != null) {
+          isCongratulations.value = true;
+          deleteCartListAPI();
+          update();
+        } else {
+          print("In else part");
+        }
+      } on Exception catch (error) {
+        utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
+      }
+    }
+  }
+
+// deleteCartAPI() async {
+//   final data = await APIFunction().apiCall(
+//     apiName: "${Constants.cart}/$customerCartId",
+//     context: Get.context!,
+//     token: accessToken,
+//     type: "delete",
+//   );
+//   cartLength = "0";
+//   update();
+// }
+}
+
+/*getCartData() async {
+  List<dynamic> jsonDataList = [];
+    print("fkjrfiwejfiwejfiejwf");
+
+    jsonDataList = await getStorageData.readObject("cartValueList") ?? [];
     orderItem = jsonDataList.map((item) => GetDataListResponseData.fromJson(item)).toList();
-    print(orderItem);
+    log(jsonEncode(orderItem));
     print(orderItem.length);
     print("myListmyListmyListmyListmyList");
     update();
-  }
-}
+  }*/

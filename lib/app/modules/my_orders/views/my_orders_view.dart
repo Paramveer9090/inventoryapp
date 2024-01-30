@@ -1,5 +1,7 @@
 import 'package:intl/intl.dart';
+import 'package:true_leaf_inventory_app/app/modules/order_details/controllers/order_details_controller.dart';
 import 'package:true_leaf_inventory_app/app/modules/order_details/views/order_details_view.dart';
+import 'package:true_leaf_inventory_app/app/modules/orders/controllers/orders_controller.dart';
 import '../../../widgets/all_import.dart';
 
 class MyOrdersView extends GetView<MyOrdersController> {
@@ -310,7 +312,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                       fontSize: 11.sp,
                                     )),
                                     DataCell(AppText(
-                                      orderReport.value.payment!.orderNumber.toString(),
+                                      orderReport.value.id.toString(),
                                       color: AppColors.whiteColor,
                                       fontSize: 11.sp,
                                     )),
@@ -333,6 +335,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                       CustomTableCellActionButtons(
                                         showDeleteButton: false,
                                         isWhite: true,
+                                        showEditButton: orderReport.value.payment!.paymentStatus == "0" && controller.loginData!.id == orderReport.value.salesManagerId ? true : false,
                                         onView: () {
                                           controller.id.value = orderReport.value.id.toString();
                                           Get.find<HomeController>().isOrderDetails.value = true;
@@ -340,11 +343,15 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                           controller.update();
                                         },
                                         onEdit: () {
-                                          // Get.toNamed(Routes.ADD_ORDER, arguments: {
-                                          // "id": orderReport.value.id.toString(),
-                                          // })?.then((value) {
-                                          // controller.getOrderReportAPI(isLoading: false);
-                                          // });
+                                          controller.id.value = orderReport.value.id.toString();
+                                          Get.put(OrdersController());
+                                          Get.find<HomeController>().isOrderDetails.value = true;
+                                          Get.find<HomeController>().isOrderEdit.value = true;
+                                          Get.find<HomeController>().isCustomerId.value = orderReport.value.id.toString();
+                                          orderId = orderReport.value.id.toString();
+                                          Get.find<HomeController>().update();
+                                          Get.find<OrdersController>().update();
+                                          controller.update();
                                         },
                                         onDelete: () {},
                                       ),

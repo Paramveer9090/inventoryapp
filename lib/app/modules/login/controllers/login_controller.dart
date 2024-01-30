@@ -1,8 +1,8 @@
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 class LoginController extends GetxController {
-  TextEditingController email = TextEditingController(text: "tejas+sales@test.com");
-  TextEditingController password = TextEditingController(text: "Maven@123");
+  TextEditingController email = TextEditingController(/*text: "tejas+sales@test.com"*/);
+  TextEditingController password = TextEditingController(/*text: "Maven@123"*/);
 
   @override
   void onInit() {

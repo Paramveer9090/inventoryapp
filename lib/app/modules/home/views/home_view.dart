@@ -40,13 +40,15 @@ class HomeView extends GetView<HomeController> {
                           ? AppStrings.productDetails
                           : controller.addOrder.value
                               ? AppStrings.orders
-                              : controller.isCustomerDetails.value
-                                  ? AppStrings.customersDetails
+                              : controller.isOrderDetails.value && controller.isOrderEdit.value
+                                  ? AppStrings.editOrder
                                   : controller.isOrderDetails.value
                                       ? AppStrings.orderDetail
                                       : controller.isCart.value
                                           ? AppStrings.cart
-                                          : controller.titleList[controller.isSelected.value],
+                                          : controller.isCustomerDetails.value
+                                              ? AppStrings.customersDetails
+                                              : controller.titleList[controller.isSelected.value],
                       fontSize: 14.sp,
                       color: AppColors.whiteColor,
                     ),
@@ -104,11 +106,12 @@ class HomeView extends GetView<HomeController> {
                                   color: AppColors.whiteColor,
                                 ),
                               )
-                            : controller.isCustomerDetails.value
+                            : controller.isOrderDetails.value && controller.isOrderEdit.value
                                 ? GestureDetector(
                                     onTap: () {
-                                      controller.isCustomerDetails.value = false;
-                                      Get.find<CustomersController>().update();
+                                      controller.isOrderDetails.value = false;
+                                      controller.isOrderEdit.value = false;
+                                      Get.find<MyOrdersController>().update();
                                       controller.update();
                                     },
                                     child: Icon(
@@ -128,51 +131,65 @@ class HomeView extends GetView<HomeController> {
                                           color: AppColors.whiteColor,
                                         ),
                                       )
-                                    : Container(),
+                                    : controller.isCustomerDetails.value
+                                        ? GestureDetector(
+                                            onTap: () {
+                                              controller.isCustomerDetails.value = false;
+                                              Get.find<CustomersController>().update();
+                                              controller.update();
+                                            },
+                                            child: Icon(
+                                              Icons.arrow_back_outlined,
+                                              color: AppColors.whiteColor,
+                                            ),
+                                          )
+                                        : Container(),
                     actions: [
-                      GestureDetector(
-                        onTap: () async {
-                          if (await controller.addOrder.value) {
-                            controller.addOrder.value = false;
-                          }
-                          if (await controller.isCustomerDetails.value) {
-                            controller.isCustomerDetails.value = false;
-                          }
+                      controller.isCart.value
+                          ? Container()
+                          : GestureDetector(
+                              onTap: () async {
+                                if (await controller.addOrder.value) {
+                                  controller.addOrder.value = false;
+                                }
+                                if (await controller.isCustomerDetails.value) {
+                                  controller.isCustomerDetails.value = false;
+                                }
 
-                          controller.isCart.value = true;
-                          controller.update();
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 2.2.h),
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Image.asset(
-                                AppImages.ic_cart,
-                                height: 3.h,
-                                width: 3.h,
-                              ),
-                              Positioned(
-                                top: -15,
-                                right: -10,
-                                child: Container(
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: Color(0xffba1a1a),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Center(
-                                    child: AppText(
-                                      "0",
-                                      color: AppColors.whiteColor,
+                                controller.isCart.value = true;
+                                controller.update();
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 2.2.h),
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    Image.asset(
+                                      AppImages.ic_cart,
+                                      height: 3.h,
+                                      width: 3.h,
                                     ),
-                                  ),
+                                    Positioned(
+                                      top: -15,
+                                      right: -10,
+                                      child: Container(
+                                        padding: EdgeInsets.all(5),
+                                        decoration: BoxDecoration(
+                                          color: Color(0xffba1a1a),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          child: AppText(
+                                            cartLength,
+                                            color: AppColors.whiteColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
+                            ),
                     ],
                   ),
                   bottomNavigationBar: Container(
@@ -203,6 +220,13 @@ class HomeView extends GetView<HomeController> {
                                 }
                                 if (controller.isCart.value) {
                                   controller.isCart.value = false;
+                                }
+                                if (controller.isOrderDetails.value && controller.isOrderEdit.value) {
+                                  controller.isOrderDetails.value = false;
+                                  controller.isOrderEdit.value = false;
+                                }
+                                if (controller.isOrderDetails.value) {
+                                  controller.isOrderDetails.value = false;
                                 }
 
                                 controller.isSelected.value = index;

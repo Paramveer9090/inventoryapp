@@ -165,11 +165,13 @@ class DashboardView extends GetView<DashboardController> {
                               controller.update();
                             },
                             onEdit: () {
-                              // Get.toNamed(Routes.ADD_ORDER, arguments: {
-                              // "id": orderReport.value.id.toString(),
-                              // })?.then((value) {
-                              // controller.getOrderReportAPI(isLoading: false);
-                              // });
+                              Get.put(MyOrdersController());
+                              Get.find<MyOrdersController>().id.value = orderReport.value.id.toString();
+                              Get.find<HomeController>().isSelected.value = 2;
+                              Get.find<HomeController>().isOrderDetails.value = true;
+                              Get.find<HomeController>().isOrderEdit.value = true;
+                              Get.find<HomeController>().update();
+                              controller.update();
                             },
                             onDelete: () {},
                           ),

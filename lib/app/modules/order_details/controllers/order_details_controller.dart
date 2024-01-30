@@ -1,19 +1,28 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
+import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
-import 'dart:ui' as ui;
 
 class OrderDetailsController extends GetxController {
-  final id;
+  var id;
 
   OrderDetailsController({this.id});
 
   final GlobalKey<SfSignaturePadState> signatureGlobalKey = GlobalKey();
 
   GetDetailsData? getDetailsData;
-  List<OrderItem> orderItem = <OrderItem>[];
+  List<GetDataListResponseData> orderItem = [];
+  TextEditingController comments = TextEditingController();
+
   LoginSignUpData? loginData;
+  var signImage = "".obs;
+  var isApiData = true.obs;
+  var isWrongData = false.obs;
 
   @override
   void onInit() {
@@ -22,16 +31,28 @@ class OrderDetailsController extends GetxController {
   }
 
   getLoginData() async {
-    final data = getStorageData.readObject(getStorageData.loginData);
+    final data = await getStorageData.readObject(getStorageData.loginData);
     if (data != null) {
       loginData = LoginSignUpData.fromJson(data);
     }
     update();
   }
 
+  var imageEncoded = "".obs;
+
+  handleSaveButtonPressed() async {
+    final data = await signatureGlobalKey.currentState!.toImage(pixelRatio: 3.0);
+    final bytes = await data.toByteData(format: ui.ImageByteFormat.png);
+    imageEncoded.value = base64.encode(bytes!.buffer.asUint8List());
+    update();
+  }
+
   /// Order Details
   orderDetails() async {
     await getLoginData();
+    if (id == null) {
+      id = orderId;
+    }
     final data = await APIFunction().apiCall(
       apiName: "${Constants.orders}/${id}",
       context: Get.context!,
@@ -42,28 +63,200 @@ class OrderDetailsController extends GetxController {
 
     GetDetailsResponseModel model = GetDetailsResponseModel.fromJson(data);
 
-    if (model.data != null) {
-      getDetailsData = model.data!;
-      orderItem = model.data!.orderItem!;
-      handleSaveButtonPressed();
+    if (model.order != null) {
+      getDetailsData = model.order!;
+      orderItem = model.order!.orderItem!;
+      encodeData(imageUrl: model.order?.customerSign?.split(",").last);
+
+      /// count
+
+      var amountTax;
+      var amount;
+      for (int i = 0; i < orderItem.length; i++) {
+        if (orderItem[i].isBox == 1) {
+          amountTax = (((double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
+          amount = (double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString());
+          orderItem[i].amountWithoutTax = amount.toString();
+          orderItem[i].amountOnlyTax = amountTax.toString();
+          orderItem[i].finalAmount = (amount + amountTax).toString();
+        } else {
+          amountTax = ((double.parse(orderItem[i].quantityCount.toString()) * double.parse(orderItem[i].salePrice.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
+          amount = (double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice.toString());
+          orderItem[i].amountWithoutTax = amount.toString();
+          orderItem[i].amountOnlyTax = amountTax.toString();
+          orderItem[i].finalAmount = (amount + amountTax).toString();
+        }
+      }
+
       update();
     } else {
       update();
     }
   }
 
-  var bytes;
-  Uint8List? decodedImage;
+  Uint8List? bytesImage;
 
-  handleSaveButtonPressed() async {
-    String image =
-        'data:image/png;base64,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';
-    var bs64 = base64.encode(utf8.encode(image));
+  encodeData({imageUrl}) {
+    if (imageUrl != null) {
+      String _imgString = imageUrl;
+      bytesImage = Base64Decoder().convert(_imgString);
 
-    decodedImage = base64.decode(bs64);
+      update();
+    }
+  }
 
-    print(decodedImage);
-    print("decodedImagedecodedImage");
+  getFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      imageFile.value = result.files.single.path!;
+      print(file);
+      print(imageFile.value);
+      print("filefilefilefilefilefilefile");
+      if (imageFile.isNotEmpty) {
+        uploadFileAPI();
+      }
+    }
+    update();
+  }
+
+  var fileURL = "".obs;
+  var imageFile = "".obs;
+
+  uploadFileAPI() async {
+    try {
+      FormData formData = FormData.fromMap({
+        "upload_image": MultipartFile.fromFileSync(imageFile.value, filename: imageFile.value.split("/").last),
+      });
+
+      final data = await APIFunction().apiCall(
+        apiName: Constants.uploadImage,
+        context: Get.context!,
+        token: accessToken,
+        params: formData,
+      );
+
+      GetDetailsResponseModel model = GetDetailsResponseModel.fromJson(data);
+
+      if (model.data != null) {
+        fileURL.value = await model.data!.imageUrl!;
+        print(fileURL.value);
+        print("fileURL.value");
+        update();
+      } else {
+        print("In else part");
+      }
+    } on Exception catch (error) {
+      utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
+    }
+  }
+
+  editOrderAPI() async {
+    print("after call api call");
+    List categoryList = [];
+    List subCategoryList = [];
+    List productList = [];
+    List packageList = [];
+    List quantityList = [];
+    List salesPriceList = [];
+    List taxList = [];
+    List isBoxList = [];
+    List commentList = [];
+    for (int i = 0; i < orderItem.length; i++) {
+      categoryList.add(orderItem[i].categoryId);
+      subCategoryList.add(orderItem[i].subCategoryId);
+      productList.add(orderItem[i].productId);
+      packageList.add(orderItem[i].boxSize);
+      quantityList.add(orderItem[i].quantityCount);
+      salesPriceList.add(orderItem[i].sellingPrice);
+      taxList.add(orderItem[i].taxId);
+      isBoxList.add(orderItem[i].isBox);
+      commentList.add(orderItem[i].comment?.text);
+    }
+    update();
+
+    if (categoryList.isNotEmpty) {
+      try {
+        String rawData =
+            '{"sales_manager_id": "${getDetailsData!.salesManagerId}","customer_id": "${getDetailsData!.customerId}","item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${getDetailsData!.orderTotalWithoutTax},"order_tax": ${getDetailsData!.orderTax},"discount_type": ${getDetailsData!.discountType},"extra_discount": "${getDetailsData!.extraDiscount}","order_total": "${getDetailsData!.orderTotal}","comment": ${jsonEncode(commentList)},"comments": "${comments.text}","delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${signImage.value.isNotEmpty ? signImage.value : getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${getDetailsData!.orderDate!.split(".").first}","delivery_pic":"${fileURL.value}"}';
+
+        final data = await APIFunction().apiCall(
+          apiName: "${Constants.orders}/${id}",
+          context: Get.context!,
+          token: accessToken,
+          type: "put",
+          rawData: rawData,
+        );
+
+        GetDetailsResponseModel model = GetDetailsResponseModel.fromJson(data);
+
+        if (model.data != null) {
+          Get.find<HomeController>().isOrderEdit.value = false;
+          Get.find<HomeController>().isOrderDetails.value = false;
+          Get.find<MyOrdersController>().update();
+          Get.find<HomeController>().update();
+          update();
+        } else {
+          print("In else part");
+        }
+      } on Exception catch (error) {
+        utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
+      }
+    }
+  }
+
+  /// delete product
+
+  deleteProduct({index}) {
+    var amountTax;
+    var amount;
+
+    for (int i = 0; i < orderItem.length; i++) {
+      if (orderItem[i].isBox == 1) {
+        amountTax = (((double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
+        amount = (double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString());
+        orderItem[i].amountWithoutTax = amount.toString();
+        orderItem[i].amountOnlyTax = amountTax.toString();
+        orderItem[i].finalAmount = (amount + amountTax).toString();
+      } else {
+        amountTax = ((double.parse(orderItem[i].quantityCount.toString()) * double.parse(orderItem[i].salePrice.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
+        amount = (double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice.toString());
+        orderItem[i].amountWithoutTax = amount.toString();
+        orderItem[i].amountOnlyTax = amountTax.toString();
+        orderItem[i].finalAmount = (amount + amountTax).toString();
+      }
+    }
+    var orderTotalWithoutTax;
+    orderTotalWithoutTax = orderItem.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()));
+    getDetailsData!.orderTotalWithoutTax = orderTotalWithoutTax - double.parse(orderItem[index].amountWithoutTax);
+    var orderTax;
+    orderTax = orderItem.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()));
+    getDetailsData!.orderTax = orderTax - double.parse(orderItem[index].amountOnlyTax);
+
+    getDetailsData!.orderTotal = double.parse(getDetailsData!.orderTotalWithoutTax.toString()) + double.parse(getDetailsData!.orderTax.toString());
+
+    orderItem.removeAt(index);
     update();
   }
 }
+
+// if (isApiData.value == false) {
+//   if (addProductList.isNotEmpty) {
+//     for (int i = 0; i < addProductList.length; i++) {
+//       print("list add thy 6e");
+//       print(addProductList[i].sellingPrice);
+//       print(addProductList[i].tax);
+//       print(addProductList[i].isBox);
+//       print(addProductList[i].quantity);
+//       orderItem.add(
+//         OrderItem(
+//           name: addProductList[i].name,
+//           sellingPrice: addProductList[i].sellingPrice,
+//           tax: addProductList[i].tax,
+//           isBox: addProductList[i].isBox,
+//           quantity: addProductList[i].quantity,
+//         ),
+//       );
+//     }
+//   }
+// }

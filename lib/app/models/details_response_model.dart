@@ -1,15 +1,33 @@
+import 'package:flutter/cupertino.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
+
+import 'login_signup_response_model.dart';
 
 class GetDetailsResponseModel {
   final GetDetailsData? data;
+  final GetDetailsData? order;
+  final Role? role;
+  final int? creditBalance;
 
   GetDetailsResponseModel({
     this.data,
+    this.order,
+    this.role,
+    this.creditBalance,
   });
 
-  GetDetailsResponseModel.fromJson(Map<String, dynamic> json) : data = (json['data'] as Map<String, dynamic>?) != null ? GetDetailsData.fromJson(json['data'] as Map<String, dynamic>) : null;
+  GetDetailsResponseModel.fromJson(Map<String, dynamic> json)
+      : data = (json['data'] as Map<String, dynamic>?) != null ? GetDetailsData.fromJson(json['data'] as Map<String, dynamic>) : null,
+        order = (json['order'] as Map<String, dynamic>?) != null ? GetDetailsData.fromJson(json['order'] as Map<String, dynamic>) : null,
+        role = (json['role'] as Map<String, dynamic>?) != null ? Role.fromJson(json['role'] as Map<String, dynamic>) : null,
+        creditBalance = json['credit_balance'] as int?;
 
-  Map<String, dynamic> toJson() => {'data': data?.toJson()};
+  Map<String, dynamic> toJson() => {
+        'data': data?.toJson(),
+        'order': order?.toJson(),
+        'role': role?.toJson(),
+        'credit_balance': creditBalance,
+      };
 }
 
 class GetDetailsData {
@@ -59,7 +77,7 @@ class GetDetailsData {
   final String? dueDate;
   final dynamic expenseTotal;
   final dynamic expenseTax;
-  final List<OrderItem>? orderItem;
+  final List<GetDataListResponseData>? orderItem;
   final dynamic poFile;
   final Supplier? supplier;
   final dynamic invoiceId;
@@ -67,21 +85,29 @@ class GetDetailsData {
   final dynamic amount;
   final dynamic expenseId;
   final String? orderId;
-  final dynamic orderTotal;
-  final String? comments;
+  dynamic orderTotal;
+  dynamic comments;
   final String? deliveryNote;
   final String? customerSign;
-
   final dynamic salesManagerId;
   final dynamic customerId;
   final dynamic extraDiscount;
   final dynamic deliveryAgentId;
-  final dynamic orderTotalWithoutTax;
-  final dynamic orderTax;
+  dynamic orderTotalWithoutTax;
+  dynamic orderTax;
   final String? orderDate;
   final dynamic deliveryPic;
   final SalesManager? salesManager;
   final Customer? customer;
+  final List<CartDetails>? cartDetails;
+  final String? subCategoryName;
+
+  final String? categoryName;
+  final int? quantity;
+  final String? productName;
+  final int? isBox;
+  final int? price;
+  final String? customerName;
 
   GetDetailsData({
     this.id,
@@ -152,6 +178,14 @@ class GetDetailsData {
     this.deliveryPic,
     this.salesManager,
     this.customer,
+    this.cartDetails,
+    this.subCategoryName,
+    this.categoryName,
+    this.quantity,
+    this.productName,
+    this.isBox,
+    this.price,
+    this.customerName,
   });
 
   GetDetailsData.fromJson(Map<String, dynamic> json)
@@ -206,10 +240,10 @@ class GetDetailsData {
         paymentId = json['payment_id'],
         amount = json['amount'],
         expenseId = json['expense_id'],
-        orderItem = (json['order_item'] as List?)?.map((dynamic e) => OrderItem.fromJson(e as Map<String, dynamic>)).toList(),
+        orderItem = (json['order_item'] as List?)?.map((dynamic e) => GetDataListResponseData.fromJson(e as Map<String, dynamic>)).toList(),
         poFile = json['po_file'],
         orderTotal = json['order_total'],
-        comments = json['comments'] as String?,
+        comments = json['comments'],
         deliveryNote = json['delivery_note'] as String?,
         customerSign = json['customer_sign'] as String?,
         salesManagerId = json['sales_manager_id'],
@@ -220,6 +254,14 @@ class GetDetailsData {
         orderTax = json['order_tax'],
         orderDate = json['order_date'] as String?,
         deliveryPic = json['delivery_pic'],
+        subCategoryName = json['sub_category_name'] as String?,
+        categoryName = json['category_name'] as String?,
+        quantity = json['quantity'] as int?,
+        productName = json['product_name'] as String?,
+        isBox = json['is_box'] as int?,
+        price = json['price'] as int?,
+        customerName = json['customer_name'] as String?,
+        cartDetails = (json['cart_details'] as List?)?.map((dynamic e) => CartDetails.fromJson(e as Map<String, dynamic>)).toList(),
         salesManager = (json['sales_manager'] as Map<String, dynamic>?) != null ? SalesManager.fromJson(json['sales_manager'] as Map<String, dynamic>) : null,
         customer = (json['customer'] as Map<String, dynamic>?) != null ? Customer.fromJson(json['customer'] as Map<String, dynamic>) : null,
         supplier = (json['supplier'] as Map<String, dynamic>?) != null ? Supplier.fromJson(json['supplier'] as Map<String, dynamic>) : null;
@@ -292,93 +334,233 @@ class GetDetailsData {
         'expense_total': expenseTotal,
         'expense_tax': expenseTax,
         'po_file': poFile,
+        'sub_category_name': subCategoryName,
+        'category_name': categoryName,
+        'quantity': quantity,
+        'product_name': productName,
+        'is_box': isBox,
+        'price': price,
+        'customer_name': customerName,
+        'cart_details': cartDetails?.map((e) => e.toJson()).toList(),
         'supplier': supplier?.toJson(),
       };
 }
 
-class OrderItem {
+class Role {
+  final int? id;
+  final String? title;
+  final dynamic createdAt;
+  final String? updatedAt;
+  final dynamic deletedAt;
+  final Pivot? pivot;
+
+  Role({
+    this.id,
+    this.title,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+    this.pivot,
+  });
+
+  Role.fromJson(Map<String, dynamic> json)
+      : id = json['id'] as int?,
+        title = json['title'] as String?,
+        createdAt = json['created_at'],
+        updatedAt = json['updated_at'] as String?,
+        deletedAt = json['deleted_at'],
+        pivot = (json['pivot'] as Map<String, dynamic>?) != null ? Pivot.fromJson(json['pivot'] as Map<String, dynamic>) : null;
+
+  Map<String, dynamic> toJson() => {'id': id, 'title': title, 'created_at': createdAt, 'updated_at': updatedAt, 'deleted_at': deletedAt, 'pivot': pivot?.toJson()};
+}
+
+// class OrderItem {
+//   final String? subCategoryName;
+//   final int? subCategoryId;
+//   final String? categoryName;
+//   final int? categoryId;
+//   final String? name;
+//   final String? exp_date;
+//   final int? productId;
+//   final int? stock;
+//   final int? isBox;
+//   final int? purchasePrice;
+//   final int? taxId;
+//   final int? boxSize;
+//   final int? tax;
+//   final String? title;
+//   final String? image_url;
+//   int? quantity;
+//   final int? sellingPrice;
+//   final int? maximumSellingPrice;
+//   final int? salePrice;
+//   final String? quantityCount;
+//
+//   OrderItem({
+//     this.subCategoryName,
+//     this.subCategoryId,
+//     this.categoryName,
+//     this.quantityCount,
+//     this.categoryId,
+//     this.name,
+//     this.productId,
+//     this.stock,
+//     this.isBox,
+//     this.purchasePrice,
+//     this.taxId,
+//     this.boxSize,
+//     this.tax,
+//     this.quantity,
+//     this.sellingPrice,
+//     this.maximumSellingPrice,
+//     this.salePrice,
+//     this.image_url,
+//     this.exp_date,
+//     this.title,
+//   });
+//
+//   OrderItem.fromJson(Map<String, dynamic> json)
+//       : subCategoryName = json['sub_category_name'] as String?,
+//         subCategoryId = json['sub_category_id'] as int?,
+//         categoryName = json['category_name'] as String?,
+//         categoryId = json['category_id'] as int?,
+//         name = json['name'] as String?,
+//         exp_date = json['exp_date'] as String?,
+//         image_url = json['image_url'] as String?,
+//         productId = json['product_id'] as int?,
+//         stock = json['stock'] as int?,
+//         isBox = json['is_box'] ?? 1,
+//         purchasePrice = json['purchase_price'] as int?,
+//         quantityCount = json['quantityCount'] ?? "0",
+//         taxId = json['tax_id'] as int?,
+//         boxSize = json['box_size'] as int?,
+//         tax = json['tax'] as int?,
+//         quantity = json['quantity'] as int?,
+//         sellingPrice = json['selling_price'] as int?,
+//         maximumSellingPrice = json['maximum_selling_price'] as int?,
+//         salePrice = json['sale_price'] as int?,
+//         title = json['title'] as String?;
+//
+//   Map<String, dynamic> toJson() => {
+//         'sub_category_name': subCategoryName,
+//         'sub_category_id': subCategoryId,
+//         'category_name': categoryName,
+//         'category_id': categoryId,
+//         'quantity': quantity,
+//         'stock': stock,
+//         'selling_price': sellingPrice,
+//         'name': name,
+//         'maximum_selling_price': maximumSellingPrice,
+//         'is_box': isBox,
+//         'quantityCount': quantityCount,
+//         'sale_price': salePrice,
+//         'tax_id': taxId,
+//         'exp_date': exp_date,
+//         'product_id': productId,
+//         'purchase_price': purchasePrice,
+//         'box_size': boxSize,
+//         'tax': tax,
+//         'image_url': image_url,
+//         'title': title
+//       };
+// }
+
+class CartDetails {
+  final int? customerId;
+  final int? productId;
+  dynamic quantity;
+  final String? productName;
+  final int? isBox;
+  final int? stock;
+  final int? price;
+  final int? taxId;
+  final int? boxSize;
+  final String? title;
+  final int? tax;
+  final String? customerName;
+  String? amountWithoutTax;
+  String? amountOnlyTax;
+  String? finalAmount;
   final String? subCategoryName;
   final int? subCategoryId;
   final String? categoryName;
   final int? categoryId;
-  final String? name;
-  final String? exp_date;
-  final int? productId;
-  final int? stock;
-  final int? isBox;
-  final int? purchasePrice;
-  final int? taxId;
-  final int? boxSize;
-  final int? tax;
-  final String? title;
-  final String? image_url;
-  final int? quantity;
-  final int? sellingPrice;
-  final int? maximumSellingPrice;
-  final int? salePrice;
+  final String? imageUrl;
+  final TextEditingController? description;
+  final int? salesManagerId;
 
-  OrderItem({
+  CartDetails({
+    this.customerId,
+    this.productId,
+    this.description,
+    this.boxSize,
+    this.quantity,
+    this.stock,
+    this.productName,
+    this.isBox,
+    this.price,
+    this.taxId,
+    this.title,
+    this.tax,
+    this.amountWithoutTax,
+    this.amountOnlyTax,
+    this.finalAmount,
+    this.customerName,
     this.subCategoryName,
     this.subCategoryId,
     this.categoryName,
     this.categoryId,
-    this.name,
-    this.productId,
-    this.stock,
-    this.isBox,
-    this.purchasePrice,
-    this.taxId,
-    this.boxSize,
-    this.tax,
-    this.quantity,
-    this.sellingPrice,
-    this.maximumSellingPrice,
-    this.salePrice,
-    this.image_url,
-    this.exp_date,
-    this.title,
+    this.imageUrl,
+    this.salesManagerId,
   });
 
-  OrderItem.fromJson(Map<String, dynamic> json)
-      : subCategoryName = json['sub_category_name'] as String?,
+  CartDetails.fromJson(Map<String, dynamic> json)
+      : customerId = json['customer_id'] as int?,
+        productId = json['product_id'] as int?,
+        quantity = json['quantity'],
+        productName = json['product_name'] as String?,
+        isBox = json['is_box'] as int?,
+        price = json['price'] as int?,
+        boxSize = json['box_size'] as int?,
+        stock = json['stock'] as int?,
+        taxId = json['tax_id'] as int?,
+        title = json['title'] as String?,
+        description = json['description'] ?? TextEditingController(text: ""),
+        amountWithoutTax = json['amountWithoutTax'] as String?,
+        amountOnlyTax = json['amountOnlyTax'] as String?,
+        finalAmount = json['finalAmount'] as String?,
+        tax = json['tax'] as int?,
+        customerName = json['customer_name'] as String?,
+        subCategoryName = json['sub_category_name'] as String?,
         subCategoryId = json['sub_category_id'] as int?,
         categoryName = json['category_name'] as String?,
         categoryId = json['category_id'] as int?,
-        name = json['name'] as String?,
-        exp_date = json['exp_date'] as String?,
-        image_url = json['image_url'] as String?,
-        productId = json['product_id'] as int?,
-        stock = json['stock'] as int?,
-        isBox = json['is_box'] as int?,
-        purchasePrice = json['purchase_price'] as int?,
-        taxId = json['tax_id'] as int?,
-        boxSize = json['box_size'] as int?,
-        tax = json['tax'] as int?,
-        quantity = json['quantity'] as int?,
-        sellingPrice = json['selling_price'] as int?,
-        maximumSellingPrice = json['maximum_selling_price'] as int?,
-        salePrice = json['sale_price'] as int?,
-        title = json['title'] as String?;
+        imageUrl = json['image_url'] as String?,
+        salesManagerId = json['sales_manager_id'] as int?;
 
   Map<String, dynamic> toJson() => {
+        'customer_id': customerId,
+        'product_id': productId,
+        'quantity': quantity,
+        'product_name': productName,
+        'is_box': isBox,
+        'price': price,
+        'stock': stock,
+        'tax_id': taxId,
+        'title': title,
+        'boxSize': boxSize,
+        'tax': tax,
+        'amountWithoutTax': amountWithoutTax,
+        'description': description,
+        'amountOnlyTax': amountOnlyTax,
+        'finalAmount': finalAmount,
+        'customer_name': customerName,
         'sub_category_name': subCategoryName,
         'sub_category_id': subCategoryId,
         'category_name': categoryName,
         'category_id': categoryId,
-        'quantity': quantity,
-        'stock': stock,
-        'selling_price': sellingPrice,
-        'name': name,
-        'maximum_selling_price': maximumSellingPrice,
-        'is_box': isBox,
-        'sale_price': salePrice,
-        'tax_id': taxId,
-        'exp_date': exp_date,
-        'product_id': productId,
-        'purchase_price': purchasePrice,
         'box_size': boxSize,
-        'tax': tax,
-        'image_url': image_url,
-        'title': title
+        'image_url': imageUrl,
+        'sales_manager_id': salesManagerId
       };
 }

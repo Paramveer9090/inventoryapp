@@ -1,3 +1,5 @@
+import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
+import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
 import 'package:true_leaf_inventory_app/app/modules/change_password/views/change_password_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/customers/views/customers_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/dashboard/views/dashboard_view.dart';
@@ -7,7 +9,9 @@ import 'package:true_leaf_inventory_app/app/modules/my_orders/views/my_orders_vi
 import '../../../widgets/all_import.dart';
 
 var accessToken;
-// var cartLength = 0;
+var cartLength = "0";
+var customerCartId = "0";
+var orderId = "0";
 
 class HomeController extends GetxController {
   final GlobalKey<ScaffoldState> key = GlobalKey();
@@ -19,6 +23,7 @@ class HomeController extends GetxController {
   var addOrder = false.obs;
   var isCustomerDetails = false.obs;
   var isOrderDetails = false.obs;
+  var isOrderEdit = false.obs;
 
   /// Sales
   List screens = [
@@ -86,15 +91,24 @@ class HomeController extends GetxController {
     AppStrings.changePassword,
   ];
 
-  var cartLength;
-  List dummyList = [];
+  GetDataListResponseData? cartData;
 
   getLoginData() async {
     final data = await getStorageData.readObject(getStorageData.loginData);
     accessToken = await getStorageData.readString(Constants.access_token);
+    customerCartId = await getStorageData.readString("customerId") ?? "0";
+
     if (data != null) {
       loginData = LoginSignUpData.fromJson(data);
+      if (loginData!.roles![0].title != "Delivery Agent") {
+        if (customerCartId.isEmpty) {
+          getCartData(id: 0);
+        } else {
+          getCartData(id: customerCartId);
+        }
+      }
     }
+
     update();
   }
 
@@ -107,5 +121,24 @@ class HomeController extends GetxController {
   logout() async {
     await getStorageData.removeData(getStorageData.loginData);
     Get.offAllNamed(Routes.LOGIN);
+  }
+
+  getCartData({id}) async {
+    final data = await APIFunction().apiCall(
+      apiName: "${Constants.cart}/${id}",
+      context: Get.context!,
+      token: accessToken,
+      type: "get",
+      isLoading: false,
+    );
+
+    GetDetailsResponseModel model = GetDetailsResponseModel.fromJson(data);
+
+    if (model.data!.cartDetails != null) {
+      cartLength = model.data!.cartDetails!.length.toString();
+      update();
+    } else {
+      print("In else part");
+    }
   }
 }

@@ -17,6 +17,7 @@ class DriverOrderView extends GetView<DriverOrderController> {
             : Padding(
                 padding: EdgeInsets.only(top: 2.h),
                 child: ListView(
+                  physics: BouncingScrollPhysics(),
                   padding: EdgeInsets.symmetric(horizontal: 1.h),
                   children: [
                     Padding(

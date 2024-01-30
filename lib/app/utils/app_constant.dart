@@ -1,10 +1,8 @@
-import 'package:get_storage/get_storage.dart';
 import 'package:true_leaf_inventory_app/app/utils/utils.dart';
 import 'package:true_leaf_inventory_app/app/widgets/get_storage_data.dart';
 
 Utils utils = Utils();
 GetStorageData getStorageData = GetStorageData();
-// final cartStoreData = GetStorage();
 
 class Constants {
   /// Save String
@@ -28,6 +26,7 @@ class Constants {
   static const String customers = 'customers';
   static const String revenue = 'revenue';
   static const String orders = 'orders';
+  static const String cart = 'cart';
   static const String orderPayments = 'order-payments';
   static const String productCategory = 'product-category';
   static const String uploadImage = 'upload-image';

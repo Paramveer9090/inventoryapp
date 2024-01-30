@@ -54,13 +54,36 @@ class CustomersView extends GetView<CustomersController> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             GestureDetector(
-                              onTap: () {
-                                controller.id.value = data.id.toString();
+                              onTap: () async {
+                                controller.id.value = await data.id.toString();
                                 controller.update();
-                                Get.find<HomeController>().isCustomerDetails.value = true;
-                                Get.find<HomeController>().update();
+                                if (controller.id.value == customerCartId || cartLength == "" || cartLength == "0") {
+                                  controller.id.value = await data.id.toString();
+                                  controller.update();
+                                  Get.find<HomeController>().isCustomerDetails.value = true;
+                                  Get.find<HomeController>().update();
+                                } else {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return DeletePopup(
+                                        isDelete: true,
+                                        isConfirmation: true,
+                                        confirmationText: "You want to change customer",
+                                        onTap: () {
+                                          Get.back();
+                                          controller.deleteCartAPI();
+
+                                          /// delete old data api call
+                                        },
+                                      );
+                                    },
+                                  );
+                                  print("else ma jai 6e");
+                                }
                               },
                               child: Container(
+                                color: Colors.transparent,
                                 padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 2.h),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

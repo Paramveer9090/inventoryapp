@@ -248,7 +248,7 @@ class ExpenseItems {
 
 class Orders {
   final int? id;
-  final int? orderTotal;
+  final dynamic orderTotal;
   final dynamic comments;
   final dynamic deliveryNote;
   final dynamic customerSign;
@@ -260,8 +260,8 @@ class Orders {
   final int? customerId;
   final dynamic extraDiscount;
   final dynamic deliveryAgentId;
-  final int? orderTotalWithoutTax;
-  final int? orderTax;
+  final dynamic orderTotalWithoutTax;
+  final dynamic orderTax;
   final String? dueDate;
   final String? orderDate;
   String? statusTime;
@@ -272,6 +272,7 @@ class Orders {
   final Customer? customer;
   final Payment? payment;
   final List<dynamic>? media;
+  bool? isEdit;
 
   Orders({
     this.id,
@@ -291,6 +292,7 @@ class Orders {
     this.deliveryAgentId,
     this.orderTotalWithoutTax,
     this.orderTax,
+    this.isEdit,
     this.dueDate,
     this.orderDate,
     this.discountType,
@@ -303,7 +305,7 @@ class Orders {
 
   Orders.fromJson(Map<String, dynamic> json)
       : id = json['id'] as int?,
-        orderTotal = json['order_total'] as int?,
+        orderTotal = json['order_total'],
         comments = json['comments'],
         deliveryNote = json['delivery_note'],
         customerSign = json['customer_sign'],
@@ -313,12 +315,13 @@ class Orders {
         statusTime = json['statusTime'] ?? "",
         statusColor = json['statusColor'] ?? Colors.white,
         deletedAt = json['deleted_at'],
+        isEdit = json['isEdit'] ?? false,
         salesManagerId = json['sales_manager_id'] as int?,
         customerId = json['customer_id'] as int?,
         extraDiscount = json['extra_discount'],
         deliveryAgentId = json['delivery_agent_id'],
-        orderTotalWithoutTax = json['order_total_without_tax'] as int?,
-        orderTax = json['order_tax'] as int?,
+        orderTotalWithoutTax = json['order_total_without_tax'],
+        orderTax = json['order_tax'],
         dueDate = json['due_date'] as String?,
         orderDate = json['order_date'] as String?,
         discountType = json['discount_type'] as String?,
@@ -346,6 +349,7 @@ class Orders {
         'delivery_agent_id': deliveryAgentId,
         'order_total_without_tax': orderTotalWithoutTax,
         'order_tax': orderTax,
+        'isEdit': isEdit,
         'due_date': dueDate,
         'order_date': orderDate,
         'discount_type': discountType,
@@ -549,12 +553,11 @@ class Payment {
   final String? updatedAt;
   final dynamic deletedAt;
   final int? expenseId;
-
   final int? customerId;
   final int? orderNumber;
-  final int? orderTotal;
+  final dynamic orderTotal;
   final int? orderPaid;
-  final int? orderPending;
+  final dynamic orderPending;
 
   Payment({
     this.id,
@@ -588,9 +591,9 @@ class Payment {
         deletedAt = json['deleted_at'],
         customerId = json['customer_id'] as int?,
         orderNumber = json['order_number'] as int?,
-        orderTotal = json['order_total'] as int?,
+        orderTotal = json['order_total'],
         orderPaid = json['order_paid'] as int?,
-        orderPending = json['order_pending'] as int?,
+        orderPending = json['order_pending'],
         expenseId = json['expense_id'] as int?;
 
   Map<String, dynamic> toJson() => {

@@ -93,7 +93,8 @@ class GetDataListResponseData {
   String? paymentTerms;
   int? creditNoteBalance;
   final dynamic orderTotal;
-  final dynamic comments;
+  dynamic comments;
+  TextEditingController? comment;
   final dynamic deliveryNote;
   final dynamic customerSign;
   final int? salesManagerId;
@@ -118,13 +119,19 @@ class GetDataListResponseData {
   final dynamic expenseTax;
   final dynamic poFile;
   final Supplier? supplier;
+  final int? salePrice;
   final int? expensePending;
   final int? orderNumber;
   final dynamic orderPending;
+  dynamic amountWithoutTax;
+  dynamic amountOnlyTax;
+  dynamic finalAmount;
   final dynamic emailVerifiedAt;
   final int? orderPaid;
-
   final List<Roles>? roles;
+  final int? price;
+  int? quantity;
+  int? isBox;
 
   GetDataListResponseData({
     this.id,
@@ -144,6 +151,9 @@ class GetDataListResponseData {
     this.imageUrl,
     this.taxType,
     this.taxId,
+    this.amountWithoutTax,
+    this.amountOnlyTax,
+    this.finalAmount,
     this.subCategoryId,
     this.orderPaid,
     this.productImage,
@@ -183,6 +193,7 @@ class GetDataListResponseData {
     this.creditNoteBalance,
     this.orderTotal,
     this.comments,
+    this.comment,
     this.deliveryNote,
     this.customerSign,
     this.salesManagerId,
@@ -202,6 +213,7 @@ class GetDataListResponseData {
     this.finalPrice,
     this.supplierId,
     this.daysPayableOutstanding,
+    this.salePrice,
     this.invoiceNumber,
     this.expenseTotal,
     this.expenseTax,
@@ -211,11 +223,17 @@ class GetDataListResponseData {
     this.orderPending,
     this.emailVerifiedAt,
     this.roles,
+    this.price,
+    this.quantity,
+    this.isBox,
   });
 
   GetDataListResponseData.fromJson(Map<String, dynamic> json)
       : id = json['id'] as int?,
         name = json['name'],
+        amountWithoutTax = json['amountWithoutTax'],
+        amountOnlyTax = json['amountOnlyTax'],
+        finalAmount = json['finalAmount'],
         categoryOrder = json['category_order'] as int?,
         categoryId = json['category_id'],
         createdAt = json['created_at'] as String?,
@@ -227,7 +245,7 @@ class GetDataListResponseData {
         taxType = json['taxType'] ?? "",
         sellingPrice = json['selling_price'],
         stock = json['stock'] as int?,
-        quantityCount = json['quantityCount'],
+        quantityCount = json['quantity'] ?? "0",
         orderPaid = json['order_paid'] as int?,
         maximumSellingPrice = json['maximum_selling_price'],
         boxSize = json['box_size'] as int?,
@@ -264,12 +282,14 @@ class GetDataListResponseData {
         creditNoteBalance = json['credit_note_balance'] as int?,
         orderTotal = json['order_total'],
         comments = json['comments'],
+        comment = json['comment'] ?? TextEditingController(text: ""),
         deliveryNote = json['delivery_note'],
         customerSign = json['customer_sign'],
         salesManagerId = json['sales_manager_id'] as int?,
         customerId = json['customer_id'] as int?,
         extraDiscount = json['extra_discount'],
         deliveryAgentId = json['delivery_agent_id'] as int?,
+        salePrice = json['sale_price'] as int?,
         orderTotalWithoutTax = json['order_total_without_tax'] as int?,
         orderTax = json['order_tax'],
         dueDate = json['due_date'] as String?,
@@ -289,6 +309,9 @@ class GetDataListResponseData {
         orderNumber = json['order_number'] as int?,
         orderPending = json['order_pending'],
         emailVerifiedAt = json['email_verified_at'],
+        price = json['price'] as int?,
+        quantity = json['quantity'] as int?,
+        isBox = json['is_box'] ?? 1,
         roles = (json['roles'] as List?)?.map((dynamic e) => Roles.fromJson(e as Map<String, dynamic>)).toList(),
         supplier = (json['supplier'] as Map<String, dynamic>?) != null ? Supplier.fromJson(json['supplier'] as Map<String, dynamic>) : null,
         order = (json['order'] as Map<String, dynamic>?) != null ? Order.fromJson(json['order'] as Map<String, dynamic>) : null,
@@ -314,8 +337,8 @@ class GetDataListResponseData {
         'stock': stock,
         'maximum_selling_price': maximumSellingPrice,
         'isUnitSelected': isUnitSelected,
+        'comment': comment,
         'box_size': boxSize,
-        'delivery_note': delivery_note,
         'subCategoryType': subCategoryType,
         'categoryType': categoryType,
         'order_paid': orderPaid,
@@ -325,6 +348,7 @@ class GetDataListResponseData {
         'sub_category_id': subCategoryId,
         'product_image': productImage,
         'media': media,
+        'salePrice': salePrice,
         'tax_details': tax?.toJson(),
         'title': title,
         'tax': tax,
@@ -340,6 +364,9 @@ class GetDataListResponseData {
         'supplier_number': supplierNumber,
         'supplier_email': supplierEmail,
         'amount': amount,
+        'amountWithoutTax': amountWithoutTax,
+        'amountOnlyTax': amountOnlyTax,
+        'finalAmount': finalAmount,
         'invoice_id': invoiceId,
         'payment_id': paymentId,
         'expense_id': expenseId,
@@ -382,7 +409,10 @@ class GetDataListResponseData {
         'po_file': poFile,
         'supplier': supplier?.toJson(),
         'order_number': orderNumber,
-        'order_pending': orderPending
+        'order_pending': orderPending,
+        'price': price,
+        'quantity': quantity,
+        'is_box': isBox,
       };
 }
 

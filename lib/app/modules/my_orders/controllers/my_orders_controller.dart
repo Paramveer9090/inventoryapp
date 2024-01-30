@@ -10,12 +10,22 @@ class MyOrdersController extends GetxController {
   var isOverDueSelected = false.obs;
   var fromDateString = "".obs;
   var toDateString = "".obs;
+  LoginSignUpData? loginData;
   var id = "".obs;
 
   @override
   void onInit() {
     getOrderReportAPI();
+    getLoginData();
     super.onInit();
+  }
+
+  getLoginData() async {
+    final data = await getStorageData.readObject(getStorageData.loginData);
+    if (data != null) {
+      loginData = LoginSignUpData.fromJson(data);
+    }
+    update();
   }
 
   /// Search
@@ -25,7 +35,7 @@ class MyOrdersController extends GetxController {
     } else {
       List<Orders> tempList = [];
       for (int i = 0; i < filterList.length; i++) {
-        if (filterList[i].payment!.orderNumber.toString().toLowerCase().contains(text.toLowerCase()) ||
+        if (filterList[i].id.toString().contains(text.toLowerCase()) ||
             // filterList[i].customer!.name!.toLowerCase().contains(text.toLowerCase()) ||
             filterList[i].orderTotal.toString().toLowerCase().contains(text.toLowerCase())) {
           tempList.add(filterList[i]);
@@ -101,18 +111,6 @@ class MyOrdersController extends GetxController {
       myOrderList = model.orders!;
       filterList = model.orders!;
       customerList = model.customers!;
-      // Future.delayed(
-      //   Duration(milliseconds: 50),
-      //   () {
-      //     if (isDashboard == true && isPaidSelected.value) {
-      //       paidSearch(color: Color(0xFF75dc75));
-      //     } else if (isDashboard == true && isUnPaidSelected.value) {
-      //       paidSearch(color: Color(0xFFffab00));
-      //     } else if (isDashboard == true && isOverDueSelected.value) {
-      //       paidSearch(color: Color(0xFFff5050));
-      //     }
-      //   },
-      // );
       update();
     } else {
       print("In else part");

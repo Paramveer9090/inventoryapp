@@ -3,9 +3,11 @@ import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 class DeletePopup extends StatelessWidget {
   final type;
   final isDelete;
+  final isConfirmation;
+  final confirmationText;
   final void Function()? onTap;
 
-  DeletePopup({super.key, this.type, this.onTap, this.isDelete = false});
+  DeletePopup({super.key, this.type, this.onTap, this.isDelete = false, this.isConfirmation = false, this.confirmationText = ""});
 
   @override
   Widget build(BuildContext context) {
@@ -18,13 +20,6 @@ class DeletePopup extends StatelessWidget {
           margin: EdgeInsets.symmetric(horizontal: 30),
           decoration: BoxDecoration(
             color: AppColors.whiteColor,
-            // gradient: LinearGradient(
-            //   colors: [
-            //     AppColors.editButtonColor,
-            //     AppColors.addButtonColor,
-            //     AppColors.editButtonColor,
-            //   ],
-            // ),
             borderRadius: BorderRadius.circular(15),
           ),
           child: Column(
@@ -39,7 +34,11 @@ class DeletePopup extends StatelessWidget {
               SizedBox(height: 5),
               Center(
                 child: AppText(
-                  isDelete ? 'You want to Logout!' : 'You want to delete the ${type}!',
+                  isConfirmation
+                      ? confirmationText
+                      : isDelete
+                          ? 'You want to Logout!'
+                          : 'You want to delete the ${type}!',
                   fontWeight: FontWeight.w400,
                   fontSize: 13.sp,
                   textAlign: TextAlign.center,

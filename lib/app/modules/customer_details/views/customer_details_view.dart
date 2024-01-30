@@ -171,9 +171,11 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                         icon: Icons.add,
                         onTap: () {
                           Get.find<HomeController>().isCustomerDetails.value = false;
-                          Get.find<HomeController>().addOrder.value = true;
                           Get.find<HomeController>().isSelected.value = 5;
+                          print("ididididid $id");
                           Get.find<HomeController>().isCustomerId.value = id;
+                          print("ididididid ${Get.find<HomeController>().isCustomerId.value}");
+                          Get.find<HomeController>().addOrder.value = true;
                           Get.find<HomeController>().update();
                         },
                       ),
@@ -298,17 +300,21 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                                   showDeleteButton: false,
                                   isWhite: true,
                                   onView: () {
-                                    // Get.toNamed(Routes.DETAILS_SCREEN, arguments: {
-                                    // "id": orderReport.value.id.toString(),
-                                    // "screen": "order",
-                                    // });
+                                    Get.put(MyOrdersController());
+                                    Get.find<MyOrdersController>().id.value = orderReport.value.id.toString();
+                                    Get.find<HomeController>().isSelected.value = 2;
+                                    Get.find<HomeController>().isOrderDetails.value = true;
+                                    Get.find<HomeController>().update();
+                                    controller.update();
                                   },
                                   onEdit: () {
-                                    // Get.toNamed(Routes.ADD_ORDER, arguments: {
-                                    // "id": orderReport.value.id.toString(),
-                                    // })?.then((value) {
-                                    // controller.getOrderReportAPI(isLoading: false);
-                                    // });
+                                    Get.put(MyOrdersController());
+                                    Get.find<MyOrdersController>().id.value = orderReport.value.id.toString();
+                                    Get.find<HomeController>().isSelected.value = 2;
+                                    Get.find<HomeController>().isOrderDetails.value = true;
+                                    Get.find<HomeController>().isOrderEdit.value = true;
+                                    Get.find<HomeController>().update();
+                                    controller.update();
                                   },
                                   onDelete: () {},
                                 ),
