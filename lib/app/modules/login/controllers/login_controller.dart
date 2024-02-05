@@ -55,9 +55,6 @@ class LoginController extends GetxController {
     } else if (utils.isValidationEmpty(password.text.trim())) {
       utils.showSnackBar(context: Get.context!, message: AppStrings.errorMessagePassword);
       return false;
-    } else if (!utils.passwordValidator(password.text.trim())) {
-      utils.showSnackBar(context: Get.context!, message: AppStrings.errorMessageValidPassword);
-      return false;
     }
     return true;
   }

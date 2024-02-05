@@ -16,6 +16,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
         return controller.getDetailsData == null
             ? Container()
             : ListView(
+                physics: BouncingScrollPhysics(),
                 padding: EdgeInsets.symmetric(horizontal: 2.h, vertical: 3.h),
                 children: [
                   DetailsBox(

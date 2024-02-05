@@ -155,6 +155,7 @@ class DashboardView extends GetView<DashboardController> {
                         DataCell(
                           CustomTableCellActionButtons(
                             showDeleteButton: false,
+                            showEditButton: orderReport.value.payment!.paymentStatus == "0" && controller.loginData!.id == orderReport.value.salesManagerId ? true : false,
                             isWhite: true,
                             onView: () {
                               Get.put(MyOrdersController());
@@ -166,7 +167,9 @@ class DashboardView extends GetView<DashboardController> {
                             },
                             onEdit: () {
                               Get.put(MyOrdersController());
+
                               Get.find<MyOrdersController>().id.value = orderReport.value.id.toString();
+                              orderId = orderReport.value.id.toString();
                               Get.find<HomeController>().isSelected.value = 2;
                               Get.find<HomeController>().isOrderDetails.value = true;
                               Get.find<HomeController>().isOrderEdit.value = true;

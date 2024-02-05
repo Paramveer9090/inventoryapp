@@ -53,6 +53,7 @@ class GetDataListResponseData {
   final String? updatedAt;
   final dynamic deletedAt;
   dynamic sellingPrice;
+  dynamic actualSellingPrice;
   int? stock;
   dynamic maximumSellingPrice;
   final Tax? taxDetail;
@@ -143,6 +144,7 @@ class GetDataListResponseData {
     this.subCategoryType,
     this.deletedAt,
     this.sellingPrice,
+    this.actualSellingPrice,
     this.stock,
     this.categoryType,
     this.quantityCount,
@@ -244,6 +246,7 @@ class GetDataListResponseData {
         categoryType = json['categoryType'] ?? "",
         taxType = json['taxType'] ?? "",
         sellingPrice = json['selling_price'],
+        actualSellingPrice = json['selling_price'],
         stock = json['stock'] as int?,
         quantityCount = json['quantity'] ?? "0",
         orderPaid = json['order_paid'] as int?,
@@ -282,7 +285,7 @@ class GetDataListResponseData {
         creditNoteBalance = json['credit_note_balance'] as int?,
         orderTotal = json['order_total'],
         comments = json['comments'],
-        comment = json['comment'] ?? TextEditingController(text: ""),
+        comment = /*json['comment'] ??*/ TextEditingController(text: json['comment']),
         deliveryNote = json['delivery_note'],
         customerSign = json['customer_sign'],
         salesManagerId = json['sales_manager_id'] as int?,
@@ -334,6 +337,7 @@ class GetDataListResponseData {
         'updated_at': updatedAt,
         'deleted_at': deletedAt,
         'selling_price': sellingPrice,
+        'actualSellingPrice': actualSellingPrice,
         'stock': stock,
         'maximum_selling_price': maximumSellingPrice,
         'isUnitSelected': isUnitSelected,
@@ -475,16 +479,7 @@ class Payments {
         supplierNumber = json['supplier_number'] as String?,
         supplierEmail = json['supplier_email'] as String?;
 
-  Map<String, dynamic> toJson() => {
-        'invoice_number': invoiceNumber,
-        'expense_total': expenseTotal,
-        'expense_paid': expensePaid,
-        'expense_pending': expensePending,
-        'expense_id': expenseId,
-        'supplier_name': supplierName,
-        'supplier_number': supplierNumber,
-        'supplier_email': supplierEmail
-      };
+  Map<String, dynamic> toJson() => {'invoice_number': invoiceNumber, 'expense_total': expenseTotal, 'expense_paid': expensePaid, 'expense_pending': expensePending, 'expense_id': expenseId, 'supplier_name': supplierName, 'supplier_number': supplierNumber, 'supplier_email': supplierEmail};
 }
 
 class Supplier {

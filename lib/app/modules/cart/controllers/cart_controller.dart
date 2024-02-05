@@ -15,6 +15,7 @@ class CartController extends GetxController {
   var isWrongData = false.obs;
   var productName = "".obs;
   var productId = "".obs;
+  var customerId = "".obs;
   var noData = "".obs;
 
   @override
@@ -45,19 +46,19 @@ class CartController extends GetxController {
     await orderItemList.removeAt(index);
 
     for (int i = 0; i < orderItemList.length; i++) {
-      if (orderItemList[i].isBox == 1) {
-        amountTax = (((double.parse(orderItemList[i].boxSize.toString()) * double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price!.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
-        amount = (double.parse(orderItemList[i].boxSize.toString()) * double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price!.toString());
-        orderItemList[i].amountWithoutTax = amount.toString();
-        orderItemList[i].amountOnlyTax = amountTax.toString();
-        orderItemList[i].finalAmount = (amount + amountTax).toString();
-      } else {
-        amountTax = ((double.parse(orderItemList[i].quantity.toString()) * double.parse(orderItemList[i].price.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
-        amount = (double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price.toString());
-        orderItemList[i].amountWithoutTax = amount.toString();
-        orderItemList[i].amountOnlyTax = amountTax.toString();
-        orderItemList[i].finalAmount = (amount + amountTax).toString();
-      }
+      // if (orderItemList[i].isBox == 1) {
+      //   amountTax = (((double.parse(orderItemList[i].boxSize.toString()) * double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price!.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
+      //   amount = (double.parse(orderItemList[i].boxSize.toString()) * double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price!.toString());
+      //   orderItemList[i].amountWithoutTax = amount.toString();
+      //   orderItemList[i].amountOnlyTax = amountTax.toString();
+      //   orderItemList[i].finalAmount = (amount + amountTax).toString();
+      // } else {
+      amountTax = ((double.parse(orderItemList[i].quantity.toString()) * double.parse(orderItemList[i].price.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
+      amount = (double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price.toString());
+      orderItemList[i].amountWithoutTax = amount.toString();
+      orderItemList[i].amountOnlyTax = amountTax.toString();
+      orderItemList[i].finalAmount = (amount + amountTax).toString();
+      // }
     }
 
     orderTotal.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
@@ -99,27 +100,35 @@ class CartController extends GetxController {
       noData.value = "";
       getDetailsData = await model.data!;
       orderItemList = await model.data!.cartDetails!;
+      customerId.value = await model.data!.customerId!;
 
       for (int i = 0; i < orderItemList.length; i++) {
-        if (orderItemList[i].isBox == 1) {
-          amountTax = (((double.parse(orderItemList[i].boxSize.toString()) * double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price!.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
-          amount = (double.parse(orderItemList[i].boxSize.toString()) * double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price!.toString());
-          orderItemList[i].amountWithoutTax = amount.toString();
-          orderItemList[i].amountOnlyTax = amountTax.toString();
-          orderItemList[i].finalAmount = (amount + amountTax).toString();
-        } else {
-          amountTax = ((double.parse(orderItemList[i].quantity.toString()) * double.parse(orderItemList[i].price.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
-          amount = (double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price.toString());
-          orderItemList[i].amountWithoutTax = amount.toString();
-          orderItemList[i].amountOnlyTax = amountTax.toString();
-          orderItemList[i].finalAmount = (amount + amountTax).toString();
-        }
+        print("orderItemList[i].quantity");
+        print(orderItemList[i].quantity);
+        print(orderItemList[i].price);
+        print(orderItemList[i].tax);
+        // if (orderItemList[i].isBox == 1) {
+        //   amountTax = (((double.parse(orderItemList[i].boxSize.toString()) * double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price!.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
+        //   amount = (double.parse(orderItemList[i].boxSize.toString()) * double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price!.toString());
+        //   orderItemList[i].amountWithoutTax = amount.toString();
+        //   orderItemList[i].amountOnlyTax = amountTax.toString();
+        //   orderItemList[i].finalAmount = (amount + amountTax).toString();
+        // } else {
+        amountTax = ((double.parse(orderItemList[i].quantity.toString()) * double.parse(orderItemList[i].price.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
+        amount = (double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price.toString());
+        orderItemList[i].amountWithoutTax = amount.toString();
+        orderItemList[i].amountOnlyTax = amountTax.toString();
+        orderItemList[i].finalAmount = (amount + amountTax).toString();
+        // }
       }
 
       orderTotal.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
       orderTax.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
       orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toString();
-
+      print("orderTotalvalueorderTotalvalueorderTotalvalue");
+      print(orderTotal.value);
+      print(orderTax.value);
+      print(orderFinalTotal.value);
       update();
     } else {
       noData.value = "No data found";
@@ -138,6 +147,7 @@ class CartController extends GetxController {
     List taxList = [];
     List isBoxList = [];
     List descriptionList = [];
+    List commentList = [];
     for (int i = 0; i < orderItemList.length; i++) {
       categoryList.add(orderItemList[i].categoryId);
       subCategoryList.add(orderItemList[i].subCategoryId);
@@ -147,13 +157,14 @@ class CartController extends GetxController {
       salesPriceList.add(orderItemList[i].price);
       taxList.add(orderItemList[i].taxId);
       isBoxList.add(orderItemList[i].isBox);
+      commentList.add(orderItemList[i].comment?.text);
       descriptionList.add(orderItemList[i].description!.text);
     }
 
     if (categoryList.isNotEmpty) {
       try {
         String rawData =
-            '{"sales_manager_id": ${loginData!.id},"customer_id": "${getDetailsData!.customerId}","item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${0},"extra_discount": "${0}","order_total": "${orderFinalTotal.value}","comments": "${descriptionList}","delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${DateTime.now().toString().split(".").first}"}';
+            '{"sales_manager_id": ${loginData!.id},"customer_id": "${getDetailsData!.customerId}","item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${0},"extra_discount": "${0}","order_total": "${orderFinalTotal.value}","comment":  ${jsonEncode(commentList)},"delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${DateTime.now().toString().split(".").first}"}';
 
         final data = await APIFunction().apiCall(
           apiName: Constants.orders,

@@ -9,7 +9,10 @@ class Constants {
   static const String access_token = "access_token";
   static const String login_id = "login_id";
 
-  static const String baseUrl = 'http://trueleaf.mydevsite.co.za/api/v1/';
+  // static const String baseUrl = 'http://trueleaf.mydevsite.co.za/api/v1/';
+  static const String baseUrl = 'https://admin.trueleafretailinc.com/api/v1/';
+
+  /// live URL
 
   /// Endpoints
   static const String login = 'login';
@@ -46,5 +49,5 @@ class Constants {
   static const String get_product_expiry_report = 'reports/get_product_expiry_report';
 
   /// image url
-  static const imageBaseUrl = 'https://inventoryapp.nyc3.cdn.digitaloceanspaces.com/staging/';
+  static const imageBaseUrl = 'https://inventoryapp.nyc3.cdn.digitaloceanspaces.com/live/';
 }

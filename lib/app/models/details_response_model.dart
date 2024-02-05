@@ -470,7 +470,7 @@ class CartDetails {
   final int? productId;
   dynamic quantity;
   final String? productName;
-  final int? isBox;
+  int? isBox;
   final int? stock;
   final int? price;
   final int? taxId;
@@ -487,11 +487,13 @@ class CartDetails {
   final int? categoryId;
   final String? imageUrl;
   final TextEditingController? description;
+  final TextEditingController? comment;
   final int? salesManagerId;
 
   CartDetails({
     this.customerId,
     this.productId,
+    this.comment,
     this.description,
     this.boxSize,
     this.quantity,
@@ -526,6 +528,7 @@ class CartDetails {
         taxId = json['tax_id'] as int?,
         title = json['title'] as String?,
         description = json['description'] ?? TextEditingController(text: ""),
+        comment = json['comment'] ?? TextEditingController(text: ""),
         amountWithoutTax = json['amountWithoutTax'] as String?,
         amountOnlyTax = json['amountOnlyTax'] as String?,
         finalAmount = json['finalAmount'] as String?,
@@ -552,6 +555,7 @@ class CartDetails {
         'tax': tax,
         'amountWithoutTax': amountWithoutTax,
         'description': description,
+        'comment': comment,
         'amountOnlyTax': amountOnlyTax,
         'finalAmount': finalAmount,
         'customer_name': customerName,

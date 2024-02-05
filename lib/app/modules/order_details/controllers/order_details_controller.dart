@@ -73,19 +73,19 @@ class OrderDetailsController extends GetxController {
       var amountTax;
       var amount;
       for (int i = 0; i < orderItem.length; i++) {
-        if (orderItem[i].isBox == 1) {
-          amountTax = (((double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
-          amount = (double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString());
-          orderItem[i].amountWithoutTax = amount.toString();
-          orderItem[i].amountOnlyTax = amountTax.toString();
-          orderItem[i].finalAmount = (amount + amountTax).toString();
-        } else {
-          amountTax = ((double.parse(orderItem[i].quantityCount.toString()) * double.parse(orderItem[i].salePrice.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
-          amount = (double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice.toString());
-          orderItem[i].amountWithoutTax = amount.toString();
-          orderItem[i].amountOnlyTax = amountTax.toString();
-          orderItem[i].finalAmount = (amount + amountTax).toString();
-        }
+        // if (orderItem[i].isBox == 1) {
+        //   amountTax = (((double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
+        //   amount = (double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString());
+        //   orderItem[i].amountWithoutTax = amount.toString();
+        //   orderItem[i].amountOnlyTax = amountTax.toString();
+        //   orderItem[i].finalAmount = (amount + amountTax).toString();
+        // } else {
+        amountTax = ((double.parse(orderItem[i].quantityCount.toString()) * double.parse(orderItem[i].salePrice.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
+        amount = (double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice.toString());
+        orderItem[i].amountWithoutTax = amount.toString();
+        orderItem[i].amountOnlyTax = amountTax.toString();
+        orderItem[i].finalAmount = (amount + amountTax).toString();
+        // }
       }
 
       update();
@@ -212,19 +212,19 @@ class OrderDetailsController extends GetxController {
     var amount;
 
     for (int i = 0; i < orderItem.length; i++) {
-      if (orderItem[i].isBox == 1) {
-        amountTax = (((double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
-        amount = (double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString());
-        orderItem[i].amountWithoutTax = amount.toString();
-        orderItem[i].amountOnlyTax = amountTax.toString();
-        orderItem[i].finalAmount = (amount + amountTax).toString();
-      } else {
-        amountTax = ((double.parse(orderItem[i].quantityCount.toString()) * double.parse(orderItem[i].salePrice.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
-        amount = (double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice.toString());
-        orderItem[i].amountWithoutTax = amount.toString();
-        orderItem[i].amountOnlyTax = amountTax.toString();
-        orderItem[i].finalAmount = (amount + amountTax).toString();
-      }
+      // if (orderItem[i].isBox == 1) {
+      //   amountTax = (((double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
+      //   amount = (double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString());
+      //   orderItem[i].amountWithoutTax = amount.toString();
+      //   orderItem[i].amountOnlyTax = amountTax.toString();
+      //   orderItem[i].finalAmount = (amount + amountTax).toString();
+      // } else {
+      amountTax = ((double.parse(orderItem[i].quantityCount.toString()) * double.parse(orderItem[i].salePrice.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
+      amount = (double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice.toString());
+      orderItem[i].amountWithoutTax = amount.toString();
+      orderItem[i].amountOnlyTax = amountTax.toString();
+      orderItem[i].finalAmount = (amount + amountTax).toString();
+      // }
     }
     var orderTotalWithoutTax;
     orderTotalWithoutTax = orderItem.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()));

@@ -12,6 +12,7 @@ class OrdersController extends GetxController {
   List<GetDataListResponseData> productList = <GetDataListResponseData>[];
   List<GetDataListResponseData> tempProductList = <GetDataListResponseData>[];
   TextEditingController quantityText = TextEditingController();
+  TextEditingController sellingPriceText = TextEditingController();
   LoginSignUpData? loginData;
   var isProduct = false.obs;
   var isSubCategory = false.obs;
@@ -19,6 +20,7 @@ class OrdersController extends GetxController {
   var noData = "".obs;
   var isAddedData = false.obs;
   var isWrongData = false.obs;
+  var isAddToCartButton = false.obs;
 
   /// API Data Params
 
@@ -38,7 +40,9 @@ class OrdersController extends GetxController {
     getLoginData();
     getCategoriesAPI(categoryId: "0");
     getProductAPI();
-    getAllOrderData();
+    if (orderId != "0") {
+      getAllOrderData();
+    }
     print(customerId);
     print("customerId");
     update();
@@ -296,19 +300,19 @@ class OrdersController extends GetxController {
         isBoxList.add(apiList[k].isBox);
         var amountTax;
         var amount;
-        if (apiList[k].isBox == 1) {
-          amountTax = (((double.parse(apiList[k].boxSize.toString()) * double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].sellingPrice!.toString())) * double.parse(apiList[k].tax.toString())) / 100;
-          amount = (double.parse(apiList[k].boxSize.toString()) * double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].sellingPrice!.toString());
-          apiList[k].amountWithoutTax = amount.toString();
-          apiList[k].amountOnlyTax = amountTax.toString();
-          apiList[k].finalAmount = (amount + amountTax).toString();
-        } else {
-          amountTax = ((double.parse(apiList[k].quantityCount.toString()) * double.parse(apiList[k].sellingPrice.toString())) * double.parse(apiList[k].tax.toString())) / 100;
-          amount = (double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].sellingPrice.toString());
-          apiList[k].amountWithoutTax = amount.toString();
-          apiList[k].amountOnlyTax = amountTax.toString();
-          apiList[k].finalAmount = (amount + amountTax).toString();
-        }
+        // if (apiList[k].isBox == 1) {
+        //   amountTax = (((double.parse(apiList[k].boxSize.toString()) * double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].sellingPrice!.toString())) * double.parse(apiList[k].tax.toString())) / 100;
+        //   amount = (double.parse(apiList[k].boxSize.toString()) * double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].sellingPrice!.toString());
+        //   apiList[k].amountWithoutTax = amount.toString();
+        //   apiList[k].amountOnlyTax = amountTax.toString();
+        //   apiList[k].finalAmount = (amount + amountTax).toString();
+        // } else {
+        amountTax = ((double.parse(apiList[k].quantityCount.toString()) * double.parse(apiList[k].sellingPrice.toString())) * double.parse(apiList[k].tax.toString())) / 100;
+        amount = (double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].sellingPrice.toString());
+        apiList[k].amountWithoutTax = amount.toString();
+        apiList[k].amountOnlyTax = amountTax.toString();
+        apiList[k].finalAmount = (amount + amountTax).toString();
+        // }
       }
 
       orderTotal.value = (apiList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
@@ -393,7 +397,7 @@ class OrdersController extends GetxController {
     for (int i = 0; i < productList.length; i++) {
       if (productList[i].quantityCount != "0") {
         productIdList.add(productList[i].id);
-        priceList.add(productList[i].boxSize);
+        priceList.add(productList[i].sellingPrice);
         quantityList.add(productList[i].quantityCount);
         taxIdList.add(productList[i].taxId);
         isBoxList.add(productList[i].isUnitSelected);
@@ -413,8 +417,7 @@ class OrdersController extends GetxController {
 
     if (productIdList.isNotEmpty) {
       try {
-        String rawData =
-            '{"customer_id": ${customerId},"sales_manager_id": ${loginData!.id},"category_id": ${categoryList},"sub_category_id": ${subCategoryList},"product_id": ${productIdList},"price": ${priceList},"quantity": ${quantityList},"tax_id": ${taxIdList},"is_box": ${isBoxList}}';
+        String rawData = '{"customer_id": ${customerId},"sales_manager_id": ${loginData!.id},"category_id": ${categoryList},"sub_category_id": ${subCategoryList},"product_id": ${productIdList},"price": ${priceList},"quantity": ${quantityList},"tax_id": ${taxIdList},"is_box": ${isBoxList}}';
 
         final data = await APIFunction().apiCall(
           apiName: Constants.cart,
@@ -432,7 +435,12 @@ class OrdersController extends GetxController {
           cartLength = model.data!.length.toString();
           Get.find<HomeController>().update();
           await getStorageData.saveString("customerId", customerCartId);
-          await getStorageData.saveObject("cartListFromAPI", model.data);
+          // await getStorageData.saveObject("cartListFromAPI", model.data);
+          isCategory.value = true;
+          isSubCategory.value = false;
+          isProduct.value = false;
+          getCategoriesAPI(categoryId: "0");
+          update();
           utils.showSnackBar(context: Get.context!, message: "SuccessFully added in to cart");
           update();
         } else {

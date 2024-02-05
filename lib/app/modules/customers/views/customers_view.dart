@@ -1,12 +1,5 @@
-import 'package:flutter/material.dart';
-
-import 'package:get/get.dart';
-import 'package:true_leaf_inventory_app/app/models/report_model.dart';
 import 'package:true_leaf_inventory_app/app/modules/customer_details/views/customer_details_view.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
-import 'package:true_leaf_inventory_app/app/widgets/app_button.dart';
-import 'package:true_leaf_inventory_app/app/widgets/custom_search_bar.dart';
-
 import '../controllers/customers_controller.dart';
 
 class CustomersView extends GetView<CustomersController> {
@@ -88,28 +81,32 @@ class CustomersView extends GetView<CustomersController> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        AppText(
-                                          data.companyName.toString(),
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 15.sp,
-                                          color: AppColors.primaryColor,
-                                        ),
-                                        SizedBox(height: 0.5.h),
-                                        AppText(
-                                          data.name.toString(),
-                                          fontSize: 13.sp,
-                                          color: Color(0XFF44474d),
-                                        ),
-                                        SizedBox(height: 0.5.h),
-                                        AppText(
-                                          data.phoneNumber.toString(),
-                                          color: Color(0XFF44474d),
-                                          fontSize: 13.sp,
-                                        ),
-                                      ],
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          AppText(
+                                            data.companyName.toString(),
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 14.sp,
+                                            maxLines: 2,
+                                            color: AppColors.primaryColor,
+                                          ),
+                                          SizedBox(height: 0.5.h),
+                                          AppText(
+                                            data.name.toString(),
+                                            fontSize: 13.sp,
+                                            maxLines: 1,
+                                            color: Color(0XFF44474d),
+                                          ),
+                                          SizedBox(height: 0.5.h),
+                                          AppText(
+                                            data.phoneNumber.toString(),
+                                            color: Color(0XFF44474d),
+                                            fontSize: 13.sp,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                     Icon(
                                       Icons.arrow_forward,

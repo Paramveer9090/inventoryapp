@@ -170,25 +170,25 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                                       controller.orderItem[index].isBox = subIndex;
 
                                                       /// working on it
-                                                      if (await controller.orderItem[index].isBox == 1) {
-                                                        amountTax = (((double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
-                                                            double.parse(controller.orderItem[index].salePrice!.toString())) *
-                                                            double.parse(controller.orderItem[index].tax.toString())) /
-                                                            100;
-                                                        amount = (double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
-                                                            double.parse(controller.orderItem[index].salePrice!.toString());
-                                                        controller.orderItem[index].amountWithoutTax = amount.toString();
-                                                        controller.orderItem[index].amountOnlyTax = amountTax.toString();
-                                                        controller.orderItem[index].finalAmount = (amount + amountTax).toString();
-                                                      } else {
-                                                        amountTax = ((double.parse(controller.orderItem[index].quantityCount.toString()) * double.parse(controller.orderItem[index].salePrice.toString())) *
-                                                            double.parse(controller.orderItem[index].tax.toString())) /
-                                                            100;
-                                                        amount = (double.parse(controller.orderItem[index].quantityCount!.toString())) * double.parse(controller.orderItem[index].salePrice.toString());
-                                                        controller.orderItem[index].amountWithoutTax = amount.toString();
-                                                        controller.orderItem[index].amountOnlyTax = amountTax.toString();
-                                                        controller.orderItem[index].finalAmount = (amount + amountTax).toString();
-                                                      }
+                                                      // if (await controller.orderItem[index].isBox == 1) {
+                                                      //   amountTax = (((double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
+                                                      //       double.parse(controller.orderItem[index].salePrice!.toString())) *
+                                                      //       double.parse(controller.orderItem[index].tax.toString())) /
+                                                      //       100;
+                                                      //   amount = (double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
+                                                      //       double.parse(controller.orderItem[index].salePrice!.toString());
+                                                      //   controller.orderItem[index].amountWithoutTax = amount.toString();
+                                                      //   controller.orderItem[index].amountOnlyTax = amountTax.toString();
+                                                      //   controller.orderItem[index].finalAmount = (amount + amountTax).toString();
+                                                      // } else {
+                                                      amountTax = ((double.parse(controller.orderItem[index].quantityCount.toString()) * double.parse(controller.orderItem[index].salePrice.toString())) *
+                                                          double.parse(controller.orderItem[index].tax.toString())) /
+                                                          100;
+                                                      amount = (double.parse(controller.orderItem[index].quantityCount!.toString())) * double.parse(controller.orderItem[index].salePrice.toString());
+                                                      controller.orderItem[index].amountWithoutTax = amount.toString();
+                                                      controller.orderItem[index].amountOnlyTax = amountTax.toString();
+                                                      controller.orderItem[index].finalAmount = (amount + amountTax).toString();
+                                                      // }
                                                       controller.update();
 
                                                       controller.getDetailsData!.orderTotalWithoutTax = (controller.orderItem.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
@@ -249,25 +249,25 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                               }
 
                                               ///
-                                              if (await controller.orderItem[index].isBox == 1) {
-                                                amountTax = (((double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
-                                                    double.parse(controller.orderItem[index].salePrice!.toString())) *
-                                                    double.parse(controller.orderItem[index].tax.toString())) /
-                                                    100;
-                                                amount = (double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
-                                                    double.parse(controller.orderItem[index].salePrice!.toString());
-                                                controller.orderItem[index].amountWithoutTax = amount.toString();
-                                                controller.orderItem[index].amountOnlyTax = amountTax.toString();
-                                                controller.orderItem[index].finalAmount = (amount + amountTax).toString();
-                                              } else {
-                                                amountTax =
-                                                    ((double.parse(controller.orderItem[index].quantityCount.toString()) * double.parse(controller.orderItem[index].salePrice.toString())) * double.parse(controller.orderItem[index].tax.toString())) /
-                                                        100;
-                                                amount = (double.parse(controller.orderItem[index].quantityCount!.toString())) * double.parse(controller.orderItem[index].salePrice.toString());
-                                                controller.orderItem[index].amountWithoutTax = amount.toString();
-                                                controller.orderItem[index].amountOnlyTax = amountTax.toString();
-                                                controller.orderItem[index].finalAmount = (amount + amountTax).toString();
-                                              }
+                                              // if (await controller.orderItem[index].isBox == 1) {
+                                              //   amountTax = (((double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
+                                              //       double.parse(controller.orderItem[index].salePrice!.toString())) *
+                                              //       double.parse(controller.orderItem[index].tax.toString())) /
+                                              //       100;
+                                              //   amount = (double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
+                                              //       double.parse(controller.orderItem[index].salePrice!.toString());
+                                              //   controller.orderItem[index].amountWithoutTax = amount.toString();
+                                              //   controller.orderItem[index].amountOnlyTax = amountTax.toString();
+                                              //   controller.orderItem[index].finalAmount = (amount + amountTax).toString();
+                                              // } else {
+                                              amountTax =
+                                                  ((double.parse(controller.orderItem[index].quantityCount.toString()) * double.parse(controller.orderItem[index].salePrice.toString())) * double.parse(controller.orderItem[index].tax.toString())) /
+                                                      100;
+                                              amount = (double.parse(controller.orderItem[index].quantityCount!.toString())) * double.parse(controller.orderItem[index].salePrice.toString());
+                                              controller.orderItem[index].amountWithoutTax = amount.toString();
+                                              controller.orderItem[index].amountOnlyTax = amountTax.toString();
+                                              controller.orderItem[index].finalAmount = (amount + amountTax).toString();
+                                              // }
                                               controller.update();
 
                                               controller.getDetailsData!.orderTotalWithoutTax = (controller.orderItem.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
@@ -331,25 +331,25 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                               // controller.productName.value = await controller.orderItem[index].name.toString();
                                               controller.orderItem[index].quantityCount = await (int.parse(controller.orderItem[index].quantityCount.toString()) + 1).toString();
 
-                                              if (await controller.orderItem[index].isBox == 1) {
-                                                amountTax = (((double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
-                                                    double.parse(controller.orderItem[index].salePrice!.toString())) *
-                                                    double.parse(controller.orderItem[index].tax.toString())) /
-                                                    100;
-                                                amount = (double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
-                                                    double.parse(controller.orderItem[index].salePrice!.toString());
-                                                controller.orderItem[index].amountWithoutTax = amount.toString();
-                                                controller.orderItem[index].amountOnlyTax = amountTax.toString();
-                                                controller.orderItem[index].finalAmount = (amount + amountTax).toString();
-                                              } else {
-                                                amountTax =
-                                                    ((double.parse(controller.orderItem[index].quantityCount.toString()) * double.parse(controller.orderItem[index].salePrice.toString())) * double.parse(controller.orderItem[index].tax.toString())) /
-                                                        100;
-                                                amount = (double.parse(controller.orderItem[index].quantityCount!.toString())) * double.parse(controller.orderItem[index].salePrice.toString());
-                                                controller.orderItem[index].amountWithoutTax = amount.toString();
-                                                controller.orderItem[index].amountOnlyTax = amountTax.toString();
-                                                controller.orderItem[index].finalAmount = (amount + amountTax).toString();
-                                              }
+                                              // if (await controller.orderItem[index].isBox == 1) {
+                                              //   amountTax = (((double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
+                                              //       double.parse(controller.orderItem[index].salePrice!.toString())) *
+                                              //       double.parse(controller.orderItem[index].tax.toString())) /
+                                              //       100;
+                                              //   amount = (double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
+                                              //       double.parse(controller.orderItem[index].salePrice!.toString());
+                                              //   controller.orderItem[index].amountWithoutTax = amount.toString();
+                                              //   controller.orderItem[index].amountOnlyTax = amountTax.toString();
+                                              //   controller.orderItem[index].finalAmount = (amount + amountTax).toString();
+                                              // } else {
+                                              amountTax =
+                                                  ((double.parse(controller.orderItem[index].quantityCount.toString()) * double.parse(controller.orderItem[index].salePrice.toString())) * double.parse(controller.orderItem[index].tax.toString())) /
+                                                      100;
+                                              amount = (double.parse(controller.orderItem[index].quantityCount!.toString())) * double.parse(controller.orderItem[index].salePrice.toString());
+                                              controller.orderItem[index].amountWithoutTax = amount.toString();
+                                              controller.orderItem[index].amountOnlyTax = amountTax.toString();
+                                              controller.orderItem[index].finalAmount = (amount + amountTax).toString();
+                                              // }
                                               controller.update();
 
                                               controller.getDetailsData!.orderTotalWithoutTax = (controller.orderItem.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();

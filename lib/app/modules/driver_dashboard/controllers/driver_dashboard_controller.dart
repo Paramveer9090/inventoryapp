@@ -4,9 +4,9 @@ import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 class DriverDashboardController extends GetxController {
   List<GetDataListResponseData> orderList = <GetDataListResponseData>[];
   var noData = "".obs;
-  var totalOrder = "".obs;
-  var delivered = "".obs;
-  var pending = "".obs;
+  var totalOrder = "0".obs;
+  var delivered = "0".obs;
+  var pending = "0".obs;
 
   @override
   void onInit() {

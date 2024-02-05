@@ -115,32 +115,40 @@ class CartView extends GetView<CartController> {
                                               2,
                                               (subIndex) => Padding(
                                                 padding: EdgeInsets.symmetric(horizontal: 2.h),
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      height: 15,
-                                                      width: 15,
-                                                      padding: EdgeInsets.all(1.5),
-                                                      decoration: BoxDecoration(
-                                                        color: (data.isBox == 0 && subIndex == 0) || (data.isBox == 1 && subIndex == 1) ? AppColors.tableColor : Color(0XFF44474d),
-                                                        borderRadius: BorderRadius.circular(50),
-                                                      ),
-                                                      child: Container(
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    data.isBox = subIndex;
+                                                    print(data.isBox);
+                                                    print("data.isBox");
+                                                    controller.update();
+                                                  },
+                                                  child: Row(
+                                                    children: [
+                                                      Container(
+                                                        height: 15,
+                                                        width: 15,
+                                                        padding: EdgeInsets.all(1.5),
                                                         decoration: BoxDecoration(
-                                                          color: (data.isBox == 0 && subIndex == 0) || (data.isBox == 1 && subIndex == 1) ? AppColors.tableColor : AppColors.whiteColor,
-                                                          border: Border.all(
-                                                            color: AppColors.whiteColor,
-                                                          ),
+                                                          color: (data.isBox == 0 && subIndex == 0) || (data.isBox == 1 && subIndex == 1) ? AppColors.tableColor : Color(0XFF44474d),
                                                           borderRadius: BorderRadius.circular(50),
                                                         ),
+                                                        child: Container(
+                                                          decoration: BoxDecoration(
+                                                            color: (data.isBox == 0 && subIndex == 0) || (data.isBox == 1 && subIndex == 1) ? AppColors.tableColor : AppColors.whiteColor,
+                                                            border: Border.all(
+                                                              color: AppColors.whiteColor,
+                                                            ),
+                                                            borderRadius: BorderRadius.circular(50),
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
-                                                    SizedBox(width: 10),
-                                                    AppText(
-                                                      subIndex == 0 ? "Unit" : "Box",
-                                                      fontSize: 12.sp,
-                                                    ),
-                                                  ],
+                                                      SizedBox(width: 10),
+                                                      AppText(
+                                                        subIndex == 0 ? "Unit" : "Box",
+                                                        fontSize: 12.sp,
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -154,12 +162,23 @@ class CartView extends GetView<CartController> {
                                                 GestureDetector(
                                                   onTap: () {
                                                     controller.isAddedData.value = true;
-                                                    if (int.parse(data.quantity!) > 0) {
-                                                      data.quantity = (int.parse(data.quantity!) - 1).toString();
+                                                    if (int.parse(data.quantity.toString()) > 0) {
+                                                      data.quantity = (int.parse(data.quantity.toString()) - 1).toString();
                                                     }
+
+                                                    controller.amountTax = ((double.parse(controller.orderItemList[index].quantity.toString()) * double.parse(controller.orderItemList[index].price.toString())) * double.parse(controller.orderItemList[index].tax.toString())) / 100;
+                                                    controller.amount = (double.parse(controller.orderItemList[index].quantity!.toString())) * double.parse(controller.orderItemList[index].price.toString());
+                                                    controller.orderItemList[index].amountWithoutTax = controller.amount.toString();
+                                                    controller.orderItemList[index].amountOnlyTax = controller.amountTax.toString();
+                                                    controller.orderItemList[index].finalAmount = (controller.amount + controller.amountTax).toString();
+
+                                                    controller.orderTotal.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
+                                                    controller.orderTax.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
+                                                    controller.orderFinalTotal.value = (double.parse(controller.orderTotal.value) + double.parse(controller.orderTax.value)).toString();
+
                                                     data.quantity!.isEmpty
                                                         ? controller.isWrongData.value = true
-                                                        : data.isBox == 1
+                                                        : /*data.isBox == 1
                                                             ? (double.parse(data.boxSize.toString()) * double.parse(data.quantity!)) > double.parse(data.stock.toString())
                                                                 ? controller.isWrongData.value = true
                                                                 : data.isBox == 0
@@ -168,10 +187,10 @@ class CartView extends GetView<CartController> {
                                                                         : ""
                                                                     : controller.isWrongData.value = false
                                                             : data.isBox == 0
-                                                                ? double.parse(data.quantity!) > double.parse(data.stock.toString())
-                                                                    ? controller.isWrongData.value = true
-                                                                    : ""
-                                                                : controller.isWrongData.value = false;
+                                                                ?*/
+                                                        double.parse(data.quantity.toString()) > double.parse(data.stock.toString())
+                                                            ? controller.isWrongData.value = true
+                                                            : controller.isWrongData.value = false;
                                                     controller.update();
                                                   },
                                                   child: Container(
@@ -205,10 +224,20 @@ class CartView extends GetView<CartController> {
                                                     controller.productName.value = await data.productName.toString();
                                                     data.quantity = await (int.parse(data.quantity.toString()) + 1).toString();
 
+                                                    controller.amountTax = ((double.parse(controller.orderItemList[index].quantity.toString()) * double.parse(controller.orderItemList[index].price.toString())) * double.parse(controller.orderItemList[index].tax.toString())) / 100;
+                                                    controller.amount = (double.parse(controller.orderItemList[index].quantity!.toString())) * double.parse(controller.orderItemList[index].price.toString());
+                                                    controller.orderItemList[index].amountWithoutTax = controller.amount.toString();
+                                                    controller.orderItemList[index].amountOnlyTax = controller.amountTax.toString();
+                                                    controller.orderItemList[index].finalAmount = (controller.amount + controller.amountTax).toString();
+
+                                                    controller.orderTotal.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
+                                                    controller.orderTax.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
+                                                    controller.orderFinalTotal.value = (double.parse(controller.orderTotal.value) + double.parse(controller.orderTax.value)).toString();
+
                                                     ///
                                                     data.quantity!.isEmpty
                                                         ? controller.isWrongData.value = true
-                                                        : data.isBox == 1
+                                                        : /*data.isBox == 1
                                                             ? (double.parse(data.boxSize.toString()) * double.parse(data.quantity!)) > double.parse(data.stock.toString())
                                                                 ? controller.isWrongData.value = true
                                                                 : data.isBox == 0
@@ -217,10 +246,12 @@ class CartView extends GetView<CartController> {
                                                                         : ""
                                                                     : controller.isWrongData.value = false
                                                             : data.isBox == 0
-                                                                ? double.parse(data.quantity) > double.parse(data.stock.toString())
-                                                                    ? controller.isWrongData.value = true
-                                                                    : ""
-                                                                : controller.isWrongData.value = false;
+                                                                ?*/
+                                                        double.parse(data.quantity.toString()) > double.parse(data.stock.toString())
+                                                            ? controller.isWrongData.value = true
+                                                            : /*""
+                                                                : */
+                                                            controller.isWrongData.value = false;
                                                     controller.update();
                                                   },
                                                   child: Container(
@@ -264,7 +295,7 @@ class CartView extends GetView<CartController> {
                                               child: AppText(
                                                 data.quantity == null
                                                     ? "Please Enter Quantity"
-                                                    : data.isBox == 1
+                                                    : /* data.isBox == 1
                                                         ? (double.parse(data.boxSize.toString()) * double.parse(data.quantity.toString())) > double.parse(data.stock.toString())
                                                             ? "Quantity can't be greater than In Stock"
                                                             : data.isBox == 0
@@ -272,11 +303,14 @@ class CartView extends GetView<CartController> {
                                                                     ? "Quantity can't be greater than In Stock"
                                                                     : ""
                                                                 : ""
-                                                        : data.isBox == 0
-                                                            ? double.parse(data.quantity) > double.parse(data.stock.toString())
-                                                                ? "Quantity can't be greater than In Stock"
-                                                                : ""
-                                                            : "",
+                                                        :
+                                                    data.isBox == 0
+                                                        ?*/
+                                                    double.parse(data.quantity.toString()) > double.parse(data.stock.toString())
+                                                        ? "Quantity can't be greater than In Stock"
+                                                        : /* ""
+                                                        : */
+                                                        "",
                                                 color: AppColors.darkRedColor,
                                                 maxLines: 2,
                                                 fontSize: 10.sp,
@@ -288,7 +322,7 @@ class CartView extends GetView<CartController> {
                                         CustomTextFormField(
                                           hintText: "Enter your description here",
                                           label: "Description",
-                                          controller: data.description,
+                                          controller: data.comment,
                                           validator: (value) => Validators.requiredEmail(value),
                                         ),
                                       ],
@@ -364,6 +398,28 @@ class CartView extends GetView<CartController> {
                                     if (controller.isWrongData.value == false) {
                                       controller.postOrderAPI();
                                     }
+                                  },
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 2.h),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                AppButton(
+                                  title: "Add To Cart",
+                                  color: AppColors.primaryColor,
+                                  isIcon: true,
+                                  icon: Icons.shopping_cart,
+                                  onTap: () {
+                                    Get.find<HomeController>().isCart.value = false;
+                                    Get.find<HomeController>().isCustomerDetails.value = false;
+                                    Get.find<HomeController>().isSelected.value = 5;
+
+                                    Get.find<HomeController>().isCustomerId.value = controller.customerId.value;
+                                    print("ididididid ${Get.find<HomeController>().isCustomerId.value}");
+                                    Get.find<HomeController>().addOrder.value = true;
+                                    Get.find<HomeController>().update();
                                   },
                                 ),
                               ],
