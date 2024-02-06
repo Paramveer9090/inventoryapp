@@ -305,7 +305,8 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                         DataCell(
                           CustomTableCellActionButtons(
                             showDeleteButton: false,
-                            showEditButton: orderReport.value.payment!.paymentStatus == "0" && controller.loginData!.id == orderReport.value.salesManagerId ? true : false,
+                            showEditButton: (orderReport.value.status == "3") && (orderReport.value.payment!.paymentStatus == "0" && controller.loginData!.id == orderReport.value.salesManagerId) ? true : false,
+                            // showEditButton: orderReport.value.payment!.paymentStatus == "0" && controller.loginData!.id == orderReport.value.salesManagerId ? true : false,
                             isWhite: true,
                             onView: () {
                               Get.put(MyOrdersController());

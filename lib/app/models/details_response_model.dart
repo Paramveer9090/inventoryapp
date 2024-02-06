@@ -472,7 +472,7 @@ class CartDetails {
   final String? productName;
   int? isBox;
   final int? stock;
-  final int? price;
+  final dynamic price;
   final int? taxId;
   final int? boxSize;
   final String? title;
@@ -522,7 +522,7 @@ class CartDetails {
         quantity = json['quantity'],
         productName = json['product_name'] as String?,
         isBox = json['is_box'] as int?,
-        price = json['price'] as int?,
+        price = json['price'],
         boxSize = json['box_size'] as int?,
         stock = json['stock'] as int?,
         taxId = json['tax_id'] as int?,

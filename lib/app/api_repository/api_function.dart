@@ -31,7 +31,7 @@ class APIFunction {
       );
       return response;
     } else if (type == "expense" || type == "users") {
-      print("rawData -------->>> ${rawData}");
+      log("rawData -------->>> ${rawData}");
       var response = await HttpUtil(token!, isLoading, context).postt(
         apiName,
         data: rawData,

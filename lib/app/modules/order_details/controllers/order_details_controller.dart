@@ -18,6 +18,7 @@ class OrderDetailsController extends GetxController {
   GetDetailsData? getDetailsData;
   List<GetDataListResponseData> orderItem = [];
   TextEditingController comments = TextEditingController();
+  TextEditingController sellingPriceText = TextEditingController();
 
   LoginSignUpData? loginData;
   var signImage = "".obs;
@@ -168,7 +169,7 @@ class OrderDetailsController extends GetxController {
       productList.add(orderItem[i].productId);
       packageList.add(orderItem[i].boxSize);
       quantityList.add(orderItem[i].quantityCount);
-      salesPriceList.add(orderItem[i].sellingPrice);
+      salesPriceList.add(orderItem[i].salePrice);
       taxList.add(orderItem[i].taxId);
       isBoxList.add(orderItem[i].isBox);
       commentList.add(orderItem[i].comment?.text);

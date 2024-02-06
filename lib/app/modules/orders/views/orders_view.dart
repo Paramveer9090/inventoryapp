@@ -61,15 +61,15 @@ class OrdersView extends GetView<OrdersController> {
                 padding: EdgeInsets.symmetric(horizontal: 2.5.h),
                 child: Row(
                   children: [
-                    controller.productList.isNotEmpty || controller.isSubCategory.value
+                    controller.isProduct.value || controller.isSubCategory.value
                         ? Icon(
                             Icons.arrow_back_ios_sharp,
                             size: 15,
                           )
                         : Container(),
-                    SizedBox(width: controller.productList.isNotEmpty || controller.isSubCategory.value ? 1.h : 0),
+                    SizedBox(width: controller.isProduct.value || controller.isSubCategory.value ? 1.h : 0),
                     AppText(
-                      controller.productList.isNotEmpty
+                      controller.isProduct.value
                           ? "Go back to categories"
                           : controller.isSubCategory.value
                               ? "${"Sub Categories"} (${controller.categoryName.value})"
@@ -86,7 +86,7 @@ class OrdersView extends GetView<OrdersController> {
                 ? Expanded(
                     child: Center(
                       child: AppText(
-                        controller.noData.value,
+                        (controller.productList.length == 0 && controller.isProduct.value) ? "No Product found" : controller.noData.value,
                         fontSize: 13.sp,
                         color: AppColors.greyColor,
                       ),
@@ -185,7 +185,11 @@ class OrdersView extends GetView<OrdersController> {
                                                                       SizedBox(height: 0.5.h),
                                                                       if (controller.productList[index].isUnitSelected == "1" || controller.productList[index].isUnitSelected == 1)
                                                                         AppText(
-                                                                          double.parse(controller.sellingPriceText.text) < double.parse(controller.productList[index].sellingPrice.toString()) ? "Sales Price can't be less than Min Selling Price" : "",
+                                                                          controller.sellingPriceText.text.isEmpty
+                                                                              ? "Sales Price can't be 0"
+                                                                              : (double.parse(controller.sellingPriceText.text) < double.parse(controller.productList[index].sellingPrice.toString()))
+                                                                                  ? "Sales Price can't be less than Min Selling Price"
+                                                                                  : "",
                                                                           fontSize: 11.sp,
                                                                           color: AppColors.darkRedColor,
                                                                         ),
@@ -455,56 +459,72 @@ class OrdersView extends GetView<OrdersController> {
                                                       alignment: Alignment.bottomRight,
                                                       child: GestureDetector(
                                                         onTap: () {
+                                                          controller.quantityText.text = controller.productList[index].quantityCount.toString();
                                                           Get.defaultDialog(
                                                             title: "Add Quantity",
-                                                            content: Container(
-                                                              width: 200,
-                                                              child: Column(
-                                                                mainAxisSize: MainAxisSize.min,
-                                                                children: [
-                                                                  TextFormField(
-                                                                    style: TextStyle(color: Colors.black, fontSize: 13.sp),
-                                                                    controller: controller.quantityText,
-                                                                    keyboardType: TextInputType.number,
-                                                                    decoration: InputDecoration(
-                                                                      hintText: "Add Quantity",
-                                                                      border: OutlineInputBorder(
-                                                                          borderRadius: BorderRadius.circular(5),
-                                                                          borderSide: BorderSide(
-                                                                            color: Color(0xffe9e7ea),
-                                                                          )),
-                                                                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
-                                                                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
-                                                                      errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
-                                                                      disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
-                                                                    ),
-                                                                  ),
-                                                                  SizedBox(height: 2.h),
-                                                                  AppButton(
-                                                                      title: "Save",
-                                                                      onTap: () {
-                                                                        controller.isAddedData.value = true;
-                                                                        controller.quantityText.text.isEmpty
-                                                                            ? controller.isWrongData.value = true
-                                                                            : controller.productList[index].isUnitSelected == 1
-                                                                                ? (double.parse(controller.productList[index].boxSize.toString()) * double.parse(controller.quantityText.text)) > double.parse(controller.productList[index].stock.toString())
-                                                                                    ? controller.isWrongData.value = true
-                                                                                    : controller.productList[index].isUnitSelected == 0
-                                                                                        ? double.parse(controller.quantityText.text) > double.parse(controller.productList[index].stock.toString())
-                                                                                            ? controller.isWrongData.value = true
-                                                                                            : ""
-                                                                                        : controller.isWrongData.value = false
-                                                                                : controller.productList[index].isUnitSelected == 0
-                                                                                    ? double.parse(controller.quantityText.text) > double.parse(controller.productList[index].stock.toString())
-                                                                                        ? controller.isWrongData.value = true
-                                                                                        : controller.isWrongData.value = false
-                                                                                    : controller.isWrongData.value = false;
+                                                            content: StatefulBuilder(builder: (context, setState) {
+                                                              return Container(
+                                                                width: 200,
+                                                                child: Column(
+                                                                  mainAxisSize: MainAxisSize.min,
+                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                  children: [
+                                                                    TextFormField(
+                                                                      style: TextStyle(color: Colors.black, fontSize: 13.sp),
+                                                                      controller: controller.quantityText,
+                                                                      keyboardType: TextInputType.number,
+                                                                      decoration: InputDecoration(
+                                                                        hintText: "Add Quantity",
+                                                                        border: OutlineInputBorder(
+                                                                            borderRadius: BorderRadius.circular(5),
+                                                                            borderSide: BorderSide(
+                                                                              color: Color(0xffe9e7ea),
+                                                                            )),
+                                                                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
+                                                                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
+                                                                        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
+                                                                        disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
+                                                                      ),
+                                                                      onChanged: (value) {
                                                                         controller.update();
-                                                                        Get.back(result: controller.quantityText.text);
-                                                                      }),
-                                                                ],
-                                                              ),
-                                                            ),
+                                                                        setState(() {});
+                                                                      },
+                                                                    ),
+                                                                    SizedBox(height: 0.5.h),
+                                                                    AppText(
+                                                                      controller.quantityText.text.isEmpty || double.parse(controller.quantityText.text) <= 0 ? "Quantity can't be 0" : "",
+                                                                      color: AppColors.darkRedColor,
+                                                                    ),
+                                                                    SizedBox(height: 2.h),
+                                                                    AppButton(
+                                                                        title: "Save",
+                                                                        onTap: () {
+                                                                          controller.isAddedData.value = true;
+                                                                          controller.quantityText.text.isEmpty
+                                                                              ? controller.isWrongData.value = true
+                                                                              : controller.productList[index].isUnitSelected == 1
+                                                                                  ? (double.parse(controller.productList[index].boxSize.toString()) * double.parse(controller.quantityText.text)) > double.parse(controller.productList[index].stock.toString())
+                                                                                      ? controller.isWrongData.value = true
+                                                                                      : controller.productList[index].isUnitSelected == 0
+                                                                                          ? double.parse(controller.quantityText.text) > double.parse(controller.productList[index].stock.toString())
+                                                                                              ? controller.isWrongData.value = true
+                                                                                              : ""
+                                                                                          : controller.isWrongData.value = false
+                                                                                  : controller.productList[index].isUnitSelected == 0
+                                                                                      ? double.parse(controller.quantityText.text) > double.parse(controller.productList[index].stock.toString())
+                                                                                          ? controller.isWrongData.value = true
+                                                                                          : controller.isWrongData.value = false
+                                                                                      : controller.isWrongData.value = false;
+                                                                          controller.update();
+                                                                          if (controller.quantityText.text.isEmpty || double.parse(controller.quantityText.text) <= 0) {
+                                                                          } else {
+                                                                            Get.back(result: controller.quantityText.text);
+                                                                          }
+                                                                        }),
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }),
                                                           ).then((value) {
                                                             print(value);
                                                             if (value != null) {
@@ -551,6 +571,8 @@ class OrdersView extends GetView<OrdersController> {
                                                 onTap: () {
                                                   if (controller.isWrongData.value == false) {
                                                     controller.addToCartAPI();
+                                                  } else {
+                                                    utils.showSnackBar(context: context, message: "Oops something went wrong");
                                                   }
                                                 },
                                               )

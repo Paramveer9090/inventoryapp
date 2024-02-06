@@ -2,6 +2,7 @@ import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 class CartController extends GetxController {
+  TextEditingController quantityText = TextEditingController();
   List<CartDetails> orderItemList = [];
   GetDetailsData? getDetailsData;
   var isCongratulations = false.obs;
@@ -69,7 +70,7 @@ class CartController extends GetxController {
     update();
   }
 
-  deleteCartListAPI() async {
+  deleteCartListAPI({var isBack = false}) async {
     final data = await APIFunction().apiCall(
       apiName: "${Constants.cart}/$customerCartId",
       context: Get.context!,
@@ -77,6 +78,21 @@ class CartController extends GetxController {
       type: "delete",
     );
     cartLength = "0";
+    if (isBack) {
+      Get.back();
+      if (Get.find<HomeController>().isSelected.value == 5) {
+        Get.find<HomeController>().isSelected.value = 0;
+      }
+      Get.find<HomeController>().isSelected.value = 0;
+      Future.delayed(
+        Duration(milliseconds: 1),
+        () {
+          Get.find<HomeController>().isCart.value = false;
+          Get.find<HomeController>().update();
+        },
+      );
+      Get.find<HomeController>().update();
+    }
     update();
   }
 
@@ -131,7 +147,7 @@ class CartController extends GetxController {
       print(orderFinalTotal.value);
       update();
     } else {
-      noData.value = "No data found";
+      noData.value = "No products in the cart.";
       print("In else part");
       update();
     }
@@ -164,7 +180,7 @@ class CartController extends GetxController {
     if (categoryList.isNotEmpty) {
       try {
         String rawData =
-            '{"sales_manager_id": ${loginData!.id},"customer_id": "${getDetailsData!.customerId}","item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${0},"extra_discount": "${0}","order_total": "${orderFinalTotal.value}","comment":  ${jsonEncode(commentList)},"delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${DateTime.now().toString().split(".").first}"}';
+            '{"sales_manager_id": ${loginData!.id},"customer_id": "${getDetailsData!.customerId}","item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${0},"extra_discount": "${0}","order_total": "${orderFinalTotal.value}","comment":  ${jsonEncode(commentList)},"delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "3","order_date":"${DateTime.now().toString().split(".").first}"}';
 
         final data = await APIFunction().apiCall(
           apiName: Constants.orders,

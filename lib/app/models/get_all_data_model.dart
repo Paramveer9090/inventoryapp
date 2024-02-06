@@ -120,7 +120,7 @@ class GetDataListResponseData {
   final dynamic expenseTax;
   final dynamic poFile;
   final Supplier? supplier;
-  final int? salePrice;
+  dynamic salePrice;
   final int? expensePending;
   final int? orderNumber;
   final dynamic orderPending;
@@ -130,7 +130,7 @@ class GetDataListResponseData {
   final dynamic emailVerifiedAt;
   final int? orderPaid;
   final List<Roles>? roles;
-  final int? price;
+  final dynamic price;
   int? quantity;
   int? isBox;
 
@@ -292,7 +292,7 @@ class GetDataListResponseData {
         customerId = json['customer_id'] as int?,
         extraDiscount = json['extra_discount'],
         deliveryAgentId = json['delivery_agent_id'] as int?,
-        salePrice = json['sale_price'] as int?,
+        salePrice = json['sale_price'],
         orderTotalWithoutTax = json['order_total_without_tax'] as int?,
         orderTax = json['order_tax'],
         dueDate = json['due_date'] as String?,
@@ -312,7 +312,7 @@ class GetDataListResponseData {
         orderNumber = json['order_number'] as int?,
         orderPending = json['order_pending'],
         emailVerifiedAt = json['email_verified_at'],
-        price = json['price'] as int?,
+        price = json['price'],
         quantity = json['quantity'] as int?,
         isBox = json['is_box'] ?? 1,
         roles = (json['roles'] as List?)?.map((dynamic e) => Roles.fromJson(e as Map<String, dynamic>)).toList(),

@@ -226,7 +226,7 @@ class OrdersController extends GetxController {
 
     int l = orderItem.length;
     int k = productList.length;
-    bool whichListIsBig = l < k;
+    bool whichListIsBig = l <= k;
 
     print(whichListIsBig);
     print("whichListIsBig");
@@ -256,6 +256,8 @@ class OrdersController extends GetxController {
         for (int j = 0; j < productList.length; j++) {
           if (await productList[j].quantityCount != "0") {
             if (orderItem.contains(productList[j])) {
+              print("replace value");
+              orderItem[i] = GetDataListResponseData();
               orderItem[i] = productList[j];
               break;
             } else {
@@ -441,7 +443,7 @@ class OrdersController extends GetxController {
           isProduct.value = false;
           getCategoriesAPI(categoryId: "0");
           update();
-          utils.showSnackBar(context: Get.context!, message: "SuccessFully added in to cart");
+          utils.showSnackBar(context: Get.context!, message: "Successfully added in to cart");
           update();
         } else {
           print("In else part");
@@ -449,6 +451,8 @@ class OrdersController extends GetxController {
       } on Exception catch (error) {
         utils.showSnackBar(context: Get.context!, message: "Oops! Something want wrong");
       }
+    } else {
+      utils.showSnackBar(context: Get.context!, message: "Oops something went wrong");
     }
   }
 }

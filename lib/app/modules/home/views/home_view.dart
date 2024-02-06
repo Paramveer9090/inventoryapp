@@ -21,11 +21,43 @@ class HomeView extends GetView<HomeController> {
         return controller.loginData?.roles![0].title == "Sales Manager"
             ? WillPopScope(
                 onWillPop: () async {
+                  // print("will pop scope");
+                  // print(controller.isCart.value);
+                  // print(controller.isOrderDetails.value && controller.isOrderEdit.value);
+                  // print(controller.isOrderDetails.value);
+                  // print(Get.find<ProductsController>().productDetails.value && controller.isDrawerSelected.value == 1 && controller.isSelected.value == 4);
                   if (Get.find<ProductsController>().productDetails.value && controller.isDrawerSelected.value == 1 && controller.isSelected.value == 4) {
                     Get.find<ProductsController>().productDetails.value = false;
                     Get.find<ProductsController>().update();
                     controller.update();
+                    // return true;
+                  } else if (controller.isCart.value) {
+                    if (controller.isSelected.value == 5) {
+                      controller.isSelected.value = 0;
+                    }
+                    Future.delayed(
+                      Duration(milliseconds: 1),
+                      () {
+                        controller.isCart.value = false;
+                      },
+                    );
+                    controller.update();
+                    // return true;
+                  } else if (controller.isOrderDetails.value && controller.isOrderEdit.value) {
+                    controller.isOrderDetails.value = false;
+                    controller.isOrderEdit.value = false;
+                    Get.find<MyOrdersController>().update();
+                    controller.update();
+                  } else if (controller.isOrderDetails.value) {
+                    controller.isOrderDetails.value = false;
+                    Get.find<MyOrdersController>().update();
+                    controller.update();
+                  } else if (controller.isCustomerDetails.value) {
+                    controller.isCustomerDetails.value = false;
+                    Get.find<CustomersController>().update();
+                    controller.update();
                   }
+
                   return false;
                 },
                 child: Scaffold(
@@ -312,7 +344,7 @@ class HomeView extends GetView<HomeController> {
                                             padding: EdgeInsets.symmetric(vertical: 2.5.h, horizontal: 3.h),
                                             margin: EdgeInsets.symmetric(vertical: 1.h),
                                             decoration: BoxDecoration(
-                                              color: controller.isDrawerSelected.value == drawerIndex ? AppColors.tableColor.withOpacity(0.3) : AppColors.transparent,
+                                              // color: controller.isDrawerSelected.value == drawerIndex ? AppColors.tableColor.withOpacity(0.3) : AppColors.transparent,
                                               borderRadius: BorderRadius.circular(30),
                                             ),
                                             child: Row(
