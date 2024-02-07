@@ -38,12 +38,18 @@ class CustomerDetailsController extends GetxController {
 
     ReportModel model = ReportModel.fromJson(data);
 
+    if (model.customerDetails != null) {
+      customerDetails = model.customerDetails;
+      update();
+    }
+
+    totalOrder.value = model.totalOrder.toString();
+    paid.value = model.paid.toString();
+    unPaid.value = model.unpaid.toString();
+    update();
     if (model.orders!.isNotEmpty) {
       myOrderList = model.orders!;
-      totalOrder.value = model.totalOrder.toString();
-      paid.value = model.paid.toString();
-      unPaid.value = model.unpaid.toString();
-      customerDetails = model.customerDetails;
+
       update();
     } else {
       print("In else part");

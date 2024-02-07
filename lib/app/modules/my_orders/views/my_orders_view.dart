@@ -234,6 +234,13 @@ class MyOrdersView extends GetView<MyOrdersController> {
                             margin: EdgeInsets.zero,
                             columns: [
                               DataColumn(
+                                  label: AppText(
+                                'Action',
+                                color: AppColors.whiteColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12.sp,
+                              )),
+                              DataColumn(
                                 label: AppText(
                                   'Order Date',
                                   fontWeight: FontWeight.w600,
@@ -273,13 +280,6 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                   fontSize: 12.sp,
                                 ),
                               ),
-                              DataColumn(
-                                  label: AppText(
-                                'Action',
-                                color: AppColors.whiteColor,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12.sp,
-                              )),
                             ],
                             rows: [
                               ...controller.myOrderList.asMap().entries.map(
@@ -310,6 +310,32 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                       orderReport.value.statusColor,
                                     ),
                                     cells: [
+                                      DataCell(
+                                        CustomTableCellActionButtons(
+                                          showDeleteButton: false,
+                                          isWhite: true,
+                                          showEditButton: (orderReport.value.status == "3") && (orderReport.value.payment!.paymentStatus == "0" && controller.loginData!.id == orderReport.value.salesManagerId) ? true : false,
+                                          // showEditButton: orderReport.value.payment!.paymentStatus == "0" && controller.loginData!.id == orderReport.value.salesManagerId ? true : false,
+                                          onView: () {
+                                            controller.id.value = orderReport.value.id.toString();
+                                            Get.find<HomeController>().isOrderDetails.value = true;
+                                            Get.find<HomeController>().update();
+                                            controller.update();
+                                          },
+                                          onEdit: () {
+                                            controller.id.value = orderReport.value.id.toString();
+                                            orderId = orderReport.value.id.toString();
+
+                                            Get.find<HomeController>().isOrderDetails.value = true;
+                                            Get.find<HomeController>().isOrderEdit.value = true;
+                                            Get.find<HomeController>().isCustomerId.value = orderReport.value.customerId.toString();
+
+                                            Get.find<HomeController>().update();
+                                            controller.update();
+                                          },
+                                          onDelete: () {},
+                                        ),
+                                      ),
                                       DataCell(AppText(
                                         orderReport.value.orderDate!.split(" ").first,
                                         color: AppColors.whiteColor,
@@ -335,32 +361,6 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                         color: AppColors.whiteColor,
                                         fontSize: 11.sp,
                                       )),
-                                      DataCell(
-                                        CustomTableCellActionButtons(
-                                          showDeleteButton: false,
-                                          isWhite: true,
-                                          showEditButton: (orderReport.value.status == "3") && (orderReport.value.payment!.paymentStatus == "0" && controller.loginData!.id == orderReport.value.salesManagerId) ? true : false,
-                                          // showEditButton: orderReport.value.payment!.paymentStatus == "0" && controller.loginData!.id == orderReport.value.salesManagerId ? true : false,
-                                          onView: () {
-                                            controller.id.value = orderReport.value.id.toString();
-                                            Get.find<HomeController>().isOrderDetails.value = true;
-                                            Get.find<HomeController>().update();
-                                            controller.update();
-                                          },
-                                          onEdit: () {
-                                            controller.id.value = orderReport.value.id.toString();
-                                            Get.put(OrdersController());
-                                            Get.find<HomeController>().isOrderDetails.value = true;
-                                            Get.find<HomeController>().isOrderEdit.value = true;
-                                            Get.find<HomeController>().isCustomerId.value = orderReport.value.id.toString();
-
-                                            Get.find<HomeController>().update();
-                                            Get.find<OrdersController>().update();
-                                            controller.update();
-                                          },
-                                          onDelete: () {},
-                                        ),
-                                      ),
                                     ],
                                   );
                                 },

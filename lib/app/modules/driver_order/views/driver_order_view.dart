@@ -45,6 +45,12 @@ class DriverOrderView extends GetView<DriverOrderController> {
                             dataLength: controller.orderList.length,
                             columns: [
                               DataColumn(
+                                  label: AppText(
+                                'Action',
+                                color: AppColors.whiteColor,
+                                fontSize: 11.sp,
+                              )),
+                              DataColumn(
                                 label: AppText(
                                   'No.',
                                   color: AppColors.whiteColor,
@@ -124,12 +130,6 @@ class DriverOrderView extends GetView<DriverOrderController> {
                                   fontSize: 12.sp,
                                 ),
                               ),
-                              DataColumn(
-                                  label: AppText(
-                                'Action',
-                                color: AppColors.whiteColor,
-                                fontSize: 11.sp,
-                              )),
                             ],
                             rows: [
                               ...controller.orderList.asMap().entries.map(
@@ -139,6 +139,21 @@ class DriverOrderView extends GetView<DriverOrderController> {
                                       order.key.isEven ? AppColors.greyLightColor : AppColors.whiteColor,
                                     ),
                                     cells: [
+                                      DataCell(
+                                        CustomTableCellActionButtons(
+                                          showEditButton: false,
+                                          showDeleteButton: false,
+                                          onViewDetails: () {},
+                                          onView: () {
+                                            controller.id.value = order.value.id.toString();
+                                            Get.find<HomeController>().isOrderDetails.value = true;
+                                            Get.find<HomeController>().update();
+                                            controller.update();
+                                          },
+                                          onEdit: () {},
+                                          onDelete: () {},
+                                        ),
+                                      ),
                                       DataCell(
                                         AppText(order.value.id.toString()),
                                       ),
@@ -172,21 +187,6 @@ class DriverOrderView extends GetView<DriverOrderController> {
                                       ),
                                       DataCell(
                                         Text(order.value.delivery_note ?? ""),
-                                      ),
-                                      DataCell(
-                                        CustomTableCellActionButtons(
-                                          showEditButton: false,
-                                          showDeleteButton: false,
-                                          onViewDetails: () {},
-                                          onView: () {
-                                            controller.id.value = order.value.id.toString();
-                                            Get.find<HomeController>().isOrderDetails.value = true;
-                                            Get.find<HomeController>().update();
-                                            controller.update();
-                                          },
-                                          onEdit: () {},
-                                          onDelete: () {},
-                                        ),
                                       ),
                                     ],
                                   );

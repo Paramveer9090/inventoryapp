@@ -19,7 +19,8 @@ class OrdersController extends GetxController {
   var isCategory = true.obs;
   var noData = "".obs;
   var isAddedData = false.obs;
-  var isWrongData = false.obs;
+
+  // var isWrongData = false.obs;
   var isAddToCartButton = false.obs;
 
   /// API Data Params
@@ -40,6 +41,8 @@ class OrdersController extends GetxController {
     getLoginData();
     getCategoriesAPI(categoryId: "0");
     getProductAPI();
+    print("orderIdorderIdorderId");
+    print(orderId);
     if (orderId != "0") {
       getAllOrderData();
     }
@@ -123,64 +126,75 @@ class OrdersController extends GetxController {
     for (int i = 0; i < tempProductList.length; i++) {
       if (tempProductList[i].subCategoryId.toString() == subCategoryId.toString() && tempProductList[i].subCategoryId != null && type == "subCategory") {
         noData.value = "";
-        productList.add(
-          GetDataListResponseData(
-            id: tempProductList[i].id,
-            productId: tempProductList[i].id,
-            name: tempProductList[i].name,
-            sellingPrice: tempProductList[i].sellingPrice,
-            stock: tempProductList[i].stock,
-            createdAt: tempProductList[i].createdAt,
-            updatedAt: tempProductList[i].updatedAt,
-            deletedAt: tempProductList[i].deletedAt,
-            categoryId: tempProductList[i].categoryId,
-            maximumSellingPrice: tempProductList[i].maximumSellingPrice,
-            boxSize: tempProductList[i].boxSize,
-            isEdit: false,
-            imageUrl: tempProductList[i].imageUrl,
-            taxId: tempProductList[i].taxId,
-            subCategoryId: tempProductList[i].subCategoryId,
-            productImage: tempProductList[i].productImage,
-            quantityCount: "0",
-            isBox: tempProductList[i].isBox,
-            isUnitSelected: 1,
-            tax: tempProductList[i].taxDetail!.tax,
-            taxDetail: Tax(
+        print(tempProductList[i].stock);
+        print("tempProductList[i].quantity first");
+        if (tempProductList[i].stock != 0) {
+          print("add product");
+          productList.add(
+            GetDataListResponseData(
+              id: tempProductList[i].id,
+              productId: tempProductList[i].id,
+              name: tempProductList[i].name,
+              sellingPrice: tempProductList[i].sellingPrice,
+              stock: tempProductList[i].stock,
+              createdAt: tempProductList[i].createdAt,
+              updatedAt: tempProductList[i].updatedAt,
+              deletedAt: tempProductList[i].deletedAt,
+              categoryId: tempProductList[i].categoryId,
+              maximumSellingPrice: tempProductList[i].maximumSellingPrice,
+              boxSize: tempProductList[i].boxSize,
+              isEdit: false,
+              imageUrl: tempProductList[i].imageUrl,
+              taxId: tempProductList[i].taxId,
+              subCategoryId: tempProductList[i].subCategoryId,
+              productImage: tempProductList[i].productImage,
+              quantityCount: "0",
+              isBox: tempProductList[i].isBox,
+              isUnitSelected: 1,
               tax: tempProductList[i].taxDetail!.tax,
+              taxDetail: Tax(
+                tax: tempProductList[i].taxDetail!.tax,
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          print("in else part");
+        }
 
         update();
       } else if (tempProductList[i].categoryId.toString() == subCategoryId.toString() && tempProductList[i].categoryId != null && type == "category") {
         noData.value = "";
-        productList.add(
-          GetDataListResponseData(
-            id: tempProductList[i].id,
-            name: tempProductList[i].name,
-            sellingPrice: tempProductList[i].sellingPrice,
-            stock: tempProductList[i].stock,
-            quantityCount: "0",
-            isBox: tempProductList[i].isBox,
-            productId: tempProductList[i].id,
-            createdAt: tempProductList[i].createdAt,
-            updatedAt: tempProductList[i].updatedAt,
-            deletedAt: tempProductList[i].deletedAt,
-            categoryId: tempProductList[i].categoryId,
-            isEdit: false,
-            maximumSellingPrice: tempProductList[i].maximumSellingPrice,
-            boxSize: tempProductList[i].boxSize,
-            imageUrl: tempProductList[i].imageUrl,
-            taxId: tempProductList[i].taxId,
-            subCategoryId: tempProductList[i].subCategoryId,
-            isUnitSelected: 1,
-            productImage: tempProductList[i].productImage,
-            tax: tempProductList[i].taxDetail!.tax,
-            taxDetail: Tax(
+        print(tempProductList[i].stock);
+        print("tempProductList[i].quantity second");
+        if (tempProductList[i].stock != 0) {
+          productList.add(
+            GetDataListResponseData(
+              id: tempProductList[i].id,
+              name: tempProductList[i].name,
+              sellingPrice: tempProductList[i].sellingPrice,
+              stock: tempProductList[i].stock,
+              quantityCount: "0",
+              isBox: tempProductList[i].isBox,
+              productId: tempProductList[i].id,
+              createdAt: tempProductList[i].createdAt,
+              updatedAt: tempProductList[i].updatedAt,
+              deletedAt: tempProductList[i].deletedAt,
+              categoryId: tempProductList[i].categoryId,
+              isEdit: false,
+              maximumSellingPrice: tempProductList[i].maximumSellingPrice,
+              boxSize: tempProductList[i].boxSize,
+              imageUrl: tempProductList[i].imageUrl,
+              taxId: tempProductList[i].taxId,
+              subCategoryId: tempProductList[i].subCategoryId,
+              isUnitSelected: 1,
+              productImage: tempProductList[i].productImage,
               tax: tempProductList[i].taxDetail!.tax,
+              taxDetail: Tax(
+                tax: tempProductList[i].taxDetail!.tax,
+              ),
             ),
-          ),
-        );
+          );
+        }
 
         update();
       }
@@ -255,20 +269,35 @@ class OrdersController extends GetxController {
       for (int i = 0; i < orderItem.length; i++) {
         for (int j = 0; j < productList.length; j++) {
           if (await productList[j].quantityCount != "0") {
-            if (orderItem.contains(productList[j])) {
-              print("replace value");
-              orderItem[i] = GetDataListResponseData();
+            print(productList[j].name);
+            print(orderItem[i].name);
+            print("orderItem[j].name");
+            if (await productList[j].productId == orderItem[i].productId) {
+              print("value replace");
               orderItem[i] = productList[j];
-              break;
             } else {
+              print("value added");
               orderItem.add(productList[j]);
-              break;
+              // break;
             }
           } else {
             print("quantity value 0");
           }
+          // if (await productList[j].quantityCount != "0") {
+          //   if (orderItem.contains(productList[j])) {
+          //     print("replace value");
+          //     orderItem[i] = GetDataListResponseData();
+          //     orderItem[i] = productList[j];
+          //     break;
+          //   } else {
+          //     orderItem.add(productList[j]);
+          //     break;
+          //   }
+          // } else {
+          //   print("quantity value 0");
+          // }
         }
-        break;
+        // break;
       }
     }
 
@@ -321,6 +350,10 @@ class OrdersController extends GetxController {
       orderTax.value = (apiList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
       orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toString();
     }
+    print("orderTotal.value");
+    print(orderTotal.value);
+    print(orderTax.value);
+    print(orderFinalTotal.value);
     update();
 
     print(categoryList);
@@ -344,7 +377,7 @@ class OrdersController extends GetxController {
     // print(getDetailsData!.discountType);
     // print(getDetailsData!.orderDate!.split(".").first);
     // print("categoryListcategoryListcategoryList");
-
+    /// api call
     if (categoryList.isNotEmpty) {
       try {
         String rawData =
@@ -363,7 +396,6 @@ class OrdersController extends GetxController {
         if (model.data != null) {
           Get.put(OrderDetailsController());
           Get.put(MyOrdersController());
-          Get.find<OrderDetailsController>().isApiData.value = false;
           Get.find<OrderDetailsController>().update();
           Get.find<MyOrdersController>().id.value = orderId;
           Get.find<HomeController>().addOrder.value = false;

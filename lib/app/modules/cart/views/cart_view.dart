@@ -308,7 +308,7 @@ class CartView extends GetView<CartController> {
                                                                     controller: controller.quantityText,
                                                                     keyboardType: TextInputType.number,
                                                                     inputFormatters: [
-                                                                      FilteringTextInputFormatter.allow(RegExp('[0-9.]')),
+                                                                      FilteringTextInputFormatter.allow(RegExp('[0-9]')),
                                                                     ],
                                                                     decoration: InputDecoration(
                                                                       hintText: "Add Quantity",

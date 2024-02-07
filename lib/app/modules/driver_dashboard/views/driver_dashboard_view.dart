@@ -81,6 +81,12 @@ class DriverDashboardView extends GetView<DriverDashboardController> {
                       dataLength: controller.orderList.length,
                       columns: [
                         DataColumn(
+                            label: AppText(
+                          'Action',
+                          color: AppColors.whiteColor,
+                          fontSize: 11.sp,
+                        )),
+                        DataColumn(
                           label: AppText(
                             'No.',
                             color: AppColors.whiteColor,
@@ -160,12 +166,6 @@ class DriverDashboardView extends GetView<DriverDashboardController> {
                             fontSize: 12.sp,
                           ),
                         ),
-                        DataColumn(
-                            label: AppText(
-                          'Action',
-                          color: AppColors.whiteColor,
-                          fontSize: 11.sp,
-                        )),
                       ],
                       rows: [
                         ...controller.orderList.asMap().entries.map(
@@ -175,6 +175,23 @@ class DriverDashboardView extends GetView<DriverDashboardController> {
                                 order.key.isEven ? AppColors.greyLightColor : AppColors.whiteColor,
                               ),
                               cells: [
+                                DataCell(
+                                  CustomTableCellActionButtons(
+                                    showEditButton: false,
+                                    showDeleteButton: false,
+                                    onViewDetails: () {},
+                                    onView: () {
+                                      Get.put(DriverOrderController());
+                                      Get.find<DriverOrderController>().id.value = order.value.id.toString();
+                                      Get.find<HomeController>().isSelected.value = 1;
+                                      Get.find<HomeController>().isOrderDetails.value = true;
+                                      Get.find<HomeController>().update();
+                                      controller.update();
+                                    },
+                                    onEdit: () {},
+                                    onDelete: () {},
+                                  ),
+                                ),
                                 DataCell(
                                   AppText(order.value.id.toString()),
                                 ),
@@ -208,23 +225,6 @@ class DriverDashboardView extends GetView<DriverDashboardController> {
                                 ),
                                 DataCell(
                                   Text(order.value.delivery_note ?? ""),
-                                ),
-                                DataCell(
-                                  CustomTableCellActionButtons(
-                                    showEditButton: false,
-                                    showDeleteButton: false,
-                                    onViewDetails: () {},
-                                    onView: () {
-                                      Get.put(DriverOrderController());
-                                      Get.find<DriverOrderController>().id.value = order.value.id.toString();
-                                      Get.find<HomeController>().isSelected.value = 1;
-                                      Get.find<HomeController>().isOrderDetails.value = true;
-                                      Get.find<HomeController>().update();
-                                      controller.update();
-                                    },
-                                    onEdit: () {},
-                                    onDelete: () {},
-                                  ),
                                 ),
                               ],
                             );

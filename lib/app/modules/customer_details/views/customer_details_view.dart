@@ -67,12 +67,18 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                       contentPadding: EdgeInsets.only(left: 1.5.w),
                       title: Row(
                         children: [
-                          SizedBox(width: 2.w),
-                          AppText(
-                            controller.customerDetails!.name.toString(),
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.blackColor,
+                          // SizedBox(width: 2.w),
+                          Expanded(
+                            child: Container(
+                              width: 100,
+                              child: AppText(
+                                controller.customerDetails!.name.toString(),
+                                fontSize: 13.sp,
+                                maxLines: 2,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.blackColor,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -92,7 +98,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                               controller.customerDetails?.contactName ?? "",
                               fontSize: 14.sp,
                             ),
-                            controller.customerDetails?.contactName != null ? Divider() : Container(),
+                            controller.customerDetails?.contactName != null ? const Divider() : Container(),
                             AppText(
                               "Customer Name",
                               fontSize: 11.sp,
@@ -102,7 +108,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                               controller.customerDetails!.companyName.toString(),
                               fontSize: 14.sp,
                             ),
-                            Divider(),
+                            const Divider(),
                             AppText(
                               "Address",
                               fontSize: 11.sp,
@@ -112,7 +118,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                               controller.customerDetails!.address.toString(),
                               fontSize: 14.sp,
                             ),
-                            Divider(),
+                            const Divider(),
                             AppText(
                               "Postal Code",
                               fontSize: 11.sp,
@@ -122,19 +128,21 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                               controller.customerDetails!.pincode.toString(),
                               fontSize: 14.sp,
                             ),
-                            Divider(),
-                            AppText(
-                              "Phone Number",
-                              fontSize: 11.sp,
-                              color: AppColors.arrowColor,
-                            ),
+                            const Divider(),
+                            controller.customerDetails!.phoneNumber != ""
+                                ? AppText(
+                                    "Phone Number",
+                                    fontSize: 11.sp,
+                                    color: AppColors.arrowColor,
+                                  )
+                                : Container(),
                             AppText(
                               controller.customerDetails!.phoneNumber.toString(),
                               fontSize: 14.sp,
                             ),
-                            Divider(),
+                            controller.customerDetails!.phoneNumber != "" ? const Divider() : Container(),
                             AppText(
-                              controller.customerDetails?.email != null ? "Email" : "",
+                              controller.customerDetails?.email != "" ? "Email" : "",
                               fontSize: 11.sp,
                               color: AppColors.arrowColor,
                             ),
@@ -142,7 +150,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                               controller.customerDetails?.email ?? "",
                               fontSize: 14.sp,
                             ),
-                            controller.customerDetails?.email != null ? Divider() : Container(),
+                            controller.customerDetails?.email != "" ? const Divider() : Container(),
                             AppText(
                               "Payment Terms",
                               fontSize: 11.sp,
@@ -158,7 +166,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                                           : "60 Days",
                               fontSize: 14.sp,
                             ),
-                            Divider(),
+                            const Divider(),
                           ],
                         ),
                       ),
@@ -201,6 +209,13 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
               isBottom: false,
               columns: [
                 DataColumn(
+                    label: AppText(
+                  'Action',
+                  color: AppColors.whiteColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12.sp,
+                )),
+                DataColumn(
                   label: AppText(
                     'Order Date',
                     fontWeight: FontWeight.w600,
@@ -240,13 +255,6 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                     fontSize: 12.sp,
                   ),
                 ),
-                DataColumn(
-                    label: AppText(
-                  'Action',
-                  color: AppColors.whiteColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12.sp,
-                )),
               ],
               rows: [
                 ...controller.myOrderList.asMap().entries.map(
@@ -277,31 +285,6 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                         orderReport.value.statusColor,
                       ),
                       cells: [
-                        DataCell(AppText(
-                          orderReport.value.orderDate!.split(" ").first,
-                          color: AppColors.whiteColor,
-                          fontSize: 11.sp,
-                        )),
-                        DataCell(AppText(
-                          orderReport.value.payment!.orderNumber.toString(),
-                          color: AppColors.whiteColor,
-                          fontSize: 11.sp,
-                        )),
-                        DataCell(AppText(
-                          orderReport.value.customer == null ? "" : orderReport.value.customer!.name.toString(),
-                          color: AppColors.whiteColor,
-                          fontSize: 11.sp,
-                        )),
-                        DataCell(AppText(
-                          orderReport.value.orderTotal.toString(),
-                          color: AppColors.whiteColor,
-                          fontSize: 11.sp,
-                        )),
-                        DataCell(AppText(
-                          orderReport.value.statusTime.toString(),
-                          color: AppColors.whiteColor,
-                          fontSize: 11.sp,
-                        )),
                         DataCell(
                           CustomTableCellActionButtons(
                             showDeleteButton: false,
@@ -328,6 +311,31 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                             onDelete: () {},
                           ),
                         ),
+                        DataCell(AppText(
+                          orderReport.value.orderDate!.split(" ").first,
+                          color: AppColors.whiteColor,
+                          fontSize: 11.sp,
+                        )),
+                        DataCell(AppText(
+                          orderReport.value.payment!.orderNumber.toString(),
+                          color: AppColors.whiteColor,
+                          fontSize: 11.sp,
+                        )),
+                        DataCell(AppText(
+                          orderReport.value.customer == null ? "" : orderReport.value.customer!.name.toString(),
+                          color: AppColors.whiteColor,
+                          fontSize: 11.sp,
+                        )),
+                        DataCell(AppText(
+                          orderReport.value.orderTotal.toString(),
+                          color: AppColors.whiteColor,
+                          fontSize: 11.sp,
+                        )),
+                        DataCell(AppText(
+                          orderReport.value.statusTime.toString(),
+                          color: AppColors.whiteColor,
+                          fontSize: 11.sp,
+                        )),
                       ],
                     );
                   },

@@ -51,6 +51,13 @@ class DashboardView extends GetView<DashboardController> {
               isBottom: false,
               columns: [
                 DataColumn(
+                    label: AppText(
+                  'Action',
+                  color: AppColors.whiteColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12.sp,
+                )),
+                DataColumn(
                   label: AppText(
                     'Order Date',
                     fontWeight: FontWeight.w600,
@@ -90,13 +97,6 @@ class DashboardView extends GetView<DashboardController> {
                     fontSize: 12.sp,
                   ),
                 ),
-                DataColumn(
-                    label: AppText(
-                  'Action',
-                  color: AppColors.whiteColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12.sp,
-                )),
               ],
               rows: [
                 ...controller.myOrderList.asMap().entries.map(
@@ -127,31 +127,6 @@ class DashboardView extends GetView<DashboardController> {
                         orderReport.value.statusColor,
                       ),
                       cells: [
-                        DataCell(AppText(
-                          orderReport.value.orderDate!.split(" ").first,
-                          color: AppColors.whiteColor,
-                          fontSize: 11.sp,
-                        )),
-                        DataCell(AppText(
-                          orderReport.value.payment!.orderNumber.toString(),
-                          color: AppColors.whiteColor,
-                          fontSize: 11.sp,
-                        )),
-                        DataCell(AppText(
-                          orderReport.value.customer == null ? "" : orderReport.value.customer!.name.toString(),
-                          color: AppColors.whiteColor,
-                          fontSize: 11.sp,
-                        )),
-                        DataCell(AppText(
-                          orderReport.value.orderTotal.toString(),
-                          color: AppColors.whiteColor,
-                          fontSize: 11.sp,
-                        )),
-                        DataCell(AppText(
-                          orderReport.value.statusTime.toString(),
-                          color: AppColors.whiteColor,
-                          fontSize: 11.sp,
-                        )),
                         DataCell(
                           CustomTableCellActionButtons(
                             showDeleteButton: false,
@@ -180,6 +155,31 @@ class DashboardView extends GetView<DashboardController> {
                             onDelete: () {},
                           ),
                         ),
+                        DataCell(AppText(
+                          orderReport.value.orderDate!.split(" ").first,
+                          color: AppColors.whiteColor,
+                          fontSize: 11.sp,
+                        )),
+                        DataCell(AppText(
+                          orderReport.value.payment!.orderNumber.toString(),
+                          color: AppColors.whiteColor,
+                          fontSize: 11.sp,
+                        )),
+                        DataCell(AppText(
+                          orderReport.value.customer == null ? "" : orderReport.value.customer!.name.toString(),
+                          color: AppColors.whiteColor,
+                          fontSize: 11.sp,
+                        )),
+                        DataCell(AppText(
+                          orderReport.value.orderTotal.toString(),
+                          color: AppColors.whiteColor,
+                          fontSize: 11.sp,
+                        )),
+                        DataCell(AppText(
+                          orderReport.value.statusTime.toString(),
+                          color: AppColors.whiteColor,
+                          fontSize: 11.sp,
+                        )),
                       ],
                     );
                   },

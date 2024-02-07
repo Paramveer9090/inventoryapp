@@ -12,9 +12,9 @@ class ReportModel {
   final List<Products>? products;
   final int? accept;
   final int? review;
-  final int? unpaid;
-  final int? paid;
-  final int? totalOrder;
+  final dynamic unpaid;
+  final dynamic paid;
+  final dynamic totalOrder;
   final CustomerDetails? customerDetails;
 
   ReportModel({
@@ -36,9 +36,9 @@ class ReportModel {
   ReportModel.fromJson(Map<String, dynamic> json)
       : accept = json['accept'] as int?,
         review = json['review'] as int?,
-        unpaid = json['unpaid'] as int?,
-        paid = json['paid'] as int?,
-        totalOrder = json['total_order'] as int?,
+        unpaid = json['unpaid'],
+        paid = json['paid'],
+        totalOrder = json['total_order'],
         customerDetails = (json['customer_details'] as Map<String, dynamic>?) != null ? CustomerDetails.fromJson(json['customer_details'] as Map<String, dynamic>) : null,
         inventories = (json['inventories'] as List?)?.map((dynamic e) => Inventories.fromJson(e as Map<String, dynamic>)).toList(),
         status = (json['status'] as List?)?.map((dynamic e) => e as String).toList(),

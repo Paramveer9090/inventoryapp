@@ -86,6 +86,7 @@ class GetDataListResponseData {
   final Expense? expense;
   Payment? payment;
   String? address;
+  bool? isWrongData;
   String? phoneNumber;
   dynamic email;
   String? pincode;
@@ -102,7 +103,7 @@ class GetDataListResponseData {
   final int? customerId;
   final dynamic extraDiscount;
   final int? deliveryAgentId;
-  final int? orderTotalWithoutTax;
+  final dynamic orderTotalWithoutTax;
   final dynamic orderTax;
   final String? dueDate;
   final int? editKey;
@@ -154,6 +155,7 @@ class GetDataListResponseData {
     this.taxType,
     this.taxId,
     this.amountWithoutTax,
+    this.isWrongData,
     this.amountOnlyTax,
     this.finalAmount,
     this.subCategoryId,
@@ -235,6 +237,7 @@ class GetDataListResponseData {
         name = json['name'],
         amountWithoutTax = json['amountWithoutTax'],
         amountOnlyTax = json['amountOnlyTax'],
+        isWrongData = json['isWrongData'] ?? false,
         finalAmount = json['finalAmount'],
         categoryOrder = json['category_order'] as int?,
         categoryId = json['category_id'],
@@ -293,7 +296,7 @@ class GetDataListResponseData {
         extraDiscount = json['extra_discount'],
         deliveryAgentId = json['delivery_agent_id'] as int?,
         salePrice = json['sale_price'],
-        orderTotalWithoutTax = json['order_total_without_tax'] as int?,
+        orderTotalWithoutTax = json['order_total_without_tax'],
         orderTax = json['order_tax'],
         dueDate = json['due_date'] as String?,
         order_date = json['order_date'] as String?,
@@ -350,6 +353,7 @@ class GetDataListResponseData {
         'tax_id': taxId,
         'taxType': taxType,
         'sub_category_id': subCategoryId,
+        'isWrongData': isWrongData,
         'product_image': productImage,
         'media': media,
         'salePrice': salePrice,

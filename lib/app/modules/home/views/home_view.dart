@@ -3,7 +3,6 @@ import 'package:true_leaf_inventory_app/app/modules/customers/controllers/custom
 import 'package:true_leaf_inventory_app/app/modules/driver_order/controllers/driver_order_controller.dart';
 import 'package:true_leaf_inventory_app/app/modules/orders/views/orders_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/products/views/products_view.dart';
-
 import '../../../widgets/all_import.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -21,6 +20,12 @@ class HomeView extends GetView<HomeController> {
         return controller.loginData?.roles![0].title == "Sales Manager"
             ? WillPopScope(
                 onWillPop: () async {
+                  print("ordersordersordersorders");
+                  print(controller.addOrder.value);
+                  print(controller.isOrderEdit.value);
+                  print(orderId);
+                  print(customerCartId);
+
                   // print("will pop scope");
                   // print(controller.isCart.value);
                   // print(controller.isOrderDetails.value && controller.isOrderEdit.value);
@@ -43,6 +48,11 @@ class HomeView extends GetView<HomeController> {
                     );
                     controller.update();
                     // return true;
+                  } else if (controller.isOrderEdit.value && controller.addOrder.value) {
+                    controller.addOrder.value = false;
+                    controller.isSelected.value = 2;
+                    controller.isOrderDetails.value = true;
+                    controller.update();
                   } else if (controller.isOrderDetails.value && controller.isOrderEdit.value) {
                     controller.isOrderDetails.value = false;
                     controller.isOrderEdit.value = false;
@@ -57,7 +67,6 @@ class HomeView extends GetView<HomeController> {
                     Get.find<CustomersController>().update();
                     controller.update();
                   }
-
                   return false;
                 },
                 child: Scaffold(
@@ -138,12 +147,12 @@ class HomeView extends GetView<HomeController> {
                                   color: AppColors.whiteColor,
                                 ),
                               )
-                            : controller.isOrderDetails.value && controller.isOrderEdit.value
+                            : controller.isOrderEdit.value && controller.addOrder.value
                                 ? GestureDetector(
                                     onTap: () {
-                                      controller.isOrderDetails.value = false;
-                                      controller.isOrderEdit.value = false;
-                                      Get.find<MyOrdersController>().update();
+                                      controller.addOrder.value = false;
+                                      controller.isSelected.value = 2;
+                                      controller.isOrderDetails.value = true;
                                       controller.update();
                                     },
                                     child: Icon(
@@ -151,10 +160,11 @@ class HomeView extends GetView<HomeController> {
                                       color: AppColors.whiteColor,
                                     ),
                                   )
-                                : controller.isOrderDetails.value
+                                : controller.isOrderDetails.value && controller.isOrderEdit.value
                                     ? GestureDetector(
                                         onTap: () {
                                           controller.isOrderDetails.value = false;
+                                          controller.isOrderEdit.value = false;
                                           Get.find<MyOrdersController>().update();
                                           controller.update();
                                         },
@@ -163,11 +173,11 @@ class HomeView extends GetView<HomeController> {
                                           color: AppColors.whiteColor,
                                         ),
                                       )
-                                    : controller.isCustomerDetails.value
+                                    : controller.isOrderDetails.value
                                         ? GestureDetector(
                                             onTap: () {
-                                              controller.isCustomerDetails.value = false;
-                                              Get.find<CustomersController>().update();
+                                              controller.isOrderDetails.value = false;
+                                              Get.find<MyOrdersController>().update();
                                               controller.update();
                                             },
                                             child: Icon(
@@ -175,7 +185,19 @@ class HomeView extends GetView<HomeController> {
                                               color: AppColors.whiteColor,
                                             ),
                                           )
-                                        : Container(),
+                                        : controller.isCustomerDetails.value
+                                            ? GestureDetector(
+                                                onTap: () {
+                                                  controller.isCustomerDetails.value = false;
+                                                  Get.find<CustomersController>().update();
+                                                  controller.update();
+                                                },
+                                                child: Icon(
+                                                  Icons.arrow_back_outlined,
+                                                  color: AppColors.whiteColor,
+                                                ),
+                                              )
+                                            : Container(),
                     actions: [
                       controller.isCart.value
                           ? Container()
@@ -393,100 +415,111 @@ class HomeView extends GetView<HomeController> {
                 ),
               )
             : accessToken != null
-                ? Scaffold(
-                    backgroundColor: AppColors.primaryColor,
-                    appBar: AppBar(
-                      forceMaterialTransparency: true,
-                      centerTitle: true,
+                ? WillPopScope(
+                    onWillPop: () async {
+                      if (controller.isOrderDetails.value) {
+                        controller.isOrderDetails.value = false;
+                        Get.find<DriverOrderController>().update();
+                        controller.isSelected.value = 1;
+                      }
+                      controller.update();
+                      return false;
+                    },
+                    child: Scaffold(
                       backgroundColor: AppColors.primaryColor,
-                      title: AppText(
-                        controller.isOrderDetails.value ? AppStrings.orderDetail : controller.titleDeliveryList[controller.isSelected.value],
-                        fontSize: 14.sp,
-                        color: AppColors.whiteColor,
-                      ),
-                      leading: controller.isOrderDetails.value
-                          ? GestureDetector(
-                              onTap: () {
-                                controller.isOrderDetails.value = false;
-                                Get.find<DriverOrderController>().update();
-                                controller.update();
-                              },
+                      appBar: AppBar(
+                        forceMaterialTransparency: true,
+                        centerTitle: true,
+                        backgroundColor: AppColors.primaryColor,
+                        title: AppText(
+                          controller.isOrderDetails.value ? AppStrings.orderDetail : controller.titleDeliveryList[controller.isSelected.value],
+                          fontSize: 14.sp,
+                          color: AppColors.whiteColor,
+                        ),
+                        leading: controller.isOrderDetails.value
+                            ? GestureDetector(
+                                onTap: () {
+                                  controller.isOrderDetails.value = false;
+                                  Get.find<DriverOrderController>().update();
+                                  controller.update();
+                                },
+                                child: Icon(
+                                  Icons.arrow_back_outlined,
+                                  color: AppColors.whiteColor,
+                                ),
+                              )
+                            : Container(),
+                        actions: [
+                          GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return DeletePopup(
+                                    isDelete: true,
+                                    onTap: () {
+                                      controller.logout();
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 1.8.h),
                               child: Icon(
-                                Icons.arrow_back_outlined,
+                                Icons.login_outlined,
                                 color: AppColors.whiteColor,
                               ),
-                            )
-                          : Container(),
-                      actions: [
-                        GestureDetector(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return DeletePopup(
-                                  isDelete: true,
-                                  onTap: () {
-                                    controller.logout();
-                                  },
-                                );
-                              },
-                            );
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 1.8.h),
-                            child: Icon(
-                              Icons.login_outlined,
-                              color: AppColors.whiteColor,
                             ),
                           ),
+                        ],
+                      ),
+                      bottomNavigationBar: Container(
+                        color: Colors.white,
+                        child: Container(
+                          height: 10.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor,
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(30),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ...List.generate(
+                                controller.iconDeliveryList.length,
+                                (index) => GestureDetector(
+                                  onTap: () {
+                                    controller.isSelected.value = index;
+                                    if (controller.isOrderDetails.value) {
+                                      controller.isOrderDetails.value = false;
+                                    }
+                                    controller.update();
+                                  },
+                                  child: Image.asset(
+                                    controller.isSelected.value == index ? controller.selectedDeliveryIconList[index] : controller.iconDeliveryList[index],
+                                    height: 3.5.h,
+                                    width: 3.5.h,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                    bottomNavigationBar: Container(
-                      color: Colors.white,
-                      child: Container(
-                        height: 10.h,
+                      ),
+                      body: Container(
+                        height: double.infinity,
+                        width: double.infinity,
                         decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
+                          color: AppColors.whiteColor,
                           borderRadius: BorderRadius.vertical(
                             top: Radius.circular(30),
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ...List.generate(
-                              controller.iconDeliveryList.length,
-                              (index) => GestureDetector(
-                                onTap: () {
-                                  controller.isSelected.value = index;
-                                  if (controller.isOrderDetails.value) {
-                                    controller.isOrderDetails.value = false;
-                                  }
-                                  controller.update();
-                                },
-                                child: Image.asset(
-                                  controller.isSelected.value == index ? controller.selectedDeliveryIconList[index] : controller.iconDeliveryList[index],
-                                  height: 3.5.h,
-                                  width: 3.5.h,
-                                ),
-                              ),
-                            ),
-                          ],
+                        child: Center(
+                          child: controller.screensDelivery[controller.isSelected.value],
                         ),
-                      ),
-                    ),
-                    body: Container(
-                      height: double.infinity,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: AppColors.whiteColor,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(30),
-                        ),
-                      ),
-                      child: Center(
-                        child: controller.screensDelivery[controller.isSelected.value],
                       ),
                     ),
                   )

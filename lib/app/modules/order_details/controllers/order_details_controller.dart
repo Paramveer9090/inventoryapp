@@ -22,7 +22,6 @@ class OrderDetailsController extends GetxController {
 
   LoginSignUpData? loginData;
   var signImage = "".obs;
-  var isApiData = true.obs;
   var isWrongData = false.obs;
 
   @override
@@ -51,9 +50,14 @@ class OrderDetailsController extends GetxController {
   /// Order Details
   orderDetails() async {
     await getLoginData();
-    if (id == null) {
+
+    if (await id == null || id == "") {
+      print("assign value");
       id = orderId;
     }
+    print(id);
+    print(orderId);
+    print("orderIdorderIdorderIdorderId");
     final data = await APIFunction().apiCall(
       apiName: "${Constants.orders}/${id}",
       context: Get.context!,

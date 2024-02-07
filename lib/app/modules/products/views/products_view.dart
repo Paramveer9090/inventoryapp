@@ -49,6 +49,14 @@ class ProductsView extends GetView<ProductsController> {
                               columns: [
                                 DataColumn(
                                   label: AppText(
+                                    'Action',
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.whiteColor,
+                                    fontSize: 12.sp,
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: AppText(
                                     'Id',
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.whiteColor,
@@ -119,14 +127,6 @@ class ProductsView extends GetView<ProductsController> {
                                     fontSize: 12.sp,
                                   ),
                                 ),
-                                DataColumn(
-                                  label: AppText(
-                                    'Action',
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.whiteColor,
-                                    fontSize: 12.sp,
-                                  ),
-                                ),
                               ],
                               rows: [
                                 ...controller.productList.asMap().entries.map(
@@ -147,38 +147,6 @@ class ProductsView extends GetView<ProductsController> {
                                         product.key.isEven ? AppColors.greyLightColor : AppColors.whiteColor,
                                       ),
                                       cells: [
-                                        DataCell(
-                                          Text(product.value.id.toString()),
-                                        ),
-                                        DataCell(
-                                          Text(product.value.name.toString()),
-                                        ),
-                                        DataCell(
-                                          Text(product.value.categoryType.toString()),
-                                        ),
-                                        DataCell(
-                                          Text(product.value.subCategoryType.toString()),
-                                        ),
-                                        DataCell(
-                                          Text(product.value.maximumSellingPrice.toString()),
-                                        ),
-                                        DataCell(
-                                          Text(product.value.sellingPrice.toString()),
-                                        ),
-                                        DataCell(
-                                          Text(product.value.stock.toString()),
-                                        ),
-                                        DataCell(
-                                          product.value.imageUrl == null
-                                              ? const Text('No Image')
-                                              : Image.network(
-                                                  '${Constants.imageBaseUrl}${product.value.imageUrl}',
-                                                  width: 48,
-                                                ),
-                                        ),
-                                        DataCell(
-                                          Text(product.value.boxSize.toString()),
-                                        ),
                                         DataCell(
                                           CustomTableCellActionButtons(
                                             showEditButton: false,
@@ -210,6 +178,38 @@ class ProductsView extends GetView<ProductsController> {
                                             onEdit: () {},
                                             onDelete: () {},
                                           ),
+                                        ),
+                                        DataCell(
+                                          Text(product.value.id.toString()),
+                                        ),
+                                        DataCell(
+                                          Text(product.value.name.toString()),
+                                        ),
+                                        DataCell(
+                                          Text(product.value.categoryType.toString()),
+                                        ),
+                                        DataCell(
+                                          Text(product.value.subCategoryType.toString()),
+                                        ),
+                                        DataCell(
+                                          Text(product.value.maximumSellingPrice.toString()),
+                                        ),
+                                        DataCell(
+                                          Text(product.value.sellingPrice.toString()),
+                                        ),
+                                        DataCell(
+                                          Text(product.value.stock.toString()),
+                                        ),
+                                        DataCell(
+                                          product.value.imageUrl == null
+                                              ? const Text('No Image')
+                                              : Image.network(
+                                                  '${Constants.imageBaseUrl}${product.value.imageUrl}',
+                                                  width: 48,
+                                                ),
+                                        ),
+                                        DataCell(
+                                          Text(product.value.boxSize.toString()),
                                         ),
                                       ],
                                     );
