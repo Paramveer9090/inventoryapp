@@ -1,6 +1,7 @@
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 class ChangePasswordController extends GetxController {
+  TextEditingController userName = TextEditingController();
   TextEditingController newPassword = TextEditingController();
   TextEditingController repeatPassword = TextEditingController();
   LoginSignUpData? loginData;
@@ -15,6 +16,9 @@ class ChangePasswordController extends GetxController {
     final data = getStorageData.readObject(getStorageData.loginData);
     if (data != null) {
       loginData = LoginSignUpData.fromJson(data);
+      print("loginData!.name");
+      print(loginData!.name);
+      userName.text = loginData!.name!;
     }
     update();
   }

@@ -21,6 +21,12 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
             children: [
               SizedBox(height: 2.h),
               CustomTextFormField(
+                label: 'Username',
+                readOnly: true,
+                hintText: "Enter Username",
+                controller: controller.userName,
+              ),
+              SizedBox(height: 16),   CustomTextFormField(
                 label: 'New Password',
                 obscureText: true,
                 suffixVisibility: true,
