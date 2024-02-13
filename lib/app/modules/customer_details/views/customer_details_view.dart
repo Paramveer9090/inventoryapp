@@ -206,7 +206,6 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
             CustomTable(
               dataLength: controller.myOrderList.length,
               margin: EdgeInsets.zero,
-              isBottom: false,
               columns: [
                 DataColumn(
                     label: AppText(

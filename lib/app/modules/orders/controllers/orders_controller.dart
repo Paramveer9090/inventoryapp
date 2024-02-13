@@ -81,7 +81,7 @@ class OrdersController extends GetxController {
 
     if (model.data!.isNotEmpty) {
       categoryList = model.data!;
-      print("sub category get thy 6e");
+      print("sub category get");
       print("sub category length ${categoryList.length}");
       noData.value = "";
       update();
@@ -107,6 +107,7 @@ class OrdersController extends GetxController {
 
     if (model.data!.isNotEmpty) {
       tempProductList = model.data!;
+
       update();
     } else {
       print("In else part");
@@ -115,7 +116,7 @@ class OrdersController extends GetxController {
 
   getProduct({required var subCategoryId, type}) {
     isProduct.value = true;
-    print("product get thy 6e");
+    print("product get");
     if (productList.isNotEmpty) {
       productList.clear();
     }
@@ -233,6 +234,191 @@ class OrdersController extends GetxController {
   var orderTax = "".obs;
   var orderFinalTotal = "".obs;
 
+  /// work edit order
+  // editOrderAPI() async {
+  //   print("check length");
+  //   print(orderItem.length);
+  //   print(productList.length);
+  //
+  //   int l = orderItem.length;
+  //   int k = productList.length;
+  //   bool whichListIsBig = l <= k;
+  //
+  //   print(whichListIsBig);
+  //   print("whichListIsBig");
+  //
+  //   if (whichListIsBig) {
+  //     print("productList big");
+  //     for (int i = 0; i < productList.length; i++) {
+  //       for (int j = 0; j < orderItem.length; j++) {
+  //         if (await productList[i].quantityCount != "0") {
+  //           print(productList[i].name);
+  //           print("orderItem[j].name");
+  //           if (await productList[i].productId == orderItem[j].productId) {
+  //             orderItem[j] = productList[i];
+  //           } else {
+  //             orderItem.add(productList[i]);
+  //             // break;
+  //           }
+  //         } else {
+  //           print("quantity value 0");
+  //         }
+  //       }
+  //     }
+  //   } else {
+  //     print("orderItem big");
+  //     for (int i = 0; i < orderItem.length; i++) {
+  //       for (int j = 0; j < productList.length; j++) {
+  //         if (await productList[j].quantityCount != "0") {
+  //           print(productList[j].name);
+  //           print("orderItem[j].name");
+  //           if (await productList[j].productId == orderItem[i].productId) {
+  //             print("value replace");
+  //             orderItem[i] = productList[j];
+  //           } else {
+  //             print("value added");
+  //             orderItem.add(productList[j]);
+  //             // break;
+  //           }
+  //         } else {
+  //           print("quantity value 0");
+  //         }
+  //         // if (await productList[j].quantityCount != "0") {
+  //         //   if (orderItem.contains(productList[j])) {
+  //         //     print("replace value");
+  //         //     orderItem[i] = GetDataListResponseData();
+  //         //     orderItem[i] = productList[j];
+  //         //     break;
+  //         //   } else {
+  //         //     orderItem.add(productList[j]);
+  //         //     break;
+  //         //   }
+  //         // } else {
+  //         //   print("quantity value 0");
+  //         // }
+  //       }
+  //       // break;
+  //     }
+  //   }
+  //
+  //   print(orderItem.length);
+  //   print("orderItemorderItemorderItem");
+  //
+  //   List categoryList = [];
+  //   List subCategoryList = [];
+  //   List productAPIList = [];
+  //   List packageList = [];
+  //   List quantityList = [];
+  //   List salesPriceList = [];
+  //   List taxList = [];
+  //   List isBoxList = [];
+  //   List isProductName = [];
+  //   if (orderItem.isNotEmpty) {
+  //     List<GetDataListResponseData> apiList = [];
+  //     for (int js = 0; js < orderItem.length; js++) {
+  //       apiList = orderItem.toSet().toList();
+  //     }
+  //
+  //     for (int k = 0; k < apiList.length; k++) {
+  //       categoryList.add(apiList[k].categoryId);
+  //       subCategoryList.add(apiList[k].subCategoryId);
+  //       productAPIList.add(apiList[k].productId);
+  //       packageList.add(apiList[k].boxSize);
+  //       quantityList.add(apiList[k].quantityCount);
+  //       salesPriceList.add(apiList[k].salePrice);
+  //       isProductName.add(apiList[k].name);
+  //       taxList.add(apiList[k].taxId);
+  //       isBoxList.add(apiList[k].isBox);
+  //       var amountTax;
+  //       var amount;
+  //       // if (apiList[k].isBox == 1) {
+  //       //   amountTax = (((double.parse(apiList[k].boxSize.toString()) * double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].sellingPrice!.toString())) * double.parse(apiList[k].tax.toString())) / 100;
+  //       //   amount = (double.parse(apiList[k].boxSize.toString()) * double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].sellingPrice!.toString());
+  //       //   apiList[k].amountWithoutTax = amount.toString();
+  //       //   apiList[k].amountOnlyTax = amountTax.toString();
+  //       //   apiList[k].finalAmount = (amount + amountTax).toString();
+  //       // } else {
+  //       amountTax = ((double.parse(apiList[k].quantityCount.toString()) * double.parse(apiList[k].salePrice.toString())) * double.parse(apiList[k].tax.toString())) / 100;
+  //       amount = (double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].salePrice.toString());
+  //       apiList[k].amountWithoutTax = amount.toString();
+  //       apiList[k].amountOnlyTax = amountTax.toString();
+  //       apiList[k].finalAmount = (amount + amountTax).toString();
+  //       // }
+  //     }
+  //
+  //     orderTotal.value = (apiList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
+  //     orderTax.value = (apiList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
+  //     orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toString();
+  //   }
+  //   print("orderTotal.value");
+  //   print(orderTotal.value);
+  //   print(orderTax.value);
+  //   print(orderFinalTotal.value);
+  //   update();
+  //
+  //   print(categoryList);
+  //   print(subCategoryList);
+  //   print(productAPIList);
+  //   print(packageList);
+  //   print(quantityList);
+  //   print(isProductName);
+  //   print(salesPriceList);
+  //   print(taxList);
+  //   print(isBoxList);
+  //
+  //   print("isBoxListisBoxListisBoxListisBoxListisBoxList");
+  //   // print(getDetailsData!.orderTotalWithoutTax);
+  //   // print(orderTotal.value);
+  //   // print(getDetailsData!.orderTax);
+  //   // print(orderTax.value);
+  //   // print(getDetailsData!.orderTotal);
+  //   // print(orderFinalTotal.value);
+  //   // print(getDetailsData!.status);
+  //   // print(getDetailsData!.discountType);
+  //   // print(getDetailsData!.orderDate!.split(".").first);
+  //   // print("categoryListcategoryListcategoryList");
+  //   /// api call
+  //
+  //   if (categoryList.isNotEmpty) {
+  //     try {
+  //       String rawData =
+  //           '{"sales_manager_id": "${getDetailsData!.salesManagerId}","customer_id": ${getDetailsData!.customerId},"item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productAPIList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${getDetailsData!.discountType},"extra_discount": "${getDetailsData!.extraDiscount}","order_total": "${orderFinalTotal.value}","comments": "${getDetailsData!.comments}","delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${getDetailsData!.orderDate!.split(".").first}"}';
+  //
+  //       final data = await APIFunction().apiCall(
+  //         apiName: "${Constants.orders}/${orderId}",
+  //         context: Get.context!,
+  //         token: accessToken,
+  //         type: "put",
+  //         rawData: rawData,
+  //       );
+  //
+  //       GetDetailsResponseModel model = GetDetailsResponseModel.fromJson(data);
+  //
+  //       if (model.data != null) {
+  //         Get.put(OrderDetailsController());
+  //         Get.put(MyOrdersController());
+  //         Get.find<OrderDetailsController>().update();
+  //         Get.find<MyOrdersController>().id.value = orderId;
+  //         Get.find<HomeController>().addOrder.value = false;
+  //         Get.find<HomeController>().isSelected.value = 2;
+  //         Get.find<HomeController>().isOrderDetails.value = true;
+  //         Get.find<HomeController>().isOrderEdit.value = true;
+  //         print(Get.find<MyOrdersController>().id.value);
+  //         print("Get.find<MyOrdersController>().id.value");
+  //         Get.find<HomeController>().update();
+  //         update();
+  //         Get.back();
+  //       } else {
+  //         print("In else part");
+  //       }
+  //     } on Exception catch (error) {
+  //       utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
+  //     }
+  //   }
+  // }
+
+  // worked on it
+
   editOrderAPI() async {
     print("check length");
     print(orderItem.length);
@@ -245,61 +431,65 @@ class OrdersController extends GetxController {
     print(whichListIsBig);
     print("whichListIsBig");
 
-    if (whichListIsBig) {
-      print("productList big");
-      for (int i = 0; i < productList.length; i++) {
-        for (int j = 0; j < orderItem.length; j++) {
-          if (await productList[i].quantityCount != "0") {
-            print(productList[i].name);
-            print(orderItem[j].name);
-            print("orderItem[j].name");
-            if (await productList[i].productId == orderItem[j].productId) {
-              orderItem[j] = productList[i];
-            } else {
-              orderItem.add(productList[i]);
-              // break;
-            }
-          } else {
-            print("quantity value 0");
-          }
-        }
-      }
-    } else {
-      print("orderItem big");
-      for (int i = 0; i < orderItem.length; i++) {
-        for (int j = 0; j < productList.length; j++) {
-          if (await productList[j].quantityCount != "0") {
-            print(productList[j].name);
-            print(orderItem[i].name);
-            print("orderItem[j].name");
-            if (await productList[j].productId == orderItem[i].productId) {
-              print("value replace");
-              orderItem[i] = productList[j];
-            } else {
-              print("value added");
-              orderItem.add(productList[j]);
-              // break;
-            }
-          } else {
-            print("quantity value 0");
-          }
-          // if (await productList[j].quantityCount != "0") {
-          //   if (orderItem.contains(productList[j])) {
-          //     print("replace value");
-          //     orderItem[i] = GetDataListResponseData();
-          //     orderItem[i] = productList[j];
-          //     break;
-          //   } else {
-          //     orderItem.add(productList[j]);
-          //     break;
-          //   }
-          // } else {
-          //   print("quantity value 0");
-          // }
-        }
-        // break;
+    for (int i = 0; i < productList.length; i++) {
+      if (await productList[i].quantityCount != "0") {
+        orderItem.add(productList[i]);
       }
     }
+
+    print(orderItem);
+    print("orderItemorderItem");
+
+    // if (whichListIsBig) {
+    //   print("productList big");
+    //
+    //
+    //   for (int i = 0; i < productList.length; i++) {
+    //     for (int j = 0; j < orderItem.length; j++) {
+    //       // productList[i].salePrice = orderItem[j].salePrice;
+    //       if (await productList[i].quantityCount != "0") {
+    //         print(productList[i].name);
+    //         print(productList[i]);
+    //         print("orderItem[j].name");
+    //         // if (await productList[i].productId == orderItem[j].productId) {
+    //         //   // orderItem[j] = productList[i];
+    //         //   orderItem.add(productList[i]);
+    //         //   break;
+    //         // } else {
+    //         //   orderItem.add(productList[i]);
+    //         //   // break;
+    //         // }
+    //       } else {
+    //         print("quantity value 0");
+    //       }
+    //     }
+    //   }
+    // } else {
+    //   print("orderItem big");
+    //   for (int i = 0; i < orderItem.length; i++) {
+    //     for (int j = 0; j < productList.length; j++) {
+    //       // productList[j].salePrice = orderItem[i].salePrice;
+    //       if (await productList[j].quantityCount != "0") {
+    //         print(productList[j].name);
+    //         print(productList[i]);
+    //         print("orderItem[j].name");
+    //         // if (await productList[j].productId == orderItem[i].productId) {
+    //         //   print("value replace");
+    //         //   orderItem.add(productList[j]);
+    //         //   break;
+    //         //   // orderItem[i] = productList[j];
+    //         // } else {
+    //         //   print("value added");
+    //         //   orderItem.add(productList[j]);
+    //         //   // break;
+    //         // }
+    //       } else {
+    //         print("quantity value 0");
+    //       }
+    //     }
+    //     // break;
+    //   }
+    // }
 
     print(orderItem.length);
     print("orderItemorderItemorderItem");
@@ -316,7 +506,7 @@ class OrdersController extends GetxController {
     if (orderItem.isNotEmpty) {
       List<GetDataListResponseData> apiList = [];
       for (int js = 0; js < orderItem.length; js++) {
-        apiList = orderItem.toSet().toList();
+        apiList = orderItem;
       }
 
       for (int k = 0; k < apiList.length; k++) {
@@ -325,7 +515,8 @@ class OrdersController extends GetxController {
         productAPIList.add(apiList[k].productId);
         packageList.add(apiList[k].boxSize);
         quantityList.add(apiList[k].quantityCount);
-        salesPriceList.add(apiList[k].sellingPrice);
+        salesPriceList.add(apiList[k].salePrice);
+        salesPriceList.add(apiList[k].salePrice);
         isProductName.add(apiList[k].name);
         taxList.add(apiList[k].taxId);
         isBoxList.add(apiList[k].isBox);
@@ -338,8 +529,8 @@ class OrdersController extends GetxController {
         //   apiList[k].amountOnlyTax = amountTax.toString();
         //   apiList[k].finalAmount = (amount + amountTax).toString();
         // } else {
-        amountTax = ((double.parse(apiList[k].quantityCount.toString()) * double.parse(apiList[k].sellingPrice.toString())) * double.parse(apiList[k].tax.toString())) / 100;
-        amount = (double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].sellingPrice.toString());
+        amountTax = ((double.parse(apiList[k].quantityCount.toString()) * double.parse(apiList[k].salePrice.toString())) * double.parse(apiList[k].tax.toString())) / 100;
+        amount = (double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].salePrice.toString());
         apiList[k].amountWithoutTax = amount.toString();
         apiList[k].amountOnlyTax = amountTax.toString();
         apiList[k].finalAmount = (amount + amountTax).toString();
@@ -378,42 +569,43 @@ class OrdersController extends GetxController {
     // print(getDetailsData!.orderDate!.split(".").first);
     // print("categoryListcategoryListcategoryList");
     /// api call
-    if (categoryList.isNotEmpty) {
-      try {
-        String rawData =
-            '{"sales_manager_id": "${getDetailsData!.salesManagerId}","customer_id": ${getDetailsData!.customerId},"item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productAPIList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${getDetailsData!.discountType},"extra_discount": "${getDetailsData!.extraDiscount}","order_total": "${orderFinalTotal.value}","comments": "${getDetailsData!.comments}","delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${getDetailsData!.orderDate!.split(".").first}"}';
 
-        final data = await APIFunction().apiCall(
-          apiName: "${Constants.orders}/${orderId}",
-          context: Get.context!,
-          token: accessToken,
-          type: "put",
-          rawData: rawData,
-        );
-
-        GetDetailsResponseModel model = GetDetailsResponseModel.fromJson(data);
-
-        if (model.data != null) {
-          Get.put(OrderDetailsController());
-          Get.put(MyOrdersController());
-          Get.find<OrderDetailsController>().update();
-          Get.find<MyOrdersController>().id.value = orderId;
-          Get.find<HomeController>().addOrder.value = false;
-          Get.find<HomeController>().isSelected.value = 2;
-          Get.find<HomeController>().isOrderDetails.value = true;
-          Get.find<HomeController>().isOrderEdit.value = true;
-          print(Get.find<MyOrdersController>().id.value);
-          print("Get.find<MyOrdersController>().id.value");
-          Get.find<HomeController>().update();
-          update();
-          Get.back();
-        } else {
-          print("In else part");
-        }
-      } on Exception catch (error) {
-        utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
-      }
-    }
+    // if (categoryList.isNotEmpty) {
+    //   try {
+    //     String rawData =
+    //         '{"sales_manager_id": "${getDetailsData!.salesManagerId}","customer_id": ${getDetailsData!.customerId},"item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productAPIList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${getDetailsData!.discountType},"extra_discount": "${getDetailsData!.extraDiscount}","order_total": "${orderFinalTotal.value}","comments": "${getDetailsData!.comments}","delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${getDetailsData!.orderDate!.split(".").first}"}';
+    //
+    //     final data = await APIFunction().apiCall(
+    //       apiName: "${Constants.orders}/${orderId}",
+    //       context: Get.context!,
+    //       token: accessToken,
+    //       type: "put",
+    //       rawData: rawData,
+    //     );
+    //
+    //     GetDetailsResponseModel model = GetDetailsResponseModel.fromJson(data);
+    //
+    //     if (model.data != null) {
+    //       Get.put(OrderDetailsController());
+    //       Get.put(MyOrdersController());
+    //       Get.find<OrderDetailsController>().update();
+    //       Get.find<MyOrdersController>().id.value = orderId;
+    //       Get.find<HomeController>().addOrder.value = false;
+    //       Get.find<HomeController>().isSelected.value = 2;
+    //       Get.find<HomeController>().isOrderDetails.value = true;
+    //       Get.find<HomeController>().isOrderEdit.value = true;
+    //       print(Get.find<MyOrdersController>().id.value);
+    //       print("Get.find<MyOrdersController>().id.value");
+    //       Get.find<HomeController>().update();
+    //       update();
+    //       Get.back();
+    //     } else {
+    //       print("In else part");
+    //     }
+    //   } on Exception catch (error) {
+    //     utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
+    //   }
+    // }
   }
 
   /// add to cart api

@@ -111,6 +111,9 @@ class MyOrdersController extends GetxController {
       myOrderList = model.orders!;
       filterList = model.orders!;
       customerList = model.customers!;
+      print("customerList[0].companyName");
+      print(customerList[0].name);
+      print(customerList[0].companyName);
       update();
     } else {
       print("In else part");

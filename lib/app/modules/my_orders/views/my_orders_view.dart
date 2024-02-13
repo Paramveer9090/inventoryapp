@@ -24,10 +24,32 @@ class MyOrdersView extends GetView<MyOrdersController> {
                   physics: BouncingScrollPhysics(),
                   children: [
                     SizedBox(height: 3.h),
-                    CustomSearchBar(
-                      hint: 'Search',
-                      onChanged: (value) {
-                        controller.search(text: value);
+                    // CustomSearchBar(
+                    //   hint: 'Search',
+                    //   onChanged: (value) {
+                    //     controller.search(text: value);
+                    //     controller.update();
+                    //   },
+                    // ),
+                    // SizedBox(height: 2.h),
+                    CustomDropDownSearch<Customers>(
+                      items: [
+                        ...List.generate(controller.customerList.length, (index) {
+                          return Customers(
+                            name: controller.customerList[index].name,
+                            id: controller.customerList[index].id,
+                          );
+                        }),
+                      ],
+                      itemAsString: (Customers) => Customers.name.toString(),
+                      label: AppStrings.selectCustomer,
+                      validator: (value) => Validators.canNotBeEmpty(
+                        value?.name,
+                        message: 'Please Select Customer',
+                      ),
+                      onChanged: (GetDataListResponseData) async {
+                        controller.customer_id.value = await GetDataListResponseData!.id.toString();
+                        controller.customerSearch(id: controller.customer_id.value);
                         controller.update();
                       },
                     ),
@@ -88,28 +110,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                       ],
                     ),
                     SizedBox(height: 2.h),
-                    CustomDropDownSearch<Customers>(
-                      items: [
-                        ...List.generate(controller.customerList.length, (index) {
-                          return Customers(
-                            name: controller.customerList[index].name,
-                            id: controller.customerList[index].id,
-                          );
-                        }),
-                      ],
-                      itemAsString: (Customers) => Customers.name.toString(),
-                      label: AppStrings.selectCustomer,
-                      validator: (value) => Validators.canNotBeEmpty(
-                        value?.name,
-                        message: 'Please Select Role',
-                      ),
-                      onChanged: (GetDataListResponseData) async {
-                        controller.customer_id.value = await GetDataListResponseData!.id.toString();
-                        controller.customerSearch(id: controller.customer_id.value);
-                        controller.update();
-                      },
-                    ),
-                    SizedBox(height: 2.h),
+
                     Container(
                       child: Row(
                         children: [

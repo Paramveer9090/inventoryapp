@@ -227,6 +227,7 @@ class OrdersView extends GetView<OrdersController> {
                                                                 if (value != null) {
                                                                   print("value not null");
                                                                   controller.productList[index].sellingPrice = value;
+                                                                  controller.productList[index].salePrice = value;
                                                                   print(controller.productList[index].sellingPrice);
                                                                   controller.update();
                                                                 } else {
@@ -617,6 +618,7 @@ class OrdersView extends GetView<OrdersController> {
                                     return GestureDetector(
                                       onTap: () async {
                                         if (controller.isSubCategory.value) {
+                                          print("product id ${controller.categoryList[index].id}");
                                           controller.subCategoryName.value = await controller.categoryList[index].name.toString();
                                           controller.subCategoryId.value = await controller.categoryList[index].id.toString();
                                           controller.getProduct(subCategoryId: controller.categoryList[index].id, type: "subCategory");
@@ -624,6 +626,8 @@ class OrdersView extends GetView<OrdersController> {
                                           controller.isSubCategory.value = true;
                                           controller.categoryName.value = await controller.categoryList[index].name.toString();
                                           controller.categoryId.value = await controller.categoryList[index].id.toString();
+                                          print("Sub categpry id ${controller.categoryList[index].id}");
+
                                           controller.getCategoriesAPI(categoryId: controller.categoryList[index].id);
                                         }
                                         controller.update();
