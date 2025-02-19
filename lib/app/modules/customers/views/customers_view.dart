@@ -1,5 +1,6 @@
 import 'package:true_leaf_inventory_app/app/modules/customer_details/views/customer_details_view.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
+
 import '../controllers/customers_controller.dart';
 
 class CustomersView extends GetView<CustomersController> {
@@ -27,16 +28,6 @@ class CustomersView extends GetView<CustomersController> {
                     ),
                   ),
                   SizedBox(height: 2.h),
-                  // Padding(
-                  //   padding: const EdgeInsets.all(8.0),
-                  //   child: AppButton(
-                  //       title: "Create Order",
-                  //       onTap: () {
-                  //         Get.find<HomeController>().addOrder.value = true;
-                  //         Get.find<HomeController>().update();
-                  //       }),
-                  // ),
-                  // SizedBox(height: 2.h),
                   Expanded(
                     child: ListView.builder(
                       itemCount: controller.customerList.length,

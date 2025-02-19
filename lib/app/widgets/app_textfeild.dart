@@ -98,7 +98,6 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                     : SizedBox(),
               ),
             ),
-            // validator: validator,
             onChanged: widget.onChanged,
             onTap: widget.onTap,
             keyboardType: widget.keyboardType,
@@ -106,12 +105,6 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
             readOnly: widget.readOnly,
           ),
         ),
-        // SizedBox(height: 1.h),
-        // AppText(
-        //   validator.toString(),
-        //   fontSize: 13.sp,
-        //   color: AppColors.whiteColor,
-        // ),
       ],
     );
   }

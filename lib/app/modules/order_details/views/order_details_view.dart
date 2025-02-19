@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'package:true_leaf_inventory_app/app/modules/product_details/views/product_details_view.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
@@ -394,27 +392,14 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                                 var amountTax;
                                                 var amount;
                                                 if (Get.find<HomeController>().isOrderDetails.value && Get.find<HomeController>().isOrderEdit.value) {
-                                                  // controller.productId.value = await controller.orderItem[index].id.toString();
-                                                  // controller.productName.value = await controller.orderItem[index].name.toString();
                                                   controller.orderItem[index].quantityCount = await (int.parse(controller.orderItem[index].quantityCount.toString()) + 1).toString();
 
-                                                  // if (await controller.orderItem[index].isBox == 1) {
-                                                  //   amountTax = (((double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
-                                                  //       double.parse(controller.orderItem[index].salePrice!.toString())) *
-                                                  //       double.parse(controller.orderItem[index].tax.toString())) /
-                                                  //       100;
-                                                  //   amount = (double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
-                                                  //       double.parse(controller.orderItem[index].salePrice!.toString());
-                                                  //   controller.orderItem[index].amountWithoutTax = amount.toString();
-                                                  //   controller.orderItem[index].amountOnlyTax = amountTax.toString();
-                                                  //   controller.orderItem[index].finalAmount = (amount + amountTax).toString();
-                                                  // } else {
                                                   amountTax = ((double.parse(controller.orderItem[index].quantityCount.toString()) * double.parse(controller.orderItem[index].salePrice.toString())) * double.parse(controller.orderItem[index].tax.toString())) / 100;
                                                   amount = (double.parse(controller.orderItem[index].quantityCount!.toString())) * double.parse(controller.orderItem[index].salePrice.toString());
                                                   controller.orderItem[index].amountWithoutTax = amount.toString();
                                                   controller.orderItem[index].amountOnlyTax = amountTax.toString();
                                                   controller.orderItem[index].finalAmount = (amount + amountTax).toString();
-                                                  // }
+
                                                   controller.update();
 
                                                   controller.getDetailsData!.orderTotalWithoutTax = (controller.orderItem.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
@@ -689,23 +674,6 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                               controller.bytesImage!,
                                             ),
                                           ),
-                                    // controller.getDetailsData!.customerSign != null && controller.getDetailsData!.customerSign != "sign"
-                                    //     ? Container(height: 25.h, child: Image.network(controller.getDetailsData!.customerSign.toString()))
-                                    //     : Container(
-                                    //         height: 25.h,
-                                    //         decoration: BoxDecoration(
-                                    //           border: Border.all(
-                                    //             color: Color(0xffb0b0b3),
-                                    //           ),
-                                    //           borderRadius: BorderRadius.circular(15),
-                                    //         ),
-                                    //         child: SfSignaturePad(
-                                    //           key: controller.signatureGlobalKey,
-                                    //           minimumStrokeWidth: 1,
-                                    //           maximumStrokeWidth: 3,
-                                    //           strokeColor: Colors.black,
-                                    //         ),
-                                    //       ),
                                     SizedBox(height: 2.h),
                                     CustomTextFormField(
                                       readOnly: true,

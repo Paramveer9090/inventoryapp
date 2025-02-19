@@ -1,4 +1,3 @@
-
 import 'package:flutter_svg/svg.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
@@ -86,10 +85,6 @@ class NavigationItem extends StatelessWidget {
               onTap: onTap,
               title: Row(
                 children: [
-                  // Icon(
-                  //   icon,
-                  //   color: AppColors.whiteColor.withOpacity(0.6),
-                  // ),
                   Container(
                     height: 20,
                     width: 20,

@@ -55,9 +55,7 @@ class OrderDetailsController extends GetxController {
       print("assign value");
       id = orderId;
     }
-    print(id);
-    print(orderId);
-    print("orderIdorderIdorderIdorderId");
+
     final data = await APIFunction().apiCall(
       apiName: "${Constants.orders}/${id}",
       context: Get.context!,
@@ -78,19 +76,11 @@ class OrderDetailsController extends GetxController {
       var amountTax;
       var amount;
       for (int i = 0; i < orderItem.length; i++) {
-        // if (orderItem[i].isBox == 1) {
-        //   amountTax = (((double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
-        //   amount = (double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString());
-        //   orderItem[i].amountWithoutTax = amount.toString();
-        //   orderItem[i].amountOnlyTax = amountTax.toString();
-        //   orderItem[i].finalAmount = (amount + amountTax).toString();
-        // } else {
         amountTax = ((double.parse(orderItem[i].quantityCount.toString()) * double.parse(orderItem[i].salePrice.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
         amount = (double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice.toString());
         orderItem[i].amountWithoutTax = amount.toString();
         orderItem[i].amountOnlyTax = amountTax.toString();
         orderItem[i].finalAmount = (amount + amountTax).toString();
-        // }
       }
 
       update();
@@ -115,9 +105,7 @@ class OrderDetailsController extends GetxController {
     if (result != null) {
       File file = File(result.files.single.path!);
       imageFile.value = result.files.single.path!;
-      print(file);
-      print(imageFile.value);
-      print("filefilefilefilefilefilefile");
+
       if (imageFile.isNotEmpty) {
         uploadFileAPI();
       }
@@ -217,19 +205,11 @@ class OrderDetailsController extends GetxController {
     var amount;
 
     for (int i = 0; i < orderItem.length; i++) {
-      // if (orderItem[i].isBox == 1) {
-      //   amountTax = (((double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
-      //   amount = (double.parse(orderItem[i].boxSize.toString()) * double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice!.toString());
-      //   orderItem[i].amountWithoutTax = amount.toString();
-      //   orderItem[i].amountOnlyTax = amountTax.toString();
-      //   orderItem[i].finalAmount = (amount + amountTax).toString();
-      // } else {
       amountTax = ((double.parse(orderItem[i].quantityCount.toString()) * double.parse(orderItem[i].salePrice.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
       amount = (double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice.toString());
       orderItem[i].amountWithoutTax = amount.toString();
       orderItem[i].amountOnlyTax = amountTax.toString();
       orderItem[i].finalAmount = (amount + amountTax).toString();
-      // }
     }
     var orderTotalWithoutTax;
     orderTotalWithoutTax = orderItem.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()));
@@ -244,24 +224,3 @@ class OrderDetailsController extends GetxController {
     update();
   }
 }
-
-// if (isApiData.value == false) {
-//   if (addProductList.isNotEmpty) {
-//     for (int i = 0; i < addProductList.length; i++) {
-//       print("list add thy 6e");
-//       print(addProductList[i].sellingPrice);
-//       print(addProductList[i].tax);
-//       print(addProductList[i].isBox);
-//       print(addProductList[i].quantity);
-//       orderItem.add(
-//         OrderItem(
-//           name: addProductList[i].name,
-//           sellingPrice: addProductList[i].sellingPrice,
-//           tax: addProductList[i].tax,
-//           isBox: addProductList[i].isBox,
-//           quantity: addProductList[i].quantity,
-//         ),
-//       );
-//     }
-//   }
-// }

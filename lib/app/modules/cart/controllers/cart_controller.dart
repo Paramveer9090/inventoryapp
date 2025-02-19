@@ -204,27 +204,4 @@ class CartController extends GetxController {
       }
     }
   }
-
-// deleteCartAPI() async {
-//   final data = await APIFunction().apiCall(
-//     apiName: "${Constants.cart}/$customerCartId",
-//     context: Get.context!,
-//     token: accessToken,
-//     type: "delete",
-//   );
-//   cartLength = "0";
-//   update();
-// }
 }
-
-/*getCartData() async {
-  List<dynamic> jsonDataList = [];
-    print("fkjrfiwejfiwejfiejwf");
-
-    jsonDataList = await getStorageData.readObject("cartValueList") ?? [];
-    orderItem = jsonDataList.map((item) => GetDataListResponseData.fromJson(item)).toList();
-    log(jsonEncode(orderItem));
-    print(orderItem.length);
-    print("myListmyListmyListmyListmyList");
-    update();
-  }*/

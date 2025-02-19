@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:true_leaf_inventory_app/app/modules/order_details/views/order_details_view.dart';
+
 import '../../../widgets/all_import.dart';
 
 class MyOrdersView extends GetView<MyOrdersController> {
@@ -22,14 +23,6 @@ class MyOrdersView extends GetView<MyOrdersController> {
                   physics: BouncingScrollPhysics(),
                   children: [
                     SizedBox(height: 3.h),
-                    // CustomSearchBar(
-                    //   hint: 'Search',
-                    //   onChanged: (value) {
-                    //     controller.search(text: value);
-                    //     controller.update();
-                    //   },
-                    // ),
-                    // SizedBox(height: 2.h),
                     CustomDropDownSearch<Customers>(
                       items: [
                         ...List.generate(controller.customerList.length, (index) {
@@ -108,7 +101,6 @@ class MyOrdersView extends GetView<MyOrdersController> {
                       ],
                     ),
                     SizedBox(height: 2.h),
-
                     Container(
                       child: Row(
                         children: [

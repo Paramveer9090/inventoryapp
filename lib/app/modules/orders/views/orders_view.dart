@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:true_leaf_inventory_app/app/modules/orders/controllers/orders_controller.dart';
 import 'package:true_leaf_inventory_app/app/widgets/app_button.dart';
 import 'package:true_leaf_inventory_app/app/widgets/custom_image.dart';
+
 import '../../../widgets/all_import.dart';
 
 class OrdersView extends GetView<OrdersController> {
@@ -686,99 +687,3 @@ class OrdersView extends GetView<OrdersController> {
     );
   }
 }
-
-/*AppButton(
-                                      title: "Add to cart",
-                                      /*onTap: () async {
-                                        await getStorageData.removeData("cartValueList");
-                                        utils.showSnackBar(context: context, message: "data clear");
-                                        controller.update();
-                                      },*/
-                                      onTap: () async {
-                                        List<GetDataListResponseData> cartList = [];
-                                        if (getStorageData.readObject("cartValueList") != null) {
-                                          print("not null value");
-                                          List jsonDataList = await getStorageData.readObject("cartValueList");
-                                          cartList = jsonDataList.map((item) => GetDataListResponseData.fromJson(item)).toList();
-                                        } else {
-                                          print("null value");
-                                        }
-
-                                        print(cartList.length);
-                                        print(controller.productList.length);
-                                        print("gjuierhuer");
-
-                                        int l = cartList.length;
-                                        int k = controller.productList.length;
-                                        bool whichListIsBig = l < k;
-
-                                        print(whichListIsBig);
-                                        print("whichListIsBig");
-
-                                        if (whichListIsBig) {
-                                          if (cartList.isNotEmpty) {
-                                            for (int i = 0; i < controller.productList.length; i++) {
-                                              for (int j = 0; j < cartList.length; j++) {
-                                                if (controller.productList[i].id == cartList[j].id) {
-                                                  cartList[j] = controller.productList[i];
-                                                  print("replace value");
-                                                } else {
-                                                  if (controller.productList[i].quantityCount != "0") {
-                                                    cartList.add(controller.productList[i]);
-                                                    print("add new");
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          } else {
-                                            for (int i = 0; i < controller.productList.length; i++) {
-                                              if (controller.productList[i].quantityCount != "0") {
-                                                cartList.add(controller.productList[i]);
-                                              }
-                                            }
-                                            print(cartList.length);
-                                            print("cart list empty and add new");
-                                          }
-                                        } else {
-                                          for (int i = 0; i < cartList.length; i++) {
-                                            for (int j = 0; j < controller.productList.length; j++) {
-                                              print("cartList[i].id");
-                                              print(cartList[i].id);
-                                              print(controller.productList[j].id);
-                                              if (cartList[i].id == controller.productList[j].id) {
-                                                cartList[i] = controller.productList[j];
-                                                print("replace valueeee");
-                                              } else {
-                                                if (controller.productList[j].quantityCount != "0" && cartList[i].id != controller.productList[j].id) {
-                                                  print(jsonEncode(controller.productList[j]));
-                                                  cartList.add(controller.productList[j]);
-                                                  print("cartList[i].quantityCount");
-                                                }
-                                              }
-                                              break;
-                                            }
-                                            break;
-                                          }
-                                        }
-                                        print(cartList);
-                                        print(cartList.length);
-                                        print("cartList.length");
-                                        controller.update();
-
-                                        // for (int i = 0; i < controller.productList.length; i++) {
-                                        //   if (controller.productList[i].quantityCount != "0") {
-                                        //     print(jsonEncode(controller.productList[i]));
-                                        //     cartList.add(controller.productList[i]);
-                                        //     print("cartList[i].quantityCount");
-                                        //   }
-                                        // }
-
-                                        log(jsonEncode(cartList));
-                                        await getStorageData.saveObject("cartValueList", cartList.cast<GetDataListResponseData>());
-                                        utils.showSnackBar(context: context, message: "Successfully added");
-                                        print(getStorageData.readObject("cartValueList"));
-
-                                        print("cartListcartListcartListcartListcartListcartList");
-                                        controller.update();
-                                      },
-                                    ),*/

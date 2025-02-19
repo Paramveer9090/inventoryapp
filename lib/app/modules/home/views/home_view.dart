@@ -3,6 +3,7 @@ import 'package:true_leaf_inventory_app/app/modules/customers/controllers/custom
 import 'package:true_leaf_inventory_app/app/modules/driver_order/controllers/driver_order_controller.dart';
 import 'package:true_leaf_inventory_app/app/modules/orders/views/orders_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/products/views/products_view.dart';
+
 import '../../../widgets/all_import.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -105,28 +106,7 @@ class HomeView extends GetView<HomeController> {
                               color: AppColors.whiteColor,
                             ),
                           )
-                        : /*controller.addOrder.value
-                            ? GestureDetector(
-                                onTap: () {
-                                  print("back back back");
-                                  if (Get.find<OrdersController>().isSubCategory.value) {
-                                    Get.find<OrdersController>().isSubCategory.value = false;
-                                    Get.find<OrdersController>().getCategoriesAPI(categoryId: "0");
-                                    Get.find<OrdersController>().update();
-                                  } else if (controller.addOrder.value) {
-                                    controller.addOrder.value = false;
-                                    controller.isCustomerDetails.value = true;
-                                    controller.isSelected.value = 1;
-                                  }
-                                  controller.update();
-                                },
-                                child: Icon(
-                                  Icons.arrow_back_outlined,
-                                  color: AppColors.whiteColor,
-                                ),
-                              )
-                            : */
-                        controller.isCart.value
+                        : controller.isCart.value
                             ? GestureDetector(
                                 onTap: () {
                                   if (controller.isSelected.value == 5) {

@@ -3,6 +3,7 @@ import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 import 'package:true_leaf_inventory_app/app/widgets/app_button.dart';
 import 'package:true_leaf_inventory_app/app/widgets/custom_image.dart';
+
 import '../controllers/cart_controller.dart';
 
 class CartView extends GetView<CartController> {
@@ -199,17 +200,7 @@ class CartView extends GetView<CartController> {
 
                                                       data.quantity!.isEmpty
                                                           ? controller.isWrongData.value = true
-                                                          : /*data.isBox == 1
-                                                              ? (double.parse(data.boxSize.toString()) * double.parse(data.quantity!)) > double.parse(data.stock.toString())
-                                                                  ? controller.isWrongData.value = true
-                                                                  : data.isBox == 0
-                                                                      ? double.parse(data.quantity!.text) > double.parse(data.stock.toString())
-                                                                          ? controller.isWrongData.value = true
-                                                                          : ""
-                                                                      : controller.isWrongData.value = false
-                                                              : data.isBox == 0
-                                                                  ?*/
-                                                          double.parse(data.quantity.toString()) > double.parse(data.stock.toString())
+                                                          : double.parse(data.quantity.toString()) > double.parse(data.stock.toString())
                                                               ? controller.isWrongData.value = true
                                                               : controller.isWrongData.value = false;
                                                       controller.update();
@@ -258,21 +249,9 @@ class CartView extends GetView<CartController> {
                                                       ///
                                                       data.quantity!.isEmpty
                                                           ? controller.isWrongData.value = true
-                                                          : /*data.isBox == 1
-                                                              ? (double.parse(data.boxSize.toString()) * double.parse(data.quantity!)) > double.parse(data.stock.toString())
-                                                                  ? controller.isWrongData.value = true
-                                                                  : data.isBox == 0
-                                                                      ? double.parse(data.quantity) > double.parse(data.stock.toString())
-                                                                          ? controller.isWrongData.value = true
-                                                                          : ""
-                                                                      : controller.isWrongData.value = false
-                                                              : data.isBox == 0
-                                                                  ?*/
-                                                          double.parse(data.quantity.toString()) > double.parse(data.stock.toString())
+                                                          : double.parse(data.quantity.toString()) > double.parse(data.stock.toString())
                                                               ? controller.isWrongData.value = true
-                                                              : /*""
-                                                                  : */
-                                                              controller.isWrongData.value = false;
+                                                              : controller.isWrongData.value = false;
                                                       controller.update();
                                                     },
                                                     child: Container(
@@ -457,22 +436,9 @@ class CartView extends GetView<CartController> {
                                                 child: AppText(
                                                   data.quantity == null
                                                       ? "Please Enter Quantity"
-                                                      : /* data.isBox == 1
-                                                          ? (double.parse(data.boxSize.toString()) * double.parse(data.quantity.toString())) > double.parse(data.stock.toString())
-                                                              ? "Quantity can't be greater than In Stock"
-                                                              : data.isBox == 0
-                                                                  ? double.parse(data.quantity) > double.parse(data.stock.toString())
-                                                                      ? "Quantity can't be greater than In Stock"
-                                                                      : ""
-                                                                  : ""
-                                                          :
-                                                      data.isBox == 0
-                                                          ?*/
-                                                      double.parse(data.quantity.toString()) > double.parse(data.stock.toString())
+                                                      : double.parse(data.quantity.toString()) > double.parse(data.stock.toString())
                                                           ? "Quantity can't be greater than In Stock"
-                                                          : /* ""
-                                                          : */
-                                                          "",
+                                                          : "",
                                                   color: AppColors.darkRedColor,
                                                   maxLines: 2,
                                                   fontSize: 10.sp,

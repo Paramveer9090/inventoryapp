@@ -1,6 +1,5 @@
 import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
-import 'package:true_leaf_inventory_app/app/modules/order_details/controllers/order_details_controller.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 class OrdersController extends GetxController {
@@ -19,8 +18,6 @@ class OrdersController extends GetxController {
   var isCategory = true.obs;
   var noData = "".obs;
   var isAddedData = false.obs;
-
-  // var isWrongData = false.obs;
   var isAddToCartButton = false.obs;
 
   /// API Data Params
@@ -41,13 +38,11 @@ class OrdersController extends GetxController {
     getLoginData();
     getCategoriesAPI(categoryId: "0");
     getProductAPI();
-    print("orderIdorderIdorderId");
-    print(orderId);
+
     if (orderId != "0") {
       getAllOrderData();
     }
-    print(customerId);
-    print("customerId");
+
     update();
 
     super.onInit();
@@ -81,8 +76,7 @@ class OrdersController extends GetxController {
 
     if (model.data!.isNotEmpty) {
       categoryList = model.data!;
-      print("sub category get");
-      print("sub category length ${categoryList.length}");
+
       noData.value = "";
       update();
     } else {
@@ -437,63 +431,6 @@ class OrdersController extends GetxController {
       }
     }
 
-    print(orderItem);
-    print("orderItemorderItem");
-
-    // if (whichListIsBig) {
-    //   print("productList big");
-    //
-    //
-    //   for (int i = 0; i < productList.length; i++) {
-    //     for (int j = 0; j < orderItem.length; j++) {
-    //       // productList[i].salePrice = orderItem[j].salePrice;
-    //       if (await productList[i].quantityCount != "0") {
-    //         print(productList[i].name);
-    //         print(productList[i]);
-    //         print("orderItem[j].name");
-    //         // if (await productList[i].productId == orderItem[j].productId) {
-    //         //   // orderItem[j] = productList[i];
-    //         //   orderItem.add(productList[i]);
-    //         //   break;
-    //         // } else {
-    //         //   orderItem.add(productList[i]);
-    //         //   // break;
-    //         // }
-    //       } else {
-    //         print("quantity value 0");
-    //       }
-    //     }
-    //   }
-    // } else {
-    //   print("orderItem big");
-    //   for (int i = 0; i < orderItem.length; i++) {
-    //     for (int j = 0; j < productList.length; j++) {
-    //       // productList[j].salePrice = orderItem[i].salePrice;
-    //       if (await productList[j].quantityCount != "0") {
-    //         print(productList[j].name);
-    //         print(productList[i]);
-    //         print("orderItem[j].name");
-    //         // if (await productList[j].productId == orderItem[i].productId) {
-    //         //   print("value replace");
-    //         //   orderItem.add(productList[j]);
-    //         //   break;
-    //         //   // orderItem[i] = productList[j];
-    //         // } else {
-    //         //   print("value added");
-    //         //   orderItem.add(productList[j]);
-    //         //   // break;
-    //         // }
-    //       } else {
-    //         print("quantity value 0");
-    //       }
-    //     }
-    //     // break;
-    //   }
-    // }
-
-    print(orderItem.length);
-    print("orderItemorderItemorderItem");
-
     List categoryList = [];
     List subCategoryList = [];
     List productAPIList = [];
@@ -522,90 +459,20 @@ class OrdersController extends GetxController {
         isBoxList.add(apiList[k].isBox);
         var amountTax;
         var amount;
-        // if (apiList[k].isBox == 1) {
-        //   amountTax = (((double.parse(apiList[k].boxSize.toString()) * double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].sellingPrice!.toString())) * double.parse(apiList[k].tax.toString())) / 100;
-        //   amount = (double.parse(apiList[k].boxSize.toString()) * double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].sellingPrice!.toString());
-        //   apiList[k].amountWithoutTax = amount.toString();
-        //   apiList[k].amountOnlyTax = amountTax.toString();
-        //   apiList[k].finalAmount = (amount + amountTax).toString();
-        // } else {
+
         amountTax = ((double.parse(apiList[k].quantityCount.toString()) * double.parse(apiList[k].salePrice.toString())) * double.parse(apiList[k].tax.toString())) / 100;
         amount = (double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].salePrice.toString());
         apiList[k].amountWithoutTax = amount.toString();
         apiList[k].amountOnlyTax = amountTax.toString();
         apiList[k].finalAmount = (amount + amountTax).toString();
-        // }
       }
 
       orderTotal.value = (apiList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
       orderTax.value = (apiList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
       orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toString();
     }
-    print("orderTotal.value");
-    print(orderTotal.value);
-    print(orderTax.value);
-    print(orderFinalTotal.value);
+
     update();
-
-    print(categoryList);
-    print(subCategoryList);
-    print(productAPIList);
-    print(packageList);
-    print(quantityList);
-    print(isProductName);
-    print(salesPriceList);
-    print(taxList);
-    print(isBoxList);
-
-    print("isBoxListisBoxListisBoxListisBoxListisBoxList");
-    // print(getDetailsData!.orderTotalWithoutTax);
-    // print(orderTotal.value);
-    // print(getDetailsData!.orderTax);
-    // print(orderTax.value);
-    // print(getDetailsData!.orderTotal);
-    // print(orderFinalTotal.value);
-    // print(getDetailsData!.status);
-    // print(getDetailsData!.discountType);
-    // print(getDetailsData!.orderDate!.split(".").first);
-    // print("categoryListcategoryListcategoryList");
-    /// api call
-
-    // if (categoryList.isNotEmpty) {
-    //   try {
-    //     String rawData =
-    //         '{"sales_manager_id": "${getDetailsData!.salesManagerId}","customer_id": ${getDetailsData!.customerId},"item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productAPIList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${getDetailsData!.discountType},"extra_discount": "${getDetailsData!.extraDiscount}","order_total": "${orderFinalTotal.value}","comments": "${getDetailsData!.comments}","delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${getDetailsData!.orderDate!.split(".").first}"}';
-    //
-    //     final data = await APIFunction().apiCall(
-    //       apiName: "${Constants.orders}/${orderId}",
-    //       context: Get.context!,
-    //       token: accessToken,
-    //       type: "put",
-    //       rawData: rawData,
-    //     );
-    //
-    //     GetDetailsResponseModel model = GetDetailsResponseModel.fromJson(data);
-    //
-    //     if (model.data != null) {
-    //       Get.put(OrderDetailsController());
-    //       Get.put(MyOrdersController());
-    //       Get.find<OrderDetailsController>().update();
-    //       Get.find<MyOrdersController>().id.value = orderId;
-    //       Get.find<HomeController>().addOrder.value = false;
-    //       Get.find<HomeController>().isSelected.value = 2;
-    //       Get.find<HomeController>().isOrderDetails.value = true;
-    //       Get.find<HomeController>().isOrderEdit.value = true;
-    //       print(Get.find<MyOrdersController>().id.value);
-    //       print("Get.find<MyOrdersController>().id.value");
-    //       Get.find<HomeController>().update();
-    //       update();
-    //       Get.back();
-    //     } else {
-    //       print("In else part");
-    //     }
-    //   } on Exception catch (error) {
-    //     utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
-    //   }
-    // }
   }
 
   /// add to cart api
@@ -631,15 +498,6 @@ class OrdersController extends GetxController {
         subCategoryList.add(subCategoryId);
       }
     }
-
-    print("productIdListproductIdList");
-    print(productIdList);
-    print(priceList);
-    print(quantityList);
-    print(taxIdList);
-    print(isBoxList);
-    print(categoryList);
-    print(subCategoryList);
 
     if (productIdList.isNotEmpty) {
       try {
@@ -680,35 +538,3 @@ class OrdersController extends GetxController {
     }
   }
 }
-
-// addProduct() async {
-//     print(orderId);
-//
-//     /// edit order time add product
-//     List productIdList = [];
-//     List priceList = [];
-//     List quantityList = [];
-//     List taxIdList = [];
-//     List isBoxList = [];
-//     List categoryList = [];
-//     List subCategoryList = [];
-//
-//     if (await orderId.isNotEmpty) {
-//       print("order id empty nathi");
-//       // Get.put(OrderDetailsController());
-//       for (int i = 0; i < productList.length; i++) {
-//         if (productList[i].quantityCount != "0") {}
-//       }
-//     }
-//     update();
-//     Get.find<OrderDetailsController>().isApiData.value = false;
-//     Get.find<OrderDetailsController>().update();
-//     Get.find<MyOrdersController>().id.value = orderId;
-//     Get.find<HomeController>().addOrder.value = false;
-//     Get.find<HomeController>().isSelected.value = 2;
-//     Get.find<HomeController>().isOrderDetails.value = true;
-//     Get.find<HomeController>().isOrderEdit.value = true;
-//     print(Get.find<MyOrdersController>().id.value);
-//     print("Get.find<MyOrdersController>().id.value");
-//     Get.find<HomeController>().update();
-//   }
