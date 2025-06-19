@@ -99,7 +99,8 @@ class DashboardView extends GetView<DashboardController> {
                 ...controller.myOrderList.asMap().entries.map(
                   (orderReport) {
                     DateTime currentDate;
-                    DateTime date1 = DateTime.parse(orderReport.value.dueDate.toString());
+                    DateTime date1 =
+                        DateTime.parse(orderReport.value.dueDate.toString());
                     currentDate = DateTime.now();
 
                     for (int i = 0; i < controller.myOrderList.length; i++) {
@@ -108,13 +109,21 @@ class DashboardView extends GetView<DashboardController> {
                         orderReport.value.statusColor = AppColors.lightGreen;
                       } else if (currentDate.isAfter(date1)) {
                         // Calculate the difference in days between dateTime1 and dateTime2
-                        int differenceInDays = currentDate.difference(date1).inDays;
-                        orderReport.value.statusTime = "Overdue $differenceInDays days";
+                        int differenceInDays =
+                            currentDate.difference(date1).inDays;
+                        orderReport.value.statusTime =
+                            "Overdue $differenceInDays days";
                         orderReport.value.statusColor = AppColors.lightRed;
                       } else {
                         // Calculate the difference in days between dateTime1 and dateTime2
-                        int differenceInDays = int.parse(currentDate.difference(date1).inDays.toString().split("-").last);
-                        orderReport.value.statusTime = "Overdue $differenceInDays days";
+                        int differenceInDays = int.parse(currentDate
+                            .difference(date1)
+                            .inDays
+                            .toString()
+                            .split("-")
+                            .last);
+                        orderReport.value.statusTime =
+                            "Overdue $differenceInDays days";
                         orderReport.value.statusColor = AppColors.lightYellow;
                       }
                     }
@@ -127,25 +136,36 @@ class DashboardView extends GetView<DashboardController> {
                         DataCell(
                           CustomTableCellActionButtons(
                             showDeleteButton: false,
-                            showEditButton: (orderReport.value.status == "3") && (orderReport.value.payment!.paymentStatus == "0" && controller.loginData!.id == orderReport.value.salesManagerId) ? true : false,
+                            showEditButton: (orderReport.value.status == "3") &&
+                                    (orderReport.value.payment!.paymentStatus ==
+                                            "0" &&
+                                        controller.loginData!.id ==
+                                            orderReport.value.salesManagerId)
+                                ? true
+                                : false,
                             // showEditButton: orderReport.value.payment!.paymentStatus == "0" && controller.loginData!.id == orderReport.value.salesManagerId ? true : false,
                             isWhite: true,
                             onView: () {
                               Get.put(MyOrdersController());
-                              Get.find<MyOrdersController>().id.value = orderReport.value.id.toString();
+                              Get.find<MyOrdersController>().id.value =
+                                  orderReport.value.id.toString();
                               Get.find<HomeController>().isSelected.value = 2;
-                              Get.find<HomeController>().isOrderDetails.value = true;
+                              Get.find<HomeController>().isOrderDetails.value =
+                                  true;
                               Get.find<HomeController>().update();
                               controller.update();
                             },
                             onEdit: () {
                               Get.put(MyOrdersController());
 
-                              Get.find<MyOrdersController>().id.value = orderReport.value.id.toString();
+                              Get.find<MyOrdersController>().id.value =
+                                  orderReport.value.id.toString();
                               orderId = orderReport.value.id.toString();
                               Get.find<HomeController>().isSelected.value = 2;
-                              Get.find<HomeController>().isOrderDetails.value = true;
-                              Get.find<HomeController>().isOrderEdit.value = true;
+                              Get.find<HomeController>().isOrderDetails.value =
+                                  true;
+                              Get.find<HomeController>().isOrderEdit.value =
+                                  true;
                               Get.find<HomeController>().update();
                               controller.update();
                             },
@@ -163,7 +183,9 @@ class DashboardView extends GetView<DashboardController> {
                           fontSize: 11.sp,
                         )),
                         DataCell(AppText(
-                          orderReport.value.customer == null ? "" : orderReport.value.customer!.name.toString(),
+                          orderReport.value.customer == null
+                              ? ""
+                              : orderReport.value.customer!.name.toString(),
                           color: AppColors.whiteColor,
                           fontSize: 11.sp,
                         )),
@@ -271,7 +293,8 @@ class DashboardViewButton extends StatelessWidget {
             AppText(
               title,
               fontSize: 10.sp,
-              color: isNext == false ? AppColors.whiteColor : AppColors.arrowColor,
+              color:
+                  isNext == false ? AppColors.whiteColor : AppColors.arrowColor,
             ),
           ],
         ),

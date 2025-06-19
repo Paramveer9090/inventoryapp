@@ -38,6 +38,7 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                   } else if (controller.newPassword.text.length < 8) {
                     return "The password must be at least 8 characters.";
                   }
+                  return null;
                 },
               ),
               SizedBox(height: 16),
@@ -53,6 +54,7 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                   } else if (controller.newPassword.text != controller.repeatPassword.text) {
                     return "New password and Repeat password does not match";
                   }
+                  return null;
                 },
               ),
               SizedBox(height: 35),
@@ -86,6 +88,6 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
         );
       },
     );
-    ;
+    
   }
 }

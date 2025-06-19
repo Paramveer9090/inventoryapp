@@ -102,6 +102,7 @@ class OrdersView extends GetView<OrdersController> {
                       padding: EdgeInsets.symmetric(horizontal: 1.5.h),
                       child: controller.isProduct.value
                           ? OrientationBuilder(builder: (BuildContext context, Orientation orientation) {
+                            print("🖼️ Rendering ${controller.productList.length} product cards");
                               return Stack(
                                 alignment: Alignment.bottomCenter,
                                 children: [
@@ -142,7 +143,7 @@ class OrdersView extends GetView<OrdersController> {
                                                         fontSize: 13.sp,
                                                         color: AppColors.primaryColor,
                                                       ),
-                                                      SizedBox(height: 0.5.h),
+                                                      SizedBox(height: 2.h),
                                                       Row(
                                                         children: [
                                                           AppText(
@@ -268,7 +269,7 @@ class OrdersView extends GetView<OrdersController> {
                                                           ),
                                                         ],
                                                       ),
-                                                      SizedBox(height: 0.5.h),
+                                                      /* SizedBox(height: 0.5.h),
                                                       AppText(
                                                         "Taxes: ${controller.productList[index].taxDetail?.tax.toString()}%",
                                                         maxLines: 10,
@@ -329,7 +330,7 @@ class OrdersView extends GetView<OrdersController> {
                                                                 "Box Size: ${controller.productList[index].boxSize}",
                                                                 fontSize: 10.sp,
                                                               ),
-                                                      ),
+                                                      ), */
                                                       SizedBox(height: 1.h),
                                                       Row(
                                                         children: [
@@ -611,6 +612,7 @@ class OrdersView extends GetView<OrdersController> {
                             })
                           : OrientationBuilder(
                               builder: (BuildContext context, Orientation orientation) {
+                                print('🔨 Rendering ${controller.productList.length} product cards');
                                 return DynamicHeightGridView(
                                   itemCount: controller.categoryList.length,
                                   physics: const BouncingScrollPhysics(),

@@ -115,8 +115,6 @@ class HttpUtil {
           return ErrorEntity(code: -6, message: "Your internet is not available, please try again later");
         }
         return ErrorEntity(code: -7, message: "Oops something went wrong");
-      default:
-        return ErrorEntity(code: -8, message: "Oops something went wrong");
     }
   }
 

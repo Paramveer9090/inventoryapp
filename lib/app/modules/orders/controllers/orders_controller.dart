@@ -1,6 +1,9 @@
 import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
+import 'package:get/get.dart';
+
+enum ViewLevel { categories, subCategories, products }
 
 class OrdersController extends GetxController {
   final customerId;
@@ -16,6 +19,7 @@ class OrdersController extends GetxController {
   var isProduct = false.obs;
   var isSubCategory = false.obs;
   var isCategory = true.obs;
+  var currentView = ViewLevel.categories.obs;
   var noData = "".obs;
   var isAddedData = false.obs;
   var isAddToCartButton = false.obs;
@@ -29,6 +33,20 @@ class OrdersController extends GetxController {
   var customerIdValue = "".obs;
   var productName = "".obs;
   var productId = "".obs;
+
+
+  // ─── 3) Convenience getters ─────────────────────────────────────────────
+  bool get inProducts      => currentView.value == ViewLevel.products;
+  bool get inSubCategories => currentView.value == ViewLevel.subCategories;
+
+  // ─── 4) Central reset helper ────────────────────────────────────────────
+  void resetToCategories() {
+    currentView.value    = ViewLevel.categories;
+    isAddedData.value    = false;
+    isAddToCartButton.value = false;
+    getCategoriesAPI(categoryId: "0");
+    update();
+  }
 
   GetDetailsData? getDetailsData;
   List<GetDataListResponseData> orderItem = [];
@@ -101,7 +119,7 @@ class OrdersController extends GetxController {
 
     if (model.data!.isNotEmpty) {
       tempProductList = model.data!;
-
+      print('✅ Loaded ${productList.length} products for subCategory $subCategoryId');
       update();
     } else {
       print("In else part");
@@ -530,7 +548,7 @@ class OrdersController extends GetxController {
         } else {
           print("In else part");
         }
-      } on Exception catch (error) {
+      } on Exception {
         utils.showSnackBar(context: Get.context!, message: "Oops! Something want wrong");
       }
     } else {

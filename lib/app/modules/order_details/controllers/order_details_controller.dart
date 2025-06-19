@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
@@ -100,18 +100,31 @@ class OrderDetailsController extends GetxController {
     }
   }
 
-  getFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      File file = File(result.files.single.path!);
-      imageFile.value = result.files.single.path!;
+  Future<void> getFile() async {
+  // If you don’t care about filtering types, you can omit acceptedTypeGroups altogether:
+  // final XFile? picked = await openFile();
+  //
+  // To filter, define one or more XTypeGroup:
+  final typeGroup = XTypeGroup(
+    label: 'any',
+    extensions: ['*'],      // pick all file types
+  );
+  final XFile? picked = await openFile(acceptedTypeGroups: [typeGroup]);
 
-      if (imageFile.isNotEmpty) {
-        uploadFileAPI();
-      }
+  if (picked != null) {
+    // picked.path is equivalent to result.files.single.path
+    imageFile.value = picked.path;
+
+    // If you need a dart:io File object:
+    final file = File(picked.path);
+
+    if (imageFile.isNotEmpty) {
+      uploadFileAPI();
     }
-    update();
   }
+  update();
+}
+
 
   var fileURL = "".obs;
   var imageFile = "".obs;
@@ -139,7 +152,7 @@ class OrderDetailsController extends GetxController {
       } else {
         print("In else part");
       }
-    } on Exception catch (error) {
+    } on Exception {
       utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
     }
   }
@@ -192,7 +205,7 @@ class OrderDetailsController extends GetxController {
         } else {
           print("In else part");
         }
-      } on Exception catch (error) {
+      } on Exception {
         utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
       }
     }

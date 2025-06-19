@@ -37,6 +37,14 @@ class APIFunction {
         data: rawData,
       );
       return response;
+      } else if (type == "post") {
+      // explicit POST branch for raw JSON
+      log("POST rawData → $rawData");
+      var response = await HttpUtil(token!, isLoading, context).postt(
+        apiName,
+        data: rawData,      // send your JSON string
+      );
+      return response;
     } else {
       print("params -------->>> ${params!.fields}");
       var response = await HttpUtil(token!, isLoading, context).post(

@@ -15,12 +15,28 @@ class MyOrdersController extends GetxController {
 
   @override
   void onInit() {
-    getOrderReportAPI();
-    getLoginData();
     super.onInit();
+    // nothing here
   }
 
-  getLoginData() async {
+  @override
+  void onReady() {
+    super.onReady();
+    _loadMyOrders();
+  }
+
+  Future<void> _loadMyOrders() async {
+    await getLoginData();
+    if (loginData == null) {
+      // nothing to fetch if we don't have an ID
+      noData.value = "Please log in first";
+      update();
+      return;
+    }
+    await getOrderReportAPI();
+  }
+
+  Future<void> getLoginData() async {
     final data = await getStorageData.readObject(getStorageData.loginData);
     if (data != null) {
       loginData = LoginSignUpData.fromJson(data);
@@ -37,7 +53,11 @@ class MyOrdersController extends GetxController {
       for (int i = 0; i < filterList.length; i++) {
         if (filterList[i].id.toString().contains(text.toLowerCase()) ||
             // filterList[i].customer!.name!.toLowerCase().contains(text.toLowerCase()) ||
-            filterList[i].orderTotal.toString().toLowerCase().contains(text.toLowerCase())) {
+            filterList[i]
+                .orderTotal
+                .toString()
+                .toLowerCase()
+                .contains(text.toLowerCase())) {
           tempList.add(filterList[i]);
           noData.value = "";
         } else if (tempList.isEmpty) {
@@ -55,7 +75,8 @@ class MyOrdersController extends GetxController {
     for (int i = 0; i < filterList.length; i++) {
       var itemDate = await DateTime.parse(filterList[i].orderDate.toString());
 
-      if (itemDate.compareTo(startDate) > 0 && itemDate.compareTo(endDate) < 0) {
+      if (itemDate.compareTo(startDate) > 0 &&
+          itemDate.compareTo(endDate) < 0) {
         tempList.add(filterList[i]);
         noData.value = "";
       } else if (tempList.isEmpty) {
@@ -96,27 +117,35 @@ class MyOrdersController extends GetxController {
     update();
   }
 
-  getOrderReportAPI({var isLoading = true}) async {
+  Future<void> getOrderReportAPI({bool isLoading = true}) async {
+    if (loginData == null) {
+      noData.value = "Please log in first";
+      update();
+      return;
+    }
+    final payload = {
+      'sales_person_id': loginData!.id.toString(),
+      // add more parameters here if needed...
+    };
+
     final data = await APIFunction().apiCall(
       apiName: Constants.get_sales_person_orderreport,
       context: Get.context!,
       token: accessToken,
-      type: "get",
+      type: "post", // ← must be POST
+      rawData: jsonEncode(payload), // ← send your body
       isLoading: isLoading,
     );
 
-    ReportModel model = ReportModel.fromJson(data);
-
-    if (model.orders!.isNotEmpty) {
+    final model = ReportModel.fromJson(data);
+    if (model.orders?.isNotEmpty == true) {
       myOrderList = model.orders!;
       filterList = model.orders!;
       customerList = model.customers!;
-      print("customerList[0].companyName");
-      print(customerList[0].name);
-      print(customerList[0].companyName);
-      update();
+      update(); // rebuild the view
     } else {
-      print("In else part");
+      noData.value = "No orders found";
+      update();
     }
   }
 }

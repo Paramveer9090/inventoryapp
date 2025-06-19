@@ -28,7 +28,19 @@ class ProductsController extends GetxController {
     } else {
       List<GetDataListResponseData> tempList = [];
       for (int i = 0; i < filterList.length; i++) {
-        if (filterList[i].name.toString().toLowerCase().contains(text.toLowerCase()) || filterList[i].categoryType!.toLowerCase().contains(text.toLowerCase()) || filterList[i].subCategoryType!.toLowerCase().contains(text.toLowerCase())) {
+        if (filterList[i]
+                .name
+                .toString()
+                .toLowerCase()
+                .contains(text.toLowerCase()) ||
+            filterList[i]
+                .categoryType!
+                .toLowerCase()
+                .contains(text.toLowerCase()) ||
+            filterList[i]
+                .subCategoryType!
+                .toLowerCase()
+                .contains(text.toLowerCase())) {
           tempList.add(filterList[i]);
           noData.value = "";
         } else if (tempList.isEmpty) {
@@ -55,6 +67,15 @@ class ProductsController extends GetxController {
     if (model.data!.isNotEmpty) {
       productList = model.data!;
       filterList = model.data!;
+
+      // 👉 Log how many items you got
+      debugPrint('🔥 fetched ${productList.length} products');
+
+      // 👉 Loop through and print key fields
+      for (var p in productList) {
+        debugPrint(
+            ' • [${p.id}] ${p.name}  → category: ${p.categoryType}, sub: ${p.subCategoryType}');
+      }
 
       update();
     } else {

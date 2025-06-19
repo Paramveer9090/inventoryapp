@@ -1,20 +1,31 @@
+// android/settings.gradle
+
 pluginManagement {
-    def flutterSdkPath = {
-        def properties = new Properties()
-        file("local.properties").withInputStream { properties.load(it) }
-        def flutterSdkPath = properties.getProperty("flutter.sdk")
-        assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
-        return flutterSdkPath
-    }
-    settings.ext.flutterSdkPath = flutterSdkPath()
+  // 1. Read flutter.sdk from local.properties
+  def props = new Properties()
+  file("local.properties").withReader("UTF-8") { props.load(it) }
+  def flutterSdkPath = props.getProperty("flutter.sdk")
+  assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
 
-    includeBuild("${settings.ext.flutterSdkPath}/packages/flutter_tools/gradle")
+  // 2. Include Flutter's Gradle tooling
+  includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
 
-    plugins {
-        id "dev.flutter.flutter-gradle-plugin" version "1.0.0" apply false
-    }
+  // 3. Standard repos
+  repositories {
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+  }
 }
 
-include ":app"
+// 4. Declare your plugins here — none of these belongs inside pluginManagement
+plugins {
+  // Flutter’s loader plugin (no apply false)
+  id "dev.flutter.flutter-plugin-loader"    version "1.0.0"
+  id "com.android.application"              version "8.2.1" apply false
+  id "org.jetbrains.kotlin.android"         version "1.8.21" apply false
+}
 
-apply from: "${settings.ext.flutterSdkPath}/packages/flutter_tools/gradle/app_plugin_loader.gradle"
+include(":app")
+
+

@@ -199,7 +199,7 @@ class CartController extends GetxController {
         } else {
           print("In else part");
         }
-      } on Exception catch (error) {
+      } on Exception {
         utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
       }
     }
