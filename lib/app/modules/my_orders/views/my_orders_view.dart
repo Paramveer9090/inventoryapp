@@ -29,27 +29,24 @@ class MyOrdersView extends GetView<MyOrdersController> {
                   children: [
                     SizedBox(height: 3.h),
                     CustomDropDownSearch<Customers>(
-                      items: [
-                        ...List.generate(controller.customerList.length,
-                            (index) {
-                          return Customers(
-                            name: controller.customerList[index].name,
-                            id: controller.customerList[index].id,
-                          );
-                        }),
-                      ],
-                      itemAsString: (Customers) => Customers.name.toString(),
+                      items: controller.customerList,
+                      itemAsString: (customer) => customer?.name ?? '',
                       label: AppStrings.selectCustomer,
+                      // Add clear button
+                      
                       validator: (value) => Validators.canNotBeEmpty(
                         value?.name,
                         message: 'Please Select Customer',
                       ),
-                      onChanged: (GetDataListResponseData) async {
-                        controller.customer_id.value =
-                            await GetDataListResponseData!.id.toString();
-                        controller.customerSearch(
-                            id: controller.customer_id.value);
-                        controller.update();
+                      onChanged: (selectedCustomer) async {
+                        if (selectedCustomer == null) {
+                          // Clear customer filter when dropdown is cleared
+                          controller.clearCustomerFilter();
+                        } else if (selectedCustomer.id != null) {
+                          controller.customer_id.value = selectedCustomer.id!.toString();
+                          controller.customerSearch(id: controller.customer_id.value);
+                          controller.update();
+                        }
                       },
                     ),
                     SizedBox(height: 2.h),
@@ -128,33 +125,38 @@ class MyOrdersView extends GetView<MyOrdersController> {
                     Container(
                       child: Row(
                         children: [
+                          // PAID BUTTON
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                if (controller.isUnPaidSelected.value ||
-                                    controller.isOverDueSelected.value) {
-                                  controller.isUnPaidSelected.value = false;
-                                  controller.isOverDueSelected.value = false;
-                                }
-                                controller.isPaidSelected.value =
-                                    !controller.isPaidSelected.value;
+                                // Reset other filters
+                                controller.isUnPaidSelected.value = false;
+                                controller.isOverDueSelected.value = false;
+                                
+                                // Toggle paid filter
+                                controller.isPaidSelected.value = !controller.isPaidSelected.value;
 
                                 if (controller.isPaidSelected.value) {
-                                  controller.paidSearch(
-                                      color: Color(0xFF28a745));
+                                  // Filter for PAID orders
+                                  controller.statusFilter('Paid');
                                 } else {
-                                  controller.myOrderList =
-                                      controller.filterList;
+                                  // Reset to show all orders
+                                  controller.myOrderList = controller.filterList;
                                 }
                                 controller.update();
                               },
                               child: Container(
                                 height: 5.h,
                                 decoration: BoxDecoration(
-                                  color: AppColors.lightGreen,
+                                  color: controller.isPaidSelected.value 
+                                      ? AppColors.lightGreen.withOpacity(0.8)
+                                      : AppColors.lightGreen,
                                   borderRadius: BorderRadius.horizontal(
                                     left: Radius.circular(30),
                                   ),
+                                  border: controller.isPaidSelected.value
+                                      ? Border.all(color: Colors.white, width: 2)
+                                      : null,
                                 ),
                                 child: Center(
                                   child: AppText(
@@ -168,30 +170,37 @@ class MyOrdersView extends GetView<MyOrdersController> {
                             ),
                           ),
                           SizedBox(width: 0.2.h),
+                          
+                          // OVERDUE BUTTON
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                if (controller.isPaidSelected.value ||
-                                    controller.isUnPaidSelected.value) {
-                                  controller.isPaidSelected.value = false;
-                                  controller.isUnPaidSelected.value = false;
-                                }
-                                controller.isOverDueSelected.value =
-                                    !controller.isOverDueSelected.value;
+                                // Reset other filters
+                                controller.isPaidSelected.value = false;
+                                controller.isUnPaidSelected.value = false;
+                                
+                                // Toggle overdue filter
+                                controller.isOverDueSelected.value = !controller.isOverDueSelected.value;
 
                                 if (controller.isOverDueSelected.value) {
-                                  controller.paidSearch(
-                                      color: Color(0xFFdc3545));
+                                  // Filter for OVERDUE orders
+                                  controller.statusFilter('Overdue');
                                 } else {
-                                  controller.myOrderList =
-                                      controller.filterList;
+                                  // Reset to show all orders
+                                  controller.myOrderList = controller.filterList;
                                 }
                                 controller.update();
                               },
                               child: Container(
                                 height: 5.h,
-                                decoration:
-                                    BoxDecoration(color: AppColors.lightRed),
+                                decoration: BoxDecoration(
+                                  color: controller.isOverDueSelected.value
+                                      ? AppColors.lightRed.withOpacity(0.8)
+                                      : AppColors.lightRed,
+                                  border: controller.isOverDueSelected.value
+                                      ? Border.all(color: Colors.white, width: 2)
+                                      : null,
+                                ),
                                 child: Center(
                                   child: AppText(
                                     "Overdue",
@@ -204,33 +213,39 @@ class MyOrdersView extends GetView<MyOrdersController> {
                             ),
                           ),
                           SizedBox(width: 0.2.h),
+                          
+                          // UNPAID BUTTON
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                if (controller.isPaidSelected.value ||
-                                    controller.isOverDueSelected.value) {
-                                  controller.isPaidSelected.value = false;
-                                  controller.isOverDueSelected.value = false;
-                                }
-                                controller.isUnPaidSelected.value =
-                                    !controller.isUnPaidSelected.value;
+                                // Reset other filters
+                                controller.isPaidSelected.value = false;
+                                controller.isOverDueSelected.value = false;
+                                
+                                // Toggle unpaid filter
+                                controller.isUnPaidSelected.value = !controller.isUnPaidSelected.value;
 
                                 if (controller.isUnPaidSelected.value) {
-                                  controller.paidSearch(
-                                      color: Color(0xFFffae12));
+                                  // Filter for UNPAID orders
+                                  controller.statusFilter('Unpaid');
                                 } else {
-                                  controller.myOrderList =
-                                      controller.filterList;
+                                  // Reset to show all orders
+                                  controller.myOrderList = controller.filterList;
                                 }
                                 controller.update();
                               },
                               child: Container(
                                 height: 5.h,
                                 decoration: BoxDecoration(
-                                  color: AppColors.lightYellow,
+                                  color: controller.isUnPaidSelected.value
+                                      ? AppColors.lightYellow.withOpacity(0.8)
+                                      : AppColors.lightYellow,
                                   borderRadius: BorderRadius.horizontal(
                                     right: Radius.circular(30),
                                   ),
+                                  border: controller.isUnPaidSelected.value
+                                      ? Border.all(color: Colors.white, width: 2)
+                                      : null,
                                 ),
                                 child: Center(
                                   child: AppText(
@@ -245,6 +260,24 @@ class MyOrdersView extends GetView<MyOrdersController> {
                           ),
                         ],
                       ),
+                    ),
+                    SizedBox(height: 1.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            controller.clearAllFilters();
+                          },
+                          icon: Icon(Icons.clear_all, size: 16),
+                          label: Text('Clear All Filters'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey[600],
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 2.h),
                     controller.noData.value != ""
@@ -261,13 +294,13 @@ class MyOrdersView extends GetView<MyOrdersController> {
                             dataLength: controller.myOrderList.length,
                             margin: EdgeInsets.zero,
                             columns: [
-                              // DataColumn(
-                              //     label: AppText(
-                              //   'Action',
-                              //   color: const Color.fromARGB(255, 255, 255, 255),
-                              //   fontWeight: FontWeight.w600,
-                              //   fontSize: 12.sp,
-                              // )),
+                               DataColumn(
+                                   label: AppText(
+                                 'Action',
+                                 color: const Color.fromARGB(255, 255, 255, 255),
+                                 fontWeight: FontWeight.w600,
+                                 fontSize: 12.sp,
+                               )),
                               DataColumn(
                                 label: AppText(
                                   'Customer',
@@ -327,69 +360,70 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                 final dateText =
                                     order.orderDate?.split(' ').first ?? '';
                                 final orderIdText = order.id.toString();
-                                final customerName = controller.customerList
-                                        .firstWhere(
-                                          (c) => c.id == order.customerId,
-                                          orElse: () =>
-                                              Customers(id: 0, name: ''),
-                                        )
-                                        .name ??
-                                    '';
+                                final customerName = controller.customerMap[order.customerId]?.name ?? '';
                                 final amountText = order.orderTotal.toString();
                                 final statusTime = order.statusTime ?? '';
                                 final rowColor = order.statusColor;
 
+                                
                                 return DataRow(
                                   color: MaterialStatePropertyAll(rowColor),
                                   cells: [
-                                    // DataCell(
-                                    //   CustomTableCellActionButtons(
-                                    //     showDeleteButton: false,
-                                    //     isWhite: true,
-                                    //     showEditButton: canEdit,
-                                    //     onView: () {
-                                    //       controller.id.value = orderIdText;
-                                    //       Get.find<HomeController>()
-                                    //           .isOrderDetails
-                                    //           .value = true;
-                                    //       Get.find<HomeController>().update();
-                                    //       controller.update();
-                                    //     },
-                                    //     onEdit: () {
-                                    //       controller.id.value = orderIdText;
-                                    //       orderId = orderIdText;
-                                    //       final home =
-                                    //           Get.find<HomeController>();
-                                    //       home.isOrderDetails.value = true;
-                                    //       home.isOrderEdit.value = true;
-                                    //       home.isCustomerId.value =
-                                    //           order.customerId.toString();
-                                    //       home.update();
-                                    //       controller.update();
-                                    //     },
-                                    //     onDelete: () {},
-                                    //   ),
-                                    // ),
-                                    DataCell(AppText(customerName,
-                                        color: const Color.fromARGB(
-                                            128, 22, 179, 8),
-                                        fontSize: 11.sp)),
-                                    DataCell(AppText(dateText,
-                                        color: const Color.fromARGB(
-                                            128, 22, 179, 8),
-                                        fontSize: 11.sp)),
-                                    DataCell(AppText(orderIdText,
-                                        color: const Color.fromARGB(
-                                            128, 22, 179, 8),
-                                        fontSize: 11.sp)),
-                                    DataCell(AppText(amountText,
-                                        color: const Color.fromARGB(
-                                            128, 22, 179, 8),
-                                        fontSize: 11.sp)),
-                                    DataCell(AppText(statusTime,
-                                        color: const Color.fromARGB(
-                                            128, 22, 179, 8),
-                                        fontSize: 11.sp)),
+                                    DataCell(
+                                      CustomTableCellActionButtons(
+                                        showDeleteButton: false,
+                                        isWhite: true,
+                                        showEditButton: canEdit,
+                                        onView: () {
+                                           controller.id.value = orderIdText;
+                                           Get.find<HomeController>()
+                                               .isOrderDetails
+                                               .value = true;
+                                           Get.find<HomeController>().update();
+                                           controller.update();
+                                        },
+                                        onEdit: () {
+                                           controller.id.value = orderIdText;
+                                           orderId = orderIdText;
+                                           final home =
+                                               Get.find<HomeController>();
+                                           home.isOrderDetails.value = true;
+                                           home.isOrderEdit.value = true;
+                                           home.isCustomerId.value =
+                                               order.customerId.toString();
+                                           home.update();
+                                           controller.update();
+                                        },
+                                        onDelete: () {},
+                                      ),
+                                    ),
+                                    DataCell(Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8),
+                                      child: AppText(customerName, fontSize: 11.sp),
+                                    )),
+                                    DataCell(Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8),
+                                      child: AppText(dateText, fontSize: 11.sp),
+                                    )),
+                                    DataCell(Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8),
+                                      child: AppText(orderIdText, fontSize: 11.sp),
+                                    )),
+                                    DataCell(Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8),
+                                      child: AppText(amountText, fontSize: 11.sp),
+                                    )),
+                                    DataCell(
+                                      AppText(
+                                        statusTime,
+                                        color: order.status == 'Paid'
+                                            ? Colors.green
+                                            : order.status == 'Overdue'
+                                                ? Colors.red
+                                                : Colors.orange,
+                                        fontSize: 11.sp,
+                                      ),
+                                    ),
                                   ],
                                 );
                               }).toList()

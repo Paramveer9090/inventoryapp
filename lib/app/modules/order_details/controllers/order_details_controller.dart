@@ -7,6 +7,9 @@ import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+
 
 class OrderDetailsController extends GetxController {
   var id;
@@ -41,7 +44,8 @@ class OrderDetailsController extends GetxController {
   var imageEncoded = "".obs;
 
   handleSaveButtonPressed() async {
-    final data = await signatureGlobalKey.currentState!.toImage(pixelRatio: 3.0);
+    final data =
+        await signatureGlobalKey.currentState!.toImage(pixelRatio: 3.0);
     final bytes = await data.toByteData(format: ui.ImageByteFormat.png);
     imageEncoded.value = base64.encode(bytes!.buffer.asUint8List());
     update();
@@ -76,8 +80,12 @@ class OrderDetailsController extends GetxController {
       var amountTax;
       var amount;
       for (int i = 0; i < orderItem.length; i++) {
-        amountTax = ((double.parse(orderItem[i].quantityCount.toString()) * double.parse(orderItem[i].salePrice.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
-        amount = (double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice.toString());
+        amountTax = ((double.parse(orderItem[i].quantityCount.toString()) *
+                    double.parse(orderItem[i].salePrice.toString())) *
+                double.parse(orderItem[i].tax.toString())) /
+            100;
+        amount = (double.parse(orderItem[i].quantityCount!.toString())) *
+            double.parse(orderItem[i].salePrice.toString());
         orderItem[i].amountWithoutTax = amount.toString();
         orderItem[i].amountOnlyTax = amountTax.toString();
         orderItem[i].finalAmount = (amount + amountTax).toString();
@@ -101,30 +109,29 @@ class OrderDetailsController extends GetxController {
   }
 
   Future<void> getFile() async {
-  // If you don’t care about filtering types, you can omit acceptedTypeGroups altogether:
-  // final XFile? picked = await openFile();
-  //
-  // To filter, define one or more XTypeGroup:
-  final typeGroup = XTypeGroup(
-    label: 'any',
-    extensions: ['*'],      // pick all file types
-  );
-  final XFile? picked = await openFile(acceptedTypeGroups: [typeGroup]);
+    // If you don’t care about filtering types, you can omit acceptedTypeGroups altogether:
+    // final XFile? picked = await openFile();
+    //
+    // To filter, define one or more XTypeGroup:
+    final typeGroup = XTypeGroup(
+      label: 'any',
+      extensions: ['*'], // pick all file types
+    );
+    final XFile? picked = await openFile(acceptedTypeGroups: [typeGroup]);
 
-  if (picked != null) {
-    // picked.path is equivalent to result.files.single.path
-    imageFile.value = picked.path;
+    if (picked != null) {
+      // picked.path is equivalent to result.files.single.path
+      imageFile.value = picked.path;
 
-    // If you need a dart:io File object:
-    final file = File(picked.path);
+      // If you need a dart:io File object:
+      final file = File(picked.path);
 
-    if (imageFile.isNotEmpty) {
-      uploadFileAPI();
+      if (imageFile.isNotEmpty) {
+        uploadFileAPI();
+      }
     }
+    update();
   }
-  update();
-}
-
 
   var fileURL = "".obs;
   var imageFile = "".obs;
@@ -132,7 +139,8 @@ class OrderDetailsController extends GetxController {
   uploadFileAPI() async {
     try {
       FormData formData = FormData.fromMap({
-        "upload_image": MultipartFile.fromFileSync(imageFile.value, filename: imageFile.value.split("/").last),
+        "upload_image": MultipartFile.fromFileSync(imageFile.value,
+            filename: imageFile.value.split("/").last),
       });
 
       final data = await APIFunction().apiCall(
@@ -153,7 +161,8 @@ class OrderDetailsController extends GetxController {
         print("In else part");
       }
     } on Exception {
-      utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
+      utils.showSnackBar(
+          context: Get.context!, message: "The name has already been taken.");
     }
   }
 
@@ -206,7 +215,8 @@ class OrderDetailsController extends GetxController {
           print("In else part");
         }
       } on Exception {
-        utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
+        utils.showSnackBar(
+            context: Get.context!, message: "The name has already been taken.");
       }
     }
   }
@@ -218,22 +228,150 @@ class OrderDetailsController extends GetxController {
     var amount;
 
     for (int i = 0; i < orderItem.length; i++) {
-      amountTax = ((double.parse(orderItem[i].quantityCount.toString()) * double.parse(orderItem[i].salePrice.toString())) * double.parse(orderItem[i].tax.toString())) / 100;
-      amount = (double.parse(orderItem[i].quantityCount!.toString())) * double.parse(orderItem[i].salePrice.toString());
+      amountTax = ((double.parse(orderItem[i].quantityCount.toString()) *
+                  double.parse(orderItem[i].salePrice.toString())) *
+              double.parse(orderItem[i].tax.toString())) /
+          100;
+      amount = (double.parse(orderItem[i].quantityCount!.toString())) *
+          double.parse(orderItem[i].salePrice.toString());
       orderItem[i].amountWithoutTax = amount.toString();
       orderItem[i].amountOnlyTax = amountTax.toString();
       orderItem[i].finalAmount = (amount + amountTax).toString();
     }
     var orderTotalWithoutTax;
-    orderTotalWithoutTax = orderItem.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()));
-    getDetailsData!.orderTotalWithoutTax = orderTotalWithoutTax - double.parse(orderItem[index].amountWithoutTax);
+    orderTotalWithoutTax = orderItem.fold<double>(
+        0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()));
+    getDetailsData!.orderTotalWithoutTax =
+        orderTotalWithoutTax - double.parse(orderItem[index].amountWithoutTax);
     var orderTax;
-    orderTax = orderItem.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()));
-    getDetailsData!.orderTax = orderTax - double.parse(orderItem[index].amountOnlyTax);
+    orderTax = orderItem.fold<double>(
+        0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()));
+    getDetailsData!.orderTax =
+        orderTax - double.parse(orderItem[index].amountOnlyTax);
 
-    getDetailsData!.orderTotal = double.parse(getDetailsData!.orderTotalWithoutTax.toString()) + double.parse(getDetailsData!.orderTax.toString());
+    getDetailsData!.orderTotal =
+        double.parse(getDetailsData!.orderTotalWithoutTax.toString()) +
+            double.parse(getDetailsData!.orderTax.toString());
 
     orderItem.removeAt(index);
     update();
+  }
+
+  Future<Uint8List> generateInvoicePdf() async {
+    final pdf = pw.Document();
+    final logo = pw.MemoryImage(
+      (await rootBundle.load('assets/images/logo.png')).buffer.asUint8List(),
+    );
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Image(logo, width: 80),
+                  pw.Text('INVOICE',
+                      style: pw.TextStyle(
+                          fontSize: 32, fontWeight: pw.FontWeight.bold)),
+                ],
+              ),
+              pw.SizedBox(height: 16),
+              pw.Text(
+                  'Company: ${getDetailsData?.customer?.companyName ?? ""}'),
+              pw.Text(
+                  'Contact: ${getDetailsData?.customer?.contactName ?? ""}'),
+              pw.Text('Customer: ${getDetailsData?.customer?.name ?? ""}'),
+              pw.Divider(),
+              pw.Text('Order Items:',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Table.fromTextArray(
+                headers: ['Product', 'Qty', 'Price', 'Tax', 'Total'],
+                data: orderItem
+                    .map((item) => [
+                          item.name ?? '',
+                          item.quantityCount?.toString() ?? '',
+                          '\$${item.salePrice ?? ''}',
+                          '${item.tax ?? ''}%',
+                          '\$${item.finalAmount ?? ''}',
+                        ])
+                    .toList(),
+              ),
+              pw.Divider(),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.end,
+                children: [
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.end,
+                    children: [
+                      pw.Text(
+                          'Total: \$${getDetailsData?.orderTotalWithoutTax ?? ""}'),
+                      pw.Text(
+                          'Taxes & charges: \$${getDetailsData?.orderTax ?? ""}'),
+                      pw.Text(
+                          'Grand Total: \$${getDetailsData?.orderTotal ?? ""}',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    return pdf.save();
+  }
+  
+  Future<Uint8List> generatePackagingSlipPdf() async {
+    final pdf = pw.Document();
+    final logo = pw.MemoryImage(
+      (await rootBundle.load('assets/images/logo.png')).buffer.asUint8List(),
+    );
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Image(logo, width: 80),
+                  pw.Text('PACKAGING SLIP',
+                      style: pw.TextStyle(
+                          fontSize: 28, fontWeight: pw.FontWeight.bold)),
+                ],
+              ),
+              pw.SizedBox(height: 16),
+              pw.Text('Customer: ${getDetailsData?.customer?.name ?? ""}'),
+              pw.Text('Order ID: ${getDetailsData?.id ?? ""}'),
+              pw.Text('Order Date: ${getDetailsData?.orderDate ?? ""}'),
+              pw.Divider(),
+              pw.Text('Items to Pack:',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Table.fromTextArray(
+                headers: ['Product', 'Qty'],
+                data: orderItem
+                    .map((item) => [
+                          item.name ?? '',
+                          item.quantityCount?.toString() ?? '',
+                        ])
+                    .toList(),
+              ),
+              pw.SizedBox(height: 32),
+              pw.Text('Please ensure all items are packed and checked.',
+                  style: pw.TextStyle(fontSize: 14)),
+            ],
+          );
+        },
+      ),
+    );
+
+    return pdf.save();
   }
 }

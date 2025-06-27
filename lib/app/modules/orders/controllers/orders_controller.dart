@@ -23,6 +23,7 @@ class OrdersController extends GetxController {
   var noData = "".obs;
   var isAddedData = false.obs;
   var isAddToCartButton = false.obs;
+  var cameFromCategoryWithNoSubcategories = false.obs; // <-- Added variable
 
   /// API Data Params
 
@@ -34,6 +35,10 @@ class OrdersController extends GetxController {
   var productName = "".obs;
   var productId = "".obs;
 
+  // Add these for proper navigation tracking
+  var parentCategoryId = "".obs;
+  var currentCategoryId = "".obs;
+  var currentSubCategoryId = "".obs;
 
   // ─── 3) Convenience getters ─────────────────────────────────────────────
   bool get inProducts      => currentView.value == ViewLevel.products;
@@ -103,6 +108,15 @@ class OrdersController extends GetxController {
       noData.value = "No data found";
       getProduct(subCategoryId: categoryId, type: "category");
       update();
+    }
+
+    // In your getCategoriesAPI or wherever you load subcategories
+    if (categoryList.isEmpty) {
+      // No subcategories, go directly to products
+      cameFromCategoryWithNoSubcategories.value = true;
+      getProduct(subCategoryId: currentCategoryId.value, type: "category");
+    } else {
+      cameFromCategoryWithNoSubcategories.value = false;
     }
   }
 
@@ -555,4 +569,19 @@ class OrdersController extends GetxController {
       utils.showSnackBar(context: Get.context!, message: "Oops something went wrong");
     }
   }
+  void validateQuantity(int index) {
+  final product = productList[index];
+  final qtyStr = product.quantityCount ?? "";
+  final stockStr = product.stock?.toString() ?? "0";
+  
+  if (qtyStr.isEmpty || qtyStr == "0") {
+    product.isWrongData = false; // No error for empty/zero quantity
+    return;
+  }
+  
+  final qty = double.tryParse(qtyStr) ?? 0;
+  final stock = double.tryParse(stockStr) ?? 0;
+  
+  product.isWrongData = (qty <= 0 || qty > stock);
+}
 }
