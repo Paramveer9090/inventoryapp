@@ -1321,7 +1321,7 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                         padding: EdgeInsets.symmetric(vertical: 1.h),
                         child: Row(
                           children: [
-                            Expanded(
+                            Flexible(
                               child: AppButton(
                                 title: "Invoice",
                                 isIcon: true,
@@ -1334,18 +1334,15 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                 },
                               ),
                             ),
-                            SizedBox(width: 16),
-                            Expanded(
+                            SizedBox(width: 8),
+                            Flexible(
                               child: AppButton(
-                                title: "Packaging",
+                                title: "Package",
                                 isIcon: true,
                                 icon: Icons.local_shipping,
                                 onTap: () async {
-                                  final pdfData = await controller
-                                      .generatePackagingSlipPdf();
-                                  await Printing.sharePdf(
-                                      bytes: pdfData,
-                                      filename: 'packaging_slip.pdf');
+                                  final pdfData = await controller.generatePackagingSlipPdf();
+                                  await Printing.sharePdf(bytes: pdfData, filename: 'packaging_slip.pdf');
                                 },
                               ),
                             ),
