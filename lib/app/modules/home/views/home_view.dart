@@ -15,12 +15,15 @@ class HomeView extends GetView<HomeController> {
       init: HomeController(),
       assignId: true,
       builder: (controller) {
-        if (accessToken != null && controller.loginData!.roles![0].title == "Sales Manager") {
+        if (accessToken != null &&
+            controller.loginData!.roles![0].title == "Sales Manager") {
           Get.put(ProductsController());
         }
         return controller.loginData?.roles![0].title == "Sales Manager"
-            ? WillPopScope(
-                onWillPop: () async {
+            ? PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) async {
+                  if (didPop) return;
                   print("ordersordersordersorders");
                   print(controller.addOrder.value);
                   print(controller.isOrderEdit.value);
@@ -32,7 +35,9 @@ class HomeView extends GetView<HomeController> {
                   // print(controller.isOrderDetails.value && controller.isOrderEdit.value);
                   // print(controller.isOrderDetails.value);
                   // print(Get.find<ProductsController>().productDetails.value && controller.isDrawerSelected.value == 1 && controller.isSelected.value == 4);
-                  if (Get.find<ProductsController>().productDetails.value && controller.isDrawerSelected.value == 1 && controller.isSelected.value == 4) {
+                  if (Get.find<ProductsController>().productDetails.value &&
+                      controller.isDrawerSelected.value == 1 &&
+                      controller.isSelected.value == 4) {
                     Get.find<ProductsController>().productDetails.value = false;
                     Get.find<ProductsController>().update();
                     controller.update();
@@ -49,12 +54,14 @@ class HomeView extends GetView<HomeController> {
                     );
                     controller.update();
                     // return true;
-                  } else if (controller.isOrderEdit.value && controller.addOrder.value) {
+                  } else if (controller.isOrderEdit.value &&
+                      controller.addOrder.value) {
                     controller.addOrder.value = false;
                     controller.isSelected.value = 2;
                     controller.isOrderDetails.value = true;
                     controller.update();
-                  } else if (controller.isOrderDetails.value && controller.isOrderEdit.value) {
+                  } else if (controller.isOrderDetails.value &&
+                      controller.isOrderEdit.value) {
                     controller.isOrderDetails.value = false;
                     controller.isOrderEdit.value = false;
                     Get.find<MyOrdersController>().update();
@@ -68,7 +75,6 @@ class HomeView extends GetView<HomeController> {
                     Get.find<CustomersController>().update();
                     controller.update();
                   }
-                  return false;
                 },
                 child: Scaffold(
                   key: controller.key,
@@ -82,7 +88,8 @@ class HomeView extends GetView<HomeController> {
                           ? AppStrings.productDetails
                           : controller.addOrder.value
                               ? AppStrings.orders
-                              : controller.isOrderDetails.value && controller.isOrderEdit.value
+                              : controller.isOrderDetails.value &&
+                                      controller.isOrderEdit.value
                                   ? AppStrings.editOrder
                                   : controller.isOrderDetails.value
                                       ? AppStrings.orderDetail
@@ -90,14 +97,21 @@ class HomeView extends GetView<HomeController> {
                                           ? AppStrings.cart
                                           : controller.isCustomerDetails.value
                                               ? AppStrings.customersDetails
-                                              : controller.titleList[controller.isSelected.value],
+                                              : controller.titleList[
+                                                  controller.isSelected.value],
                       fontSize: 14.sp,
                       color: AppColors.whiteColor,
                     ),
-                    leading: Get.find<ProductsController>().productDetails.value && controller.isDrawerSelected.value == 1 && controller.isSelected.value == 4
+                    leading: Get.find<ProductsController>()
+                                .productDetails
+                                .value &&
+                            controller.isDrawerSelected.value == 1 &&
+                            controller.isSelected.value == 4
                         ? GestureDetector(
                             onTap: () {
-                              Get.find<ProductsController>().productDetails.value = false;
+                              Get.find<ProductsController>()
+                                  .productDetails
+                                  .value = false;
                               Get.find<ProductsController>().update();
                               controller.update();
                             },
@@ -127,7 +141,8 @@ class HomeView extends GetView<HomeController> {
                                   color: AppColors.whiteColor,
                                 ),
                               )
-                            : controller.isOrderEdit.value && controller.addOrder.value
+                            : controller.isOrderEdit.value &&
+                                    controller.addOrder.value
                                 ? GestureDetector(
                                     onTap: () {
                                       controller.addOrder.value = false;
@@ -140,12 +155,15 @@ class HomeView extends GetView<HomeController> {
                                       color: AppColors.whiteColor,
                                     ),
                                   )
-                                : controller.isOrderDetails.value && controller.isOrderEdit.value
+                                : controller.isOrderDetails.value &&
+                                        controller.isOrderEdit.value
                                     ? GestureDetector(
                                         onTap: () {
-                                          controller.isOrderDetails.value = false;
+                                          controller.isOrderDetails.value =
+                                              false;
                                           controller.isOrderEdit.value = false;
-                                          Get.find<MyOrdersController>().update();
+                                          Get.find<MyOrdersController>()
+                                              .update();
                                           controller.update();
                                         },
                                         child: Icon(
@@ -156,8 +174,10 @@ class HomeView extends GetView<HomeController> {
                                     : controller.isOrderDetails.value
                                         ? GestureDetector(
                                             onTap: () {
-                                              controller.isOrderDetails.value = false;
-                                              Get.find<MyOrdersController>().update();
+                                              controller.isOrderDetails.value =
+                                                  false;
+                                              Get.find<MyOrdersController>()
+                                                  .update();
                                               controller.update();
                                             },
                                             child: Icon(
@@ -168,8 +188,11 @@ class HomeView extends GetView<HomeController> {
                                         : controller.isCustomerDetails.value
                                             ? GestureDetector(
                                                 onTap: () {
-                                                  controller.isCustomerDetails.value = false;
-                                                  Get.find<CustomersController>().update();
+                                                  controller.isCustomerDetails
+                                                      .value = false;
+                                                  Get.find<
+                                                          CustomersController>()
+                                                      .update();
                                                   controller.update();
                                                 },
                                                 child: Icon(
@@ -194,7 +217,8 @@ class HomeView extends GetView<HomeController> {
                                 controller.update();
                               },
                               child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 2.2.h),
+                                padding:
+                                    EdgeInsets.symmetric(horizontal: 2.2.h),
                                 child: Stack(
                                   clipBehavior: Clip.none,
                                   children: [
@@ -255,7 +279,8 @@ class HomeView extends GetView<HomeController> {
                                 if (controller.isCart.value) {
                                   controller.isCart.value = false;
                                 }
-                                if (controller.isOrderDetails.value && controller.isOrderEdit.value) {
+                                if (controller.isOrderDetails.value &&
+                                    controller.isOrderEdit.value) {
                                   controller.isOrderDetails.value = false;
                                   controller.isOrderEdit.value = false;
                                 }
@@ -270,7 +295,9 @@ class HomeView extends GetView<HomeController> {
                                 }
                               },
                               child: Image.asset(
-                                controller.isSelected.value == index ? controller.selectedIconList[index] : controller.iconList[index],
+                                controller.isSelected.value == index
+                                    ? controller.selectedIconList[index]
+                                    : controller.iconList[index],
                                 height: 3.5.h,
                                 width: 3.5.h,
                               ),
@@ -281,7 +308,8 @@ class HomeView extends GetView<HomeController> {
                     ),
                   ),
                   onDrawerChanged: (value) {
-                    if (value == false && controller.isDrawerSelected.value == 0) {
+                    if (value == false &&
+                        controller.isDrawerSelected.value == 0) {
                       controller.isSelected.value = 0;
                       controller.update();
                     }
@@ -295,9 +323,11 @@ class HomeView extends GetView<HomeController> {
                             children: [
                               SizedBox(height: 10.h),
                               Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 2.h),
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 2.h),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       AppText(
                                         "Welcome,",
@@ -313,10 +343,13 @@ class HomeView extends GetView<HomeController> {
                                       SizedBox(height: 1.h),
                                       Divider(),
                                       SizedBox(height: 1.h),
-                                      ...List.generate(controller.drawerList.length, (drawerIndex) {
+                                      ...List.generate(
+                                          controller.drawerList.length,
+                                          (drawerIndex) {
                                         return GestureDetector(
                                           onTap: () {
-                                            controller.isDrawerSelected.value = drawerIndex + 1;
+                                            controller.isDrawerSelected.value =
+                                                drawerIndex + 1;
 
                                             if (drawerIndex == 3) {
                                               showDialog(
@@ -343,23 +376,30 @@ class HomeView extends GetView<HomeController> {
                                             controller.update();
                                           },
                                           child: Container(
-                                            padding: EdgeInsets.symmetric(vertical: 2.5.h, horizontal: 3.h),
-                                            margin: EdgeInsets.symmetric(vertical: 1.h),
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 2.5.h,
+                                                horizontal: 3.h),
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 1.h),
                                             decoration: BoxDecoration(
                                               // color: controller.isDrawerSelected.value == drawerIndex ? AppColors.tableColor.withOpacity(0.3) : AppColors.transparent,
-                                              borderRadius: BorderRadius.circular(30),
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
                                             ),
                                             child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
                                               children: [
                                                 Image.asset(
-                                                  controller.drawerImageList[drawerIndex],
+                                                  controller.drawerImageList[
+                                                      drawerIndex],
                                                   height: 2.8.h,
                                                   width: 2.8.h,
                                                 ),
                                                 SizedBox(width: 2.h),
                                                 AppText(
-                                                  controller.drawerList[drawerIndex],
+                                                  controller
+                                                      .drawerList[drawerIndex],
                                                   fontSize: 14.sp,
                                                   color: Colors.white,
                                                 ),
@@ -383,27 +423,31 @@ class HomeView extends GetView<HomeController> {
                       ),
                     ),
                     child: Center(
-                      child: controller.isDrawerSelected.value == 1 && controller.isSelected.value == 4
+                      child: controller.isDrawerSelected.value == 1 &&
+                              controller.isSelected.value == 4
                           ? ProductsView()
                           : controller.addOrder.value
-                              ? OrdersView(customerId: controller.isCustomerId.value)
+                              ? OrdersView(
+                                  customerId: controller.isCustomerId.value)
                               : controller.isCart.value
                                   ? CartView()
-                                  : controller.screens[controller.isSelected.value],
+                                  : controller
+                                      .screens[controller.isSelected.value],
                     ),
                   ),
                 ),
               )
             : accessToken != null
-                ? WillPopScope(
-                    onWillPop: () async {
+                ? PopScope(
+                    canPop: false,
+                    onPopInvokedWithResult: (didPop, result) async {
+                      if (didPop) return;
                       if (controller.isOrderDetails.value) {
                         controller.isOrderDetails.value = false;
                         Get.find<DriverOrderController>().update();
                         controller.isSelected.value = 1;
                       }
                       controller.update();
-                      return false;
                     },
                     child: Scaffold(
                       backgroundColor: AppColors.primaryColor,
@@ -412,7 +456,10 @@ class HomeView extends GetView<HomeController> {
                         centerTitle: true,
                         backgroundColor: AppColors.primaryColor,
                         title: AppText(
-                          controller.isOrderDetails.value ? AppStrings.orderDetail : controller.titleDeliveryList[controller.isSelected.value],
+                          controller.isOrderDetails.value
+                              ? AppStrings.orderDetail
+                              : controller.titleDeliveryList[
+                                  controller.isSelected.value],
                           fontSize: 14.sp,
                           color: AppColors.whiteColor,
                         ),
@@ -478,7 +525,10 @@ class HomeView extends GetView<HomeController> {
                                     controller.update();
                                   },
                                   child: Image.asset(
-                                    controller.isSelected.value == index ? controller.selectedDeliveryIconList[index] : controller.iconDeliveryList[index],
+                                    controller.isSelected.value == index
+                                        ? controller
+                                            .selectedDeliveryIconList[index]
+                                        : controller.iconDeliveryList[index],
                                     height: 3.5.h,
                                     width: 3.5.h,
                                   ),
@@ -498,7 +548,8 @@ class HomeView extends GetView<HomeController> {
                           ),
                         ),
                         child: Center(
-                          child: controller.screensDelivery[controller.isSelected.value],
+                          child: controller
+                              .screensDelivery[controller.isSelected.value],
                         ),
                       ),
                     ),
