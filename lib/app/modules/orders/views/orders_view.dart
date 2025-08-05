@@ -716,28 +716,66 @@ class OrdersView extends GetView<OrdersController> {
                                         vertical: 15),
                                     child: SizedBox(
                                       height: 50,
-                                      child: Get.find<HomeController>()
-                                                  .isOrderEdit
-                                                  .value &&
+                                      child: Get.find<HomeController>().isOrderEdit.value &&
                                               controller.isAddToCartButton.value
                                           ? AppButton(
                                               title: "Add Product",
+                                              isIcon: true,
+                                              icon: Icons.add,
                                               onTap: () async {
-                                                bool isWrong = controller
-                                                    .productList
-                                                    .any((p) =>
-                                                        p.isWrongData == true);
-                                                controller.update();
-                                                if (!isWrong) {
-                                                  if (orderId.isNotEmpty) {
-                                                    controller.editOrderAPI();
+                                                try {
+                                                  print("=== ADD PRODUCT DEBUG ===");
+                                                  
+                                                  final homeController = Get.find<HomeController>();
+                                                  print("HomeController isCustomerId: '${homeController.isCustomerId.value}'");
+                                                  print("Controller customerId: '${controller.customerId}'");
+                                                  print("Widget customerId: '${customerId}'");
+                                                  
+                                                  // Try to get customer ID from multiple sources
+                                                  String actualCustomerId = '';
+                                                  
+                                                  if (homeController.isCustomerId.value.isNotEmpty) {
+                                                    actualCustomerId = homeController.isCustomerId.value;
+                                                    print("Using customer ID from HomeController");
+                                                  } else if (controller.customerId != null && controller.customerId.toString().isNotEmpty) {
+                                                    actualCustomerId = controller.customerId.toString();
+                                                    print("Using customer ID from Controller");
+                                                  } else if (customerId != null && customerId.toString().isNotEmpty) {
+                                                    actualCustomerId = customerId.toString();
+                                                    print("Using customer ID from Widget");
                                                   }
-                                                } else {
-                                                  utils.showSnackBar(
-                                                    context: context,
-                                                    message:
-                                                        "Oops something went wrong",
-                                                  );
+                                                  
+                                                  print("Final customer ID: '$actualCustomerId'");
+                                                  
+                                                  if (actualCustomerId.isEmpty) {
+                                                    print("ERROR: Could not determine customer ID!");
+                                                    Get.snackbar("Error", "Customer information not available");
+                                                    return;
+                                                  }
+                                                  
+                                                  // Set the customer ID in HomeController
+                                                  homeController.isCustomerId.value = actualCustomerId;
+                                                  
+                                                  // Validate products have quantities
+                                                  final selectedProducts = controller.productList
+                                                      .where((product) => (product.quantityCount ?? "0") != "0")
+                                                      .toList();
+                                                  
+                                                  if (selectedProducts.isEmpty) {
+                                                    Get.snackbar("Error", "Please select at least one product");
+                                                    return;
+                                                  }
+                                                  
+                                                  print("Selected products count: ${selectedProducts.length}");
+                                                  
+                                                  // Call the add to cart API
+                                                  await controller.addToCartAPI();
+                                                  
+                                                  print("Add to existing order completed");
+                                                  
+                                                } catch (e) {
+                                                  print("ERROR in Add Product: $e");
+                                                  Get.snackbar("Error", "Failed to add product: $e");
                                                 }
                                               },
                                             )

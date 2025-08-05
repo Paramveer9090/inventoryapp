@@ -1,12 +1,12 @@
 import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
-import 'package:get/get.dart';
+// Add this for jsonEncode
 
 enum ViewLevel { categories, subCategories, products }
 
 class OrdersController extends GetxController {
-  final customerId;
+  var customerId;
 
   OrdersController({this.customerId});
 
@@ -41,13 +41,13 @@ class OrdersController extends GetxController {
   var currentSubCategoryId = "".obs;
 
   // ─── 3) Convenience getters ─────────────────────────────────────────────
-  bool get inProducts      => currentView.value == ViewLevel.products;
+  bool get inProducts => currentView.value == ViewLevel.products;
   bool get inSubCategories => currentView.value == ViewLevel.subCategories;
 
   // ─── 4) Central reset helper ────────────────────────────────────────────
   void resetToCategories() {
-    currentView.value    = ViewLevel.categories;
-    isAddedData.value    = false;
+    currentView.value = ViewLevel.categories;
+    isAddedData.value = false;
     isAddToCartButton.value = false;
     getCategoriesAPI(categoryId: "0");
     update();
@@ -62,12 +62,19 @@ class OrdersController extends GetxController {
     getCategoriesAPI(categoryId: "0");
     getProductAPI();
 
-    if (orderId != "0") {
+    // Make sure we have order data when editing
+    final homeController = Get.find<HomeController>();
+    if (homeController.isOrderEdit.value && orderId != "0") {
       getAllOrderData();
+      
+      // Ensure customer ID is set from order data
+      if (getDetailsData?.customerId != null) {
+        homeController.isCustomerId.value = getDetailsData!.customerId.toString();
+        customerId = getDetailsData!.customerId.toString();
+      }
     }
 
     update();
-
     super.onInit();
   }
 
@@ -133,7 +140,8 @@ class OrdersController extends GetxController {
 
     if (model.data!.isNotEmpty) {
       tempProductList = model.data!;
-      print('✅ Loaded ${productList.length} products for subCategory $subCategoryId');
+      print(
+          '✅ Loaded ${productList.length} products for subCategory $subCategoryId');
       update();
     } else {
       print("In else part");
@@ -151,7 +159,10 @@ class OrdersController extends GetxController {
     }
     update();
     for (int i = 0; i < tempProductList.length; i++) {
-      if (tempProductList[i].subCategoryId.toString() == subCategoryId.toString() && tempProductList[i].subCategoryId != null && type == "subCategory") {
+      if (tempProductList[i].subCategoryId.toString() ==
+              subCategoryId.toString() &&
+          tempProductList[i].subCategoryId != null &&
+          type == "subCategory") {
         noData.value = "";
         print(tempProductList[i].stock);
         print("tempProductList[i].quantity first");
@@ -189,7 +200,10 @@ class OrdersController extends GetxController {
         }
 
         update();
-      } else if (tempProductList[i].categoryId.toString() == subCategoryId.toString() && tempProductList[i].categoryId != null && type == "category") {
+      } else if (tempProductList[i].categoryId.toString() ==
+              subCategoryId.toString() &&
+          tempProductList[i].categoryId != null &&
+          type == "category") {
         noData.value = "";
         print(tempProductList[i].stock);
         print("tempProductList[i].quantity second");
@@ -248,6 +262,15 @@ class OrdersController extends GetxController {
     if (model.order != null) {
       getDetailsData = model.order!;
       orderItem = model.order!.orderItem!;
+      
+      // Set customer ID immediately
+      final homeController = Get.find<HomeController>();
+      if (getDetailsData!.customerId != null) {
+        homeController.isCustomerId.value = getDetailsData!.customerId.toString();
+        customerId = getDetailsData!.customerId.toString();
+      }
+      
+      print("Customer ID set to: ${homeController.isCustomerId.value}");
       print(orderItem.length);
       print("orderItem.length");
       update();
@@ -408,7 +431,7 @@ class OrdersController extends GetxController {
   //   if (categoryList.isNotEmpty) {
   //     try {
   //       String rawData =
-  //           '{"sales_manager_id": "${getDetailsData!.salesManagerId}","customer_id": ${getDetailsData!.customerId},"item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productAPIList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${getDetailsData!.discountType},"extra_discount": "${getDetailsData!.extraDiscount}","order_total": "${orderFinalTotal.value}","comments": "${getDetailsData!.comments}","delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${getDetailsData!.orderDate!.split(".").first}"}';
+  //           '{"sales_manager_id": "${getDetailsData!.salesManagerId}","customer_id": ${getDetailsData!.customerId},"item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productAPIList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${getDetailsData!.discountType},"extra_discount": "${getDetailsData!.extraDiscount}","order_total": "${orderFinalTotal.value}","comments": "${getDetailsData!.comments}","delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${getDetailsData!.orderDate!.split(".").first}'}';
   //
   //       final data = await APIFunction().apiCall(
   //         apiName: "${Constants.orders}/${orderId}",
@@ -446,72 +469,250 @@ class OrdersController extends GetxController {
   // worked on it
 
   editOrderAPI() async {
-    print("check length");
-    print(orderItem.length);
-    print(productList.length);
+    print("Adding products to existing order");
 
-    int l = orderItem.length;
-    int k = productList.length;
-    bool whichListIsBig = l <= k;
+    // Get order ID
+    String currentOrderId = orderId.toString();
+    print("Order ID: $currentOrderId");
+    print("Customer ID: $customerId");
 
-    print(whichListIsBig);
-    print("whichListIsBig");
-
-    for (int i = 0; i < productList.length; i++) {
-      if (await productList[i].quantityCount != "0") {
-        orderItem.add(productList[i]);
-      }
+    if (currentOrderId.isEmpty || currentOrderId == "0") {
+      print("ERROR: Order ID is empty!");
+      Get.snackbar("Error", "Order information not available");
+      return;
     }
 
-    List categoryList = [];
-    List subCategoryList = [];
-    List productAPIList = [];
-    List packageList = [];
-    List quantityList = [];
-    List salesPriceList = [];
-    List taxList = [];
-    List isBoxList = [];
-    List isProductName = [];
-    if (orderItem.isNotEmpty) {
-      List<GetDataListResponseData> apiList = [];
-      for (int js = 0; js < orderItem.length; js++) {
-        apiList = orderItem;
+    try {
+      // Add selected products to existing order items
+      for (int i = 0; i < productList.length; i++) {
+        final product = productList[i];
+        final quantityStr = product.quantityCount?.toString() ?? "0";
+        
+        if (quantityStr != "0" && quantityStr.isNotEmpty) {
+          // Check if product already exists in order
+          bool productExists = false;
+          
+          for (int j = 0; j < orderItem.length; j++) {
+            // Safe string comparison of product IDs
+            final orderProductId = orderItem[j].productId?.toString() ?? '';
+            final newProductId = product.id?.toString() ?? '';
+            
+            if (orderProductId == newProductId && orderProductId.isNotEmpty) {
+              // Update existing product quantity
+              final existingQty = int.tryParse(orderItem[j].quantityCount?.toString() ?? "0") ?? 0;
+              final newQty = int.tryParse(quantityStr) ?? 0;
+              orderItem[j].quantityCount = (existingQty + newQty).toString();
+              productExists = true;
+              break;
+            }
+          }
+
+          // Add new product if it doesn't exist
+          if (!productExists) {
+            // Create new order item with safe field assignments
+            final newOrderItem = GetDataListResponseData(
+              id: product.id,
+              productId: product.id,
+              name: product.name,
+              sellingPrice: product.sellingPrice,
+              salePrice: product.sellingPrice,
+              quantityCount: quantityStr,
+              categoryId: product.categoryId,
+              subCategoryId: product.subCategoryId,
+              boxSize: product.boxSize ?? 1,
+              taxId: product.taxId,
+              isBox: product.isBox ?? 0,
+              tax: product.tax,
+              stock: product.stock,
+              createdAt: product.createdAt,
+              updatedAt: product.updatedAt,
+              deletedAt: product.deletedAt,
+              maximumSellingPrice: product.maximumSellingPrice,
+              isEdit: product.isEdit ?? false,
+              imageUrl: product.imageUrl,
+              productImage: product.productImage,
+              isUnitSelected: product.isUnitSelected ?? 1,
+              isWrongData: product.isWrongData ?? false,
+              taxDetail: product.taxDetail,
+            );
+
+            orderItem.add(newOrderItem);
+          }
+        }
       }
 
-      for (int k = 0; k < apiList.length; k++) {
-        categoryList.add(apiList[k].categoryId);
-        subCategoryList.add(apiList[k].subCategoryId);
-        productAPIList.add(apiList[k].productId);
-        packageList.add(apiList[k].boxSize);
-        quantityList.add(apiList[k].quantityCount);
-        salesPriceList.add(apiList[k].salePrice);
-        salesPriceList.add(apiList[k].salePrice);
-        isProductName.add(apiList[k].name);
-        taxList.add(apiList[k].taxId);
-        isBoxList.add(apiList[k].isBox);
-        var amountTax;
-        var amount;
+      // Prepare API data with safe type conversions
+      List<dynamic> categoryList = [];
+      List<dynamic> subCategoryList = [];
+      List<dynamic> productAPIList = [];
+      List<dynamic> packageList = [];
+      List<dynamic> quantityList = [];
+      List<dynamic> salesPriceList = [];
+      List<dynamic> taxList = [];
+      List<dynamic> isBoxList = [];
 
-        amountTax = ((double.parse(apiList[k].quantityCount.toString()) * double.parse(apiList[k].salePrice.toString())) * double.parse(apiList[k].tax.toString())) / 100;
-        amount = (double.parse(apiList[k].quantityCount!.toString())) * double.parse(apiList[k].salePrice.toString());
-        apiList[k].amountWithoutTax = amount.toString();
-        apiList[k].amountOnlyTax = amountTax.toString();
-        apiList[k].finalAmount = (amount + amountTax).toString();
+      if (orderItem.isNotEmpty) {
+        for (int k = 0; k < orderItem.length; k++) {
+          final item = orderItem[k];
+          
+          // Safe conversion to appropriate types
+          categoryList.add(item.categoryId ?? 0);
+          subCategoryList.add(item.subCategoryId ?? 0);
+          productAPIList.add(item.productId ?? item.id ?? 0);
+          packageList.add(item.boxSize ?? 1);
+          quantityList.add(int.tryParse(item.quantityCount?.toString() ?? "0") ?? 0);
+          
+          // Handle price fields safely
+          final salePrice = item.salePrice ?? item.sellingPrice;
+          salesPriceList.add(double.tryParse(salePrice?.toString() ?? "0") ?? 0);
+          
+          taxList.add(item.taxId ?? 0);
+          isBoxList.add(item.isBox ?? 0);
+
+          // Calculate amounts with error handling
+          try {
+            final quantity = double.tryParse(item.quantityCount?.toString() ?? "0") ?? 0;
+            final price = double.tryParse(salePrice?.toString() ?? "0") ?? 0;
+            final taxRate = double.tryParse(item.tax?.toString() ?? "0") ?? 0;
+
+            final amount = quantity * price;
+            final amountTax = (amount * taxRate) / 100;
+
+            item.amountWithoutTax = amount.toString();
+            item.amountOnlyTax = amountTax.toString();
+            item.finalAmount = (amount + amountTax).toString();
+          } catch (e) {
+            print("Error calculating amounts for item $k: $e");
+            item.amountWithoutTax = "0";
+            item.amountOnlyTax = "0";
+            item.finalAmount = "0";
+          }
+        }
+
+        // Calculate totals safely
+        try {
+          double totalWithoutTax = 0;
+          double totalTax = 0;
+          
+          for (final item in orderItem) {
+            totalWithoutTax += double.tryParse(item.amountWithoutTax?.toString() ?? "0") ?? 0;
+            totalTax += double.tryParse(item.amountOnlyTax?.toString() ?? "0") ?? 0;
+          }
+          
+          orderTotal.value = totalWithoutTax.toString();
+          orderTax.value = totalTax.toString();
+          orderFinalTotal.value = (totalWithoutTax + totalTax).toString();
+        } catch (e) {
+          print("Error calculating totals: $e");
+          orderTotal.value = "0";
+          orderTax.value = "0";
+          orderFinalTotal.value = "0";
+        }
       }
 
-      orderTotal.value = (apiList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
-      orderTax.value = (apiList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
-      orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toString();
+      print("Order totals calculated:");
+      print("orderTotal: ${orderTotal.value}");
+      print("orderTax: ${orderTax.value}");
+      print("orderFinalTotal: ${orderFinalTotal.value}");
+
+      // Make API call to update existing order
+      if (categoryList.isNotEmpty && getDetailsData != null) {
+        try {
+          final requestData = {
+            "sales_manager_id": getDetailsData!.salesManagerId?.toString() ?? "",
+            "customer_id": getDetailsData!.customerId ?? 0,
+            "item_category": categoryList,
+            "item_subcategory": subCategoryList,
+            "item_name": productAPIList,
+            "package_val": packageList,
+            "item_quantity": quantityList,
+            "item_sale_priec": salesPriceList,
+            "item_tax_id": taxList,
+            "is_box": isBoxList,
+            "order_total_without_tax": double.tryParse(orderTotal.value) ?? 0,
+            "order_tax": double.tryParse(orderTax.value) ?? 0,
+            "discount_type": getDetailsData!.discountType ?? 0,
+            "extra_discount": getDetailsData!.extraDiscount?.toString() ?? "0",
+            "order_total": orderFinalTotal.value,
+            "comments": getDetailsData!.comments?.toString() ?? "null",
+            "delivery_note": getDetailsData!.deliveryNote?.toString() ?? "null",
+            "customer_sign": getDetailsData!.customerSign?.toString() ?? "null",
+            "status": getDetailsData!.status?.toString() ?? "3",
+            "order_date": getDetailsData!.orderDate?.split(".").first ?? DateTime.now().toString().split(" ").first
+          };
+
+          String rawData = jsonEncode(requestData);
+          print("API Request Data: $rawData");
+
+          final data = await APIFunction().apiCall(
+            apiName: "${Constants.orders}/$currentOrderId",
+            context: Get.context!,
+            token: accessToken,
+            type: "put",
+            rawData: rawData,
+          );
+
+          // Check if API call was successful
+          if (data != null) {
+            print("Order updated successfully");
+            
+            // Preserve customer ID for next operations
+            final homeController = Get.find<HomeController>();
+            if (getDetailsData?.customerId != null) {
+              homeController.isCustomerId.value = getDetailsData!.customerId.toString();
+              customerId = getDetailsData!.customerId.toString(); // Update local customerId too
+            }
+            
+            // Reset product quantities but stay on page
+            for (var product in productList) {
+              product.quantityCount = "0";
+            }
+            
+            utils.showSnackBar(context: Get.context!, message: "Products added successfully! You can add more products or go back to order details.");
+            update();
+          } else {
+            print("API response: Data is null");
+            utils.showSnackBar(context: Get.context!, message: "Failed to update order");
+          }
+        } catch (error) {
+          print("Error updating order: $error");
+          utils.showSnackBar(
+              context: Get.context!, message: "Error updating order: $error");
+        }
+      } else {
+        print("ERROR: No products to update or getDetailsData is null");
+        utils.showSnackBar(
+            context: Get.context!,
+            message: "No products selected or order data missing");
+      }
+    } catch (error) {
+      print("ERROR in editOrderAPI: $error");
+      utils.showSnackBar(
+          context: Get.context!, message: "Error adding products: $error");
     }
-
-    update();
   }
 
   /// add to cart api
-
   addToCartAPI() async {
-    print("call api");
-    print(customerId);
+    print("=== addToCartAPI DEBUG ===");
+    print("Controller customerId: $customerId");
+    print(
+        "HomeController customerId: ${Get.find<HomeController>().isCustomerId.value}");
+    print("Is Order Edit: ${Get.find<HomeController>().isOrderEdit.value}");
+
+    // Check if we're adding to an existing order
+    final homeController = Get.find<HomeController>();
+    final isEditingOrder = homeController.isOrderEdit.value;
+
+    if (isEditingOrder) {
+      print("Routing to editOrderAPI for existing order");
+      await editOrderAPI();
+      return;
+    }
+
+    // Original logic for creating new orders
+    print("Creating new order/cart");
+
     List productIdList = [];
     List priceList = [];
     List quantityList = [];
@@ -519,6 +720,7 @@ class OrdersController extends GetxController {
     List isBoxList = [];
     List categoryList = [];
     List subCategoryList = [];
+
     for (int i = 0; i < productList.length; i++) {
       if (productList[i].quantityCount != "0") {
         productIdList.add(productList[i].id);
@@ -533,7 +735,8 @@ class OrdersController extends GetxController {
 
     if (productIdList.isNotEmpty) {
       try {
-        String rawData = '{"customer_id": ${customerId},"sales_manager_id": ${loginData!.id},"category_id": ${categoryList},"sub_category_id": ${subCategoryList},"product_id": ${productIdList},"price": ${priceList},"quantity": ${quantityList},"tax_id": ${taxIdList},"is_box": ${isBoxList}}';
+        String rawData =
+            '{"customer_id": ${customerId},"sales_manager_id": ${loginData!.id},"category_id": ${categoryList},"sub_category_id": ${subCategoryList},"product_id": ${productIdList},"price": ${priceList},"quantity": ${quantityList},"tax_id": ${taxIdList},"is_box": ${isBoxList}}';
 
         final data = await APIFunction().apiCall(
           apiName: Constants.cart,
@@ -543,7 +746,8 @@ class OrdersController extends GetxController {
           rawData: rawData,
         );
 
-        GetDataListResponseModel model = GetDataListResponseModel.fromJson(data);
+        GetDataListResponseModel model =
+            GetDataListResponseModel.fromJson(data);
 
         if (model.data != null) {
           customerCartId = customerId;
@@ -551,37 +755,41 @@ class OrdersController extends GetxController {
           cartLength = model.data!.length.toString();
           Get.find<HomeController>().update();
           await getStorageData.saveString("customerId", customerCartId);
-          // await getStorageData.saveObject("cartListFromAPI", model.data);
+
           isCategory.value = true;
           isSubCategory.value = false;
           isProduct.value = false;
           getCategoriesAPI(categoryId: "0");
           update();
-          utils.showSnackBar(context: Get.context!, message: "Successfully added in to cart");
+          utils.showSnackBar(
+              context: Get.context!, message: "Successfully added to cart");
           update();
         } else {
           print("In else part");
         }
       } on Exception {
-        utils.showSnackBar(context: Get.context!, message: "Oops! Something want wrong");
+        utils.showSnackBar(
+            context: Get.context!, message: "Oops! Something went wrong");
       }
     } else {
-      utils.showSnackBar(context: Get.context!, message: "Oops something went wrong");
+      utils.showSnackBar(
+          context: Get.context!, message: "Please select at least one product");
     }
   }
+
   void validateQuantity(int index) {
-  final product = productList[index];
-  final qtyStr = product.quantityCount ?? "";
-  final stockStr = product.stock?.toString() ?? "0";
-  
-  if (qtyStr.isEmpty || qtyStr == "0") {
-    product.isWrongData = false; // No error for empty/zero quantity
-    return;
+    final product = productList[index];
+    final qtyStr = product.quantityCount ?? "";
+    final stockStr = product.stock?.toString() ?? "0";
+
+    if (qtyStr.isEmpty || qtyStr == "0") {
+      product.isWrongData = false; // No error for empty/zero quantity
+      return;
+    }
+
+    final qty = double.tryParse(qtyStr) ?? 0;
+    final stock = double.tryParse(stockStr) ?? 0;
+
+    product.isWrongData = (qty <= 0 || qty > stock);
   }
-  
-  final qty = double.tryParse(qtyStr) ?? 0;
-  final stock = double.tryParse(stockStr) ?? 0;
-  
-  product.isWrongData = (qty <= 0 || qty > stock);
-}
 }
