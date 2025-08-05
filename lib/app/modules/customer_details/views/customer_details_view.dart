@@ -280,7 +280,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                     }
 
                     return DataRow(
-                      color: MaterialStatePropertyAll(
+                      color: WidgetStatePropertyAll(
                         orderReport.value.statusColor,
                       ),
                       cells: [

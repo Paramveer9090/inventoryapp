@@ -63,7 +63,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           ),
           child: TextFormField(
             autovalidateMode: widget.autovalidateMode,
-            cursorColor: Colors.indigo.withOpacity(0.6),
+            cursorColor: Colors.indigo.withValues(alpha: 0.6),
             controller: widget.controller,
             obscureText: widget.obscureText!,
             decoration: InputDecoration(

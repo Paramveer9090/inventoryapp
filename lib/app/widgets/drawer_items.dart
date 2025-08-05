@@ -34,7 +34,7 @@ class NavigationGroup extends StatelessWidget {
                 child: SvgPicture.asset(
                   "${icon}",
                   width: 18.0,
-                  color: AppColors.whiteColor.withOpacity(0.6),
+                  color: AppColors.whiteColor.withValues(alpha: 0.6),
                   height: 18.0,
                 ),
               ),
@@ -91,7 +91,7 @@ class NavigationItem extends StatelessWidget {
                     child: SvgPicture.asset(
                       "${icon}",
                       width: 18.0,
-                      color: AppColors.whiteColor.withOpacity(0.6),
+                      color: AppColors.whiteColor.withValues(alpha: 0.6),
                       height: 18.0,
                     ),
                   ),

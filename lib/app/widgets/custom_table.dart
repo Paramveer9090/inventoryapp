@@ -68,7 +68,7 @@ class _CustomTableState extends State<CustomTable> {
                       width: 0.5,
                       color: AppColors.whiteColor,
                     ),
-                    headingRowColor: MaterialStatePropertyAll(
+                    headingRowColor: WidgetStatePropertyAll (
                       AppColors.tableColor,
                     ),
                     columns: widget.columns,

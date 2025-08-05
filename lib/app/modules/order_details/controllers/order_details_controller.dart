@@ -8,8 +8,6 @@ import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:pdf/pdf.dart';
-
 
 class OrderDetailsController extends GetxController {
   var id;

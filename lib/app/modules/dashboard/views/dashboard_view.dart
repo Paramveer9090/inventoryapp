@@ -108,7 +108,7 @@ class DashboardView extends GetView<DashboardController> {
                         orderReport.value.statusTime = "Closed";
                         orderReport.value.statusColor = AppColors.lightGreen;
                       } else if (currentDate.isAfter(date1)) {
-                        // Calculate the difference in days between dateTime1 and dateTime2
+                        // Calculate the difference in days between dateTime1 and dateTime
                         int differenceInDays =
                             currentDate.difference(date1).inDays;
                         orderReport.value.statusTime =
