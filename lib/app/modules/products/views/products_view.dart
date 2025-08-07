@@ -59,10 +59,11 @@ class ProductsView extends GetView<ProductsController> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                // Selection Controls (only show in selection mode)
-                                Expanded(
+                                // Selection Controls or Pagination Info
+                                Flexible(
                                   child: Obx(() => controller.isSelectionMode.value
                                       ? Row(
+                                          mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Checkbox(
                                               value: controller.selectAll.value,
@@ -71,9 +72,10 @@ class ProductsView extends GetView<ProductsController> {
                                               },
                                               activeColor: AppColors.primaryColor,
                                             ),
-                                            Expanded(
+                                            Flexible(
                                               child: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   Text(
                                                     'Select All',
@@ -94,11 +96,18 @@ class ProductsView extends GetView<ProductsController> {
                                             ),
                                           ],
                                         )
-                                      : SizedBox.shrink()),
+                                      : Obx(() => Text(
+                                          'Showing ${controller.paginatedProductList.length} of ${controller.productList.length} products',
+                                          style: TextStyle(
+                                            fontSize: 12.sp,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ))),
                                 ),
                                 
                                 // Action Buttons
                                 Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     // Selection Mode Toggle
                                     Obx(() => IconButton(
@@ -217,16 +226,80 @@ class ProductsView extends GetView<ProductsController> {
   Widget _buildGridView(ProductsController controller) {
     return Padding(
       padding: EdgeInsets.all(1.h),
-      child: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.65,
-          crossAxisSpacing: 1.h,
-          mainAxisSpacing: 1.h,
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          // Load more when user scrolls to 80% of the content
+          if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent * 0.8) {
+            controller.loadMoreProducts();
+          }
+          return false;
+        },
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.65,
+            crossAxisSpacing: 1.h,
+            mainAxisSpacing: 1.h,
+          ),
+          itemCount: controller.paginatedProductList.length + (controller.hasMoreItems.value ? 1 : 0),
+          itemBuilder: (context, index) {
+            // Show loading indicator at the end if there are more items
+            if (index == controller.paginatedProductList.length) {
+              return Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              );
+            }
+            
+            final product = controller.paginatedProductList[index];
+            
+            // Update category and subcategory names
+            for (int i = 0; i < controller.categoryList.length; i++) {
+              if (controller.categoryList[i].id == product.categoryId) {
+                product.categoryType = controller.categoryList[i].name!;
+              }
+              if (controller.categoryList[i].id == product.subCategoryId) {
+                product.subCategoryType = controller.categoryList[i].name!;
+              }
+            }
+            
+            return _buildProductCard(controller, product, index);
+          },
         ),
-        itemCount: controller.filterList.length,
+      ),
+    );
+  }
+
+  Widget _buildListView(ProductsController controller) {
+    return NotificationListener<ScrollNotification>(
+      onNotification: (ScrollNotification scrollInfo) {
+        // Load more when user scrolls to 80% of the content
+        if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent * 0.8) {
+          controller.loadMoreProducts();
+        }
+        return false;
+      },
+      child: ListView.builder(
+        padding: EdgeInsets.all(1.h),
+        itemCount: controller.paginatedProductList.length + (controller.hasMoreItems.value ? 1 : 0),
         itemBuilder: (context, index) {
-          final product = controller.filterList[index];
+          // Show loading indicator at the end if there are more items
+          if (index == controller.paginatedProductList.length) {
+            return Container(
+              padding: EdgeInsets.all(16),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          
+          final product = controller.paginatedProductList[index];
           
           // Update category and subcategory names
           for (int i = 0; i < controller.categoryList.length; i++) {
@@ -238,31 +311,9 @@ class ProductsView extends GetView<ProductsController> {
             }
           }
           
-          return _buildProductCard(controller, product, index);
+          return _buildProductListItem(controller, product, index);
         },
       ),
-    );
-  }
-
-  Widget _buildListView(ProductsController controller) {
-    return ListView.builder(
-      padding: EdgeInsets.all(1.h),
-      itemCount: controller.filterList.length,
-      itemBuilder: (context, index) {
-        final product = controller.filterList[index];
-        
-        // Update category and subcategory names
-        for (int i = 0; i < controller.categoryList.length; i++) {
-          if (controller.categoryList[i].id == product.categoryId) {
-            product.categoryType = controller.categoryList[i].name!;
-          }
-          if (controller.categoryList[i].id == product.subCategoryId) {
-            product.subCategoryType = controller.categoryList[i].name!;
-          }
-        }
-        
-        return _buildProductListItem(controller, product, index);
-      },
     );
   }
 

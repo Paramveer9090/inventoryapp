@@ -25,6 +25,14 @@ class ProductsController extends GetxController {
   var selectAll = false.obs;
   var isSelectionMode = false.obs;
 
+  // Pagination state
+  var currentPage = 1.obs;
+  var itemsPerPage = 50; // Show 50 products per page
+  var isLoadingMore = false.obs;
+  var hasMoreItems = true.obs;
+  List<GetDataListResponseData> allProductsList = []; // Store all products
+  List<GetDataListResponseData> paginatedProductList = <GetDataListResponseData>[].obs; // Currently displayed products
+
   @override
   void onInit() {
     getProductAPI();
@@ -32,10 +40,58 @@ class ProductsController extends GetxController {
     super.onInit();
   }
 
+  // Pagination Methods
+  void loadMoreProducts() {
+    if (!hasMoreItems.value || isLoadingMore.value) return;
+    
+    isLoadingMore.value = true;
+    print('📄 Loading more products - Page: ${currentPage.value + 1}');
+    
+    int startIndex = currentPage.value * itemsPerPage;
+    int endIndex = (startIndex + itemsPerPage).clamp(0, productList.length);
+    
+    if (startIndex < productList.length) {
+      List<GetDataListResponseData> newItems = productList.sublist(startIndex, endIndex);
+      paginatedProductList.addAll(newItems);
+      currentPage.value++;
+      
+      print('📄 Added ${newItems.length} products. Total displayed: ${paginatedProductList.length}');
+      
+      // Check if we have more items
+      hasMoreItems.value = endIndex < productList.length;
+    } else {
+      hasMoreItems.value = false;
+    }
+    
+    isLoadingMore.value = false;
+    update();
+  }
+
+  void resetPagination() {
+    print('📄 Resetting pagination');
+    currentPage.value = 1;
+    hasMoreItems.value = true;
+    paginatedProductList.clear();
+    
+    // Load first page
+    if (productList.isNotEmpty) {
+      int endIndex = itemsPerPage.clamp(0, productList.length);
+      paginatedProductList.addAll(productList.sublist(0, endIndex));
+      hasMoreItems.value = endIndex < productList.length;
+      print('📄 Initial load: ${paginatedProductList.length} products');
+    }
+    update();
+  }
+
   /// Search
   search({required String text}) async {
+    print('🔍 Search called with text: "$text"');
+    print('🔍 FilterList length: ${filterList.length}');
+    
     if (text.trim().isEmpty) {
       productList = filterList;
+      noData.value = "";
+      print('🔍 Empty search - showing all ${productList.length} products');
     } else {
       List<GetDataListResponseData> tempList = [];
       for (int i = 0; i < filterList.length; i++) {
@@ -53,13 +109,24 @@ class ProductsController extends GetxController {
                 .toLowerCase()
                 .contains(text.toLowerCase())) {
           tempList.add(filterList[i]);
-          noData.value = "";
-        } else if (tempList.isEmpty) {
-          noData.value = "No result found";
+          print('🔍 Match found: ${filterList[i].name}');
         }
       }
+      
+      // Set noData message only after checking all items
+      if (tempList.isEmpty) {
+        noData.value = "No result found";
+        print('🔍 No matches found');
+      } else {
+        noData.value = "";
+        print('🔍 Found ${tempList.length} matches');
+      }
+      
       productList = tempList;
     }
+    
+    // Reset pagination after search
+    resetPagination();
     update();
   }
 
@@ -78,16 +145,22 @@ class ProductsController extends GetxController {
     if (model.data!.isNotEmpty) {
       productList = model.data!;
       filterList = model.data!;
+      allProductsList = model.data!; // Store all products
 
       // 👉 Log how many items you got
       debugPrint('🔥 fetched ${productList.length} products');
 
-      // 👉 Loop through and print key fields
-      for (var p in productList) {
+      // 👉 Loop through and print key fields (only first 10 for performance)
+      for (var p in productList.take(10)) {
         debugPrint(
             ' • [${p.id}] ${p.name}  → category: ${p.categoryType}, sub: ${p.subCategoryType}');
       }
+      if (productList.length > 10) {
+        debugPrint(' • ... and ${productList.length - 10} more products');
+      }
 
+      // Initialize pagination
+      resetPagination();
       update();
     } else {
       print("In else part");
@@ -137,18 +210,26 @@ class ProductsController extends GetxController {
 
   void toggleSelectAll() {
     if (selectAll.value) {
-      selectedProducts.clear();
+      // Deselect all currently displayed products
+      for (var product in paginatedProductList) {
+        selectedProducts.remove(product);
+      }
       selectAll.value = false;
     } else {
-      selectedProducts.assignAll(productList);
+      // Select all currently displayed products
+      for (var product in paginatedProductList) {
+        if (!selectedProducts.contains(product)) {
+          selectedProducts.add(product);
+        }
+      }
       selectAll.value = true;
     }
   }
 
   void updateSelectAllState() {
     // Check if all currently displayed products are selected
-    selectAll.value = productList.isNotEmpty && 
-                     productList.every((product) => selectedProducts.contains(product));
+    selectAll.value = paginatedProductList.isNotEmpty && 
+                     paginatedProductList.every((product) => selectedProducts.contains(product));
   }
 
   void clearSelection() {
