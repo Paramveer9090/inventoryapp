@@ -60,7 +60,7 @@ class ProductsView extends GetView<ProductsController> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 // Selection Controls or Pagination Info
-                                Flexible(
+                                Expanded(
                                   child: Obx(() => controller.isSelectionMode.value
                                       ? Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -72,7 +72,7 @@ class ProductsView extends GetView<ProductsController> {
                                               },
                                               activeColor: AppColors.primaryColor,
                                             ),
-                                            Flexible(
+                                            Expanded(
                                               child: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 mainAxisSize: MainAxisSize.min,
