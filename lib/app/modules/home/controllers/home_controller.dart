@@ -6,6 +6,7 @@ import 'package:true_leaf_inventory_app/app/modules/dashboard/views/dashboard_vi
 import 'package:true_leaf_inventory_app/app/modules/driver_dashboard/views/driver_dashboard_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/driver_order/views/driver_order_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/my_orders/views/my_orders_view.dart';
+import 'package:true_leaf_inventory_app/app/modules/products/views/products_view.dart';
 import '../../../widgets/all_import.dart';
 
 var accessToken;
@@ -30,15 +31,15 @@ class HomeController extends GetxController {
     DashboardView(),
     CustomersView(),
     MyOrdersView(),
+    ProductsView(),
     ChangePasswordView(),
-    Container(),
   ];
 
   List iconList = [
     AppImages.dashboard,
     AppImages.customer,
     AppImages.orders,
-    AppImages.change_password,
+    AppImages.products,
     AppImages.menu,
   ];
 
@@ -46,24 +47,24 @@ class HomeController extends GetxController {
     AppImages.dashboard1,
     AppImages.customer1,
     AppImages.orders1,
-    AppImages.change_password1,
+    AppImages.products1, // Use products1 for selected state
     AppImages.menu1,
   ];
   List titleList = [
     AppStrings.dashboard,
     AppStrings.customers,
     AppStrings.myOrders,
-    AppStrings.changePassword,
     AppStrings.product,
+    AppStrings.changePassword,
   ];
   List drawerList = [
-    AppStrings.product,
+    AppStrings.changePassword,
     AppStrings.customers,
     AppStrings.myOrders,
     AppStrings.logout,
   ];
   List drawerImageList = [
-    AppImages.products,
+    AppImages.change_password2,
     AppImages.ic_customer,
     AppImages.my_order,
     AppImages.logout,

@@ -36,8 +36,7 @@ class HomeView extends GetView<HomeController> {
                   // print(controller.isOrderDetails.value);
                   // print(Get.find<ProductsController>().productDetails.value && controller.isDrawerSelected.value == 1 && controller.isSelected.value == 4);
                   if (Get.find<ProductsController>().productDetails.value &&
-                      controller.isDrawerSelected.value == 1 &&
-                      controller.isSelected.value == 4) {
+                      controller.isSelected.value == 3) {
                     Get.find<ProductsController>().productDetails.value = false;
                     Get.find<ProductsController>().update();
                     controller.update();
@@ -105,8 +104,7 @@ class HomeView extends GetView<HomeController> {
                     leading: Get.find<ProductsController>()
                                 .productDetails
                                 .value &&
-                            controller.isDrawerSelected.value == 1 &&
-                            controller.isSelected.value == 4
+                            controller.isSelected.value == 3
                         ? GestureDetector(
                             onTap: () {
                               Get.find<ProductsController>()
@@ -294,12 +292,15 @@ class HomeView extends GetView<HomeController> {
                                   controller.key.currentState!.openDrawer();
                                 }
                               },
-                              child: Image.asset(
-                                controller.isSelected.value == index
-                                    ? controller.selectedIconList[index]
-                                    : controller.iconList[index],
-                                height: 3.5.h,
-                                width: 3.5.h,
+                              child: Container(
+                                padding: EdgeInsets.all(1.h),
+                                child: Image.asset(
+                                  controller.isSelected.value == index
+                                      ? controller.selectedIconList[index]
+                                      : controller.iconList[index],
+                                  height: 4.h,
+                                  width: 4.h,
+                                ),
                               ),
                             ),
                           ),
@@ -364,7 +365,7 @@ class HomeView extends GetView<HomeController> {
                                                 },
                                               );
                                             } else if (drawerIndex == 0) {
-                                              controller.isSelected.value = 4;
+                                              controller.isSelected.value = 4; // Change Password is now at index 4
                                               Get.back();
                                             } else if (drawerIndex == 1) {
                                               controller.isSelected.value = 1;
@@ -423,8 +424,7 @@ class HomeView extends GetView<HomeController> {
                       ),
                     ),
                     child: Center(
-                      child: controller.isDrawerSelected.value == 1 &&
-                              controller.isSelected.value == 4
+                      child: controller.isSelected.value == 3
                           ? ProductsView()
                           : controller.addOrder.value
                               ? OrdersView(
@@ -524,13 +524,16 @@ class HomeView extends GetView<HomeController> {
                                     }
                                     controller.update();
                                   },
-                                  child: Image.asset(
-                                    controller.isSelected.value == index
-                                        ? controller
-                                            .selectedDeliveryIconList[index]
-                                        : controller.iconDeliveryList[index],
-                                    height: 3.5.h,
-                                    width: 3.5.h,
+                                  child: Container(
+                                    padding: EdgeInsets.all(1.h),
+                                    child: Image.asset(
+                                      controller.isSelected.value == index
+                                          ? controller
+                                              .selectedDeliveryIconList[index]
+                                          : controller.iconDeliveryList[index],
+                                      height: 4.h,
+                                      width: 4.h,
+                                    ),
                                   ),
                                 ),
                               ),

@@ -31,6 +31,7 @@ class AppImages {
   static const String orders1 = "$imagePath/orders1.png";
   static const String change_password = "$imagePath/change_password.png";
   static const String change_password1 = "$imagePath/change_password1.png";
+  static const String change_password2= "$imagePath/change_password_white.png";
   static const String menu = "$imagePath/menu.png";
   static const String menu1 = "$imagePath/menu1.png";
   static const String ic_cart = "$imagePath/ic_cart.png";
@@ -38,6 +39,8 @@ class AppImages {
   /// Drawer
   static const String ic_customer = "$imagePath/ic_customer.png";
   static const String products = "$imagePath/products.png";
+  static const String products1 = "$imagePath/products1.png";
+  static const String products_white = "$imagePath/products_white.png";
   static const String my_order = "$imagePath/my_order.png";
   static const String logout = "$imagePath/logout.png";
   static const String ic_view = "$imagePath/ic_view.png";
