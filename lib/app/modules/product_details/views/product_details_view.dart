@@ -198,13 +198,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
 
         _buildInfoCard('Pricing & Stock', [
           _buildInfoRow(
-            'Selling Price', 
-            '\$${controller.getDetailsData?.sellingPrice?.toString() ?? 'N/A'}',
-            valueColor: AppColors.primaryColor,
-            isPrice: true,
-          ),
-          _buildInfoRow(
-            'Maximum Price', 
+            'Price', 
             '\$${controller.getDetailsData?.maximumSellingPrice?.toString() ?? 'N/A'}',
           ),
           _buildInfoRow(

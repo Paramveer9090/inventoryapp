@@ -27,7 +27,7 @@ class ProductsView extends GetView<ProductsController> {
                     children: [
                       // Header Section
                       Container(
-                        padding: EdgeInsets.all(1.5.h),
+                        padding: EdgeInsets.symmetric(horizontal: 2.h, vertical: 1.5.h),
                         decoration: BoxDecoration(
                           color: AppColors.whiteColor,
                           borderRadius: BorderRadius.only(
@@ -225,7 +225,7 @@ class ProductsView extends GetView<ProductsController> {
 
   Widget _buildGridView(ProductsController controller) {
     return Padding(
-      padding: EdgeInsets.all(1.h),
+      padding: EdgeInsets.symmetric(horizontal: 1.5.h, vertical: 1.h),
       child: NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification scrollInfo) {
           // Load more when user scrolls to 80% of the content
@@ -238,8 +238,8 @@ class ProductsView extends GetView<ProductsController> {
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             childAspectRatio: 0.65,
-            crossAxisSpacing: 1.h,
-            mainAxisSpacing: 1.h,
+            crossAxisSpacing: 1.5.h,
+            mainAxisSpacing: 1.5.h,
           ),
           itemCount: controller.paginatedProductList.length + (controller.hasMoreItems.value ? 1 : 0),
           itemBuilder: (context, index) {
