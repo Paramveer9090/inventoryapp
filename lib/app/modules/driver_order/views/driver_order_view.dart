@@ -135,7 +135,7 @@ class DriverOrderView extends GetView<DriverOrderController> {
                               ...controller.orderList.asMap().entries.map(
                                 (order) {
                                   return DataRow(
-                                    color: MaterialStatePropertyAll(
+                                    color: WidgetStatePropertyAll(
                                       order.key.isEven ? AppColors.greyLightColor : AppColors.whiteColor,
                                     ),
                                     cells: [
