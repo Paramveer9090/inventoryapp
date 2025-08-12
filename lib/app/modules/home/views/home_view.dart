@@ -3,6 +3,7 @@ import 'package:true_leaf_inventory_app/app/modules/customers/controllers/custom
 import 'package:true_leaf_inventory_app/app/modules/driver_order/controllers/driver_order_controller.dart';
 import 'package:true_leaf_inventory_app/app/modules/orders/views/orders_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/products/views/products_view.dart';
+import 'package:true_leaf_inventory_app/app/widgets/consistent_icon.dart';
 
 import '../../../widgets/all_import.dart';
 
@@ -292,15 +293,13 @@ class HomeView extends GetView<HomeController> {
                                   controller.key.currentState!.openDrawer();
                                 }
                               },
-                              child: Container(
-                                padding: EdgeInsets.all(1.h),
-                                child: Image.asset(
-                                  controller.isSelected.value == index
-                                      ? controller.selectedIconList[index]
-                                      : controller.iconList[index],
-                                  height: 4.h,
-                                  width: 4.h,
-                                ),
+                              child: ConsistentIcon(
+                                iconPath: controller.isSelected.value == index
+                                    ? controller.selectedIconList[index]
+                                    : controller.iconList[index],
+                                isSelected: controller.isSelected.value == index,
+                                containerSize: 5.h,
+                                iconSize: 3.2.h,
                               ),
                             ),
                           ),
@@ -524,16 +523,14 @@ class HomeView extends GetView<HomeController> {
                                     }
                                     controller.update();
                                   },
-                                  child: Container(
-                                    padding: EdgeInsets.all(1.h),
-                                    child: Image.asset(
-                                      controller.isSelected.value == index
-                                          ? controller
-                                              .selectedDeliveryIconList[index]
-                                          : controller.iconDeliveryList[index],
-                                      height: 4.h,
-                                      width: 4.h,
-                                    ),
+                                  child: ConsistentIcon(
+                                    iconPath: controller.isSelected.value == index
+                                        ? controller
+                                            .selectedDeliveryIconList[index]
+                                        : controller.iconDeliveryList[index],
+                                    isSelected: controller.isSelected.value == index,
+                                    containerSize: 5.h,
+                                    iconSize: 3.2.h,
                                   ),
                                 ),
                               ),

@@ -38,9 +38,9 @@ class AppImages {
 
   /// Drawer
   static const String ic_customer = "$imagePath/ic_customer.png";
-  static const String products = "$imagePath/products.png";
-  static const String products1 = "$imagePath/products1.png";
-  static const String products_white = "$imagePath/products_white.png";
+  static const String products = "$imagePath/products_resized.png";
+  static const String products1 = "$imagePath/products1_128.png";
+  static const String products_white = "$imagePath/products_white_128.png";
   static const String my_order = "$imagePath/my_order.png";
   static const String logout = "$imagePath/logout.png";
   static const String ic_view = "$imagePath/ic_view.png";
