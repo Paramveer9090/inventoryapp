@@ -3,16 +3,19 @@ import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 class CustomSearchBar extends StatelessWidget {
   final String hint;
   final void Function(String)? onChanged;
+  final TextEditingController? controller;
 
   const CustomSearchBar({
     super.key,
     required this.hint,
     required this.onChanged,
+    this.controller,
   });
 //
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      controller: controller,
       cursorColor: AppColors.textFillColor,
       decoration: InputDecoration(
         alignLabelWithHint: true,

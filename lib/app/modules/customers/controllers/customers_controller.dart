@@ -6,11 +6,20 @@ class CustomersController extends GetxController {
   List<Customers> filterList = [];
   var noData = "".obs;
   var id = "".obs;
+  var searchText = "".obs; // Track current search text
 
   @override
   void onInit() {
     getCustomerAPI();
     super.onInit();
+  }
+
+  // Reset search when coming back from customer details
+  void resetSearch() {
+    searchText.value = "";
+    noData.value = "";
+    customerList = filterList;
+    update();
   }
 
   deleteCartAPI() async {
@@ -54,18 +63,25 @@ class CustomersController extends GetxController {
 
   /// Search
   search({required String text}) async {
+    searchText.value = text; // Track the search text
+    noData.value = ""; // Reset no data message
+    
     if (text.trim().isEmpty) {
       customerList = filterList;
     } else {
       List<Customers> tempList = [];
       for (int i = 0; i < filterList.length; i++) {
-        if (filterList[i].companyName!.toLowerCase().contains(text.toLowerCase()) || filterList[i].name!.toLowerCase().contains(text.toLowerCase()) || filterList[i].phoneNumber!.toLowerCase().contains(text.toLowerCase())) {
+        if (filterList[i].companyName!.toLowerCase().contains(text.toLowerCase()) || 
+            filterList[i].name!.toLowerCase().contains(text.toLowerCase()) || 
+            filterList[i].phoneNumber!.toLowerCase().contains(text.toLowerCase())) {
           tempList.add(filterList[i]);
-          noData.value = "";
-        } else if (tempList.isEmpty) {
-          noData.value = "No result found";
         }
       }
+      
+      if (tempList.isEmpty) {
+        noData.value = "No customers found matching '$text'";
+      }
+      
       customerList = tempList;
     }
     update();
