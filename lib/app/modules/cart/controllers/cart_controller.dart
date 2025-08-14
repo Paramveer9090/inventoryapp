@@ -18,11 +18,18 @@ class CartController extends GetxController {
   var productId = "".obs;
   var customerId = "".obs;
   var noData = "".obs;
+  
+  // Delivery Agent Selection
+  List<LoginSignUpData> deliveryAgents = [];
+  var selectedDeliveryAgent = Rxn<LoginSignUpData>();
+  var isLoadingAgents = false.obs;
+  var showDeliveryAgentSelector = false.obs;
 
   @override
   void onInit() {
     getLoginData();
     getCartData();
+    loadDeliveryAgents();
     super.onInit();
   }
 
@@ -30,7 +37,62 @@ class CartController extends GetxController {
     final data = getStorageData.readObject(getStorageData.loginData);
     if (data != null) {
       loginData = LoginSignUpData.fromJson(data);
+      // Check if current user is a delivery agent
+      if (loginData?.roles?.isNotEmpty == true && 
+          loginData!.roles![0].title == "Delivery Agent") {
+        showDeliveryAgentSelector.value = false;
+      } else {
+        showDeliveryAgentSelector.value = true;
+      }
     }
+    update();
+  }
+
+  // Load delivery agents from API
+  loadDeliveryAgents() async {
+    try {
+      isLoadingAgents.value = true;
+      
+      final data = await APIFunction().apiCall(
+        apiName: Constants.users,
+        context: Get.context!,
+        token: accessToken,
+        type: "get",
+        isLoading: false,
+      );
+
+      if (data != null && data['data'] != null) {
+        List<dynamic> users = data['data'];
+        deliveryAgents.clear();
+        
+        for (var user in users) {
+          try {
+            LoginSignUpData userData = LoginSignUpData.fromJson(user);
+            // Filter only delivery agents
+            if (userData.roles?.isNotEmpty == true && 
+                userData.roles![0].title == "Delivery Agent") {
+              deliveryAgents.add(userData);
+            }
+          } catch (e) {
+            print('Error parsing user data: $e');
+          }
+        }
+        
+        print('Found ${deliveryAgents.length} delivery agents');
+      }
+      
+      isLoadingAgents.value = false;
+      update();
+    } catch (e) {
+      print('Error loading delivery agents: $e');
+      isLoadingAgents.value = false;
+      update();
+    }
+  }
+
+  // Set selected delivery agent
+  void selectDeliveryAgent(LoginSignUpData? agent) {
+    selectedDeliveryAgent.value = agent;
     update();
   }
 
@@ -179,8 +241,11 @@ class CartController extends GetxController {
 
     if (categoryList.isNotEmpty) {
       try {
+        // Include delivery agent ID in order data
+        String deliveryAgentId = selectedDeliveryAgent.value?.id?.toString() ?? "null";
+        
         String rawData =
-            '{"sales_manager_id": ${loginData!.id},"customer_id": "${getDetailsData!.customerId}","item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${0},"extra_discount": "${0}","order_total": "${orderFinalTotal.value}","comment":  ${jsonEncode(commentList)},"delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "3","order_date":"${DateTime.now().toString().split(".").first}"}';
+            '{"sales_manager_id": ${loginData!.id},"customer_id": "${getDetailsData!.customerId}","delivery_agent_id": ${deliveryAgentId},"item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${0},"extra_discount": "${0}","order_total": "${orderFinalTotal.value}","comment":  ${jsonEncode(commentList)},"delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "1","order_date":"${DateTime.now().toString().split(".").first}"}';
 
         final data = await APIFunction().apiCall(
           apiName: Constants.orders,

@@ -3,7 +3,6 @@ import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 import 'package:true_leaf_inventory_app/app/widgets/app_button.dart';
 import 'package:true_leaf_inventory_app/app/widgets/custom_image.dart';
-
 import '../controllers/order_details_controller.dart';
 
 class OrderDetailsView extends GetView<OrderDetailsController> {
@@ -19,74 +18,338 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
       builder: (controller) {
         return controller.getDetailsData == null
             ? Container()
-            : GestureDetector(
-                onTap: () {
-                  utils.hideKeyboard(context);
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 2.h),
-                  child: ListView(
-                    physics: BouncingScrollPhysics(),
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 2.h, vertical: 0.h),
-                    children: [
-                      controller.getDetailsData!.customer == null ||
-                              controller
-                                      .getDetailsData!.customer!.companyName ==
-                                  null
-                          ? Container()
-                          : DetailsBox(
-                              title: "Company Name",
-                              value: controller
-                                  .getDetailsData!.customer!.companyName,
+            : Scaffold(
+                backgroundColor: AppColors.greyLightColor,
+                body: Column(
+                  children: [
+                    // Header Section
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 2.h, vertical: 1.5.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.whiteColor,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(15),
+                          bottomRight: Radius.circular(15),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 3,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Get.find<HomeController>().isOrderDetails.value = false;
+                              Get.find<HomeController>().isOrderEdit.value = false;
+                              Get.find<MyOrdersController>().update();
+                              Get.find<HomeController>().update();
+                              controller.update();
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.arrow_back_ios,
+                                color: AppColors.primaryColor,
+                                size: 20,
+                              ),
                             ),
-                      controller.getDetailsData!.customer == null ||
-                              controller
-                                      .getDetailsData!.customer!.contactName ==
-                                  null
-                          ? Container()
-                          : DetailsBox(
-                              title: "Contact Person",
-                              value: controller
-                                  .getDetailsData!.customer!.contactName,
+                          ),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                AppText(
+                                  'Order Details',
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.blackColor,
+                                ),
+                                AppText(
+                                  'Order ID: $id',
+                                  fontSize: 12.sp,
+                                  color: Colors.grey[600]!,
+                                ),
+                              ],
                             ),
-                      controller.getDetailsData!.customer == null
-                          ? Container()
-                          : DetailsBox(
-                              title: "Customer Name",
-                              value: controller.getDetailsData!.customer!.name,
-                            ),
-                      controller.loginData?.roles?[0].title ==
-                                  "Delivery Agent" &&
-                              (controller.getDetailsData!.customer == null ||
-                                  controller
-                                          .getDetailsData!.customer!.address !=
-                                      null)
-                          ? DetailsBox(
-                              title: "Address",
-                              value:
-                                  controller.getDetailsData!.customer?.address,
-                            )
-                          : Container(),
-                      controller.loginData?.roles?[0].title ==
-                                  "Delivery Agent" &&
-                              controller
-                                      .getDetailsData!.customer?.phoneNumber !=
-                                  null
-                          ? DetailsBox(
-                              title: "Phone Number",
-                              value: controller
-                                  .getDetailsData!.customer!.phoneNumber,
-                            )
-                          : Container(),
-                      Get.find<HomeController>().isOrderDetails.value &&
-                              Get.find<HomeController>().isOrderEdit.value
-                          ? Padding(
-                              padding: EdgeInsets.symmetric(vertical: 2.h),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  AppButton(
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // Content Area
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          utils.hideKeyboard(context);
+                        },
+                        child: ListView(
+                          physics: BouncingScrollPhysics(),
+                          padding: EdgeInsets.all(1.h),
+                          children: [
+                            SizedBox(height: 1.h),
+                            
+                            // Customer Information Card
+                            if (controller.getDetailsData!.customer != null)
+                              Card(
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.business,
+                                            size: 20,
+                                            color: AppColors.primaryColor,
+                                          ),
+                                          SizedBox(width: 8),
+                                          AppText(
+                                            "Customer Information",
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 12),
+                                      
+                                      if (controller.getDetailsData!.customer!.companyName != null)
+                                        DetailsBox(
+                                          title: "Company Name",
+                                          value: controller.getDetailsData!.customer!.companyName,
+                                        ),
+                                      
+                                      if (controller.getDetailsData!.customer!.contactName != null)
+                                        DetailsBox(
+                                          title: "Contact Person",
+                                          value: controller.getDetailsData!.customer!.contactName,
+                                        ),
+                                      
+                                      DetailsBox(
+                                        title: "Customer Name",
+                                        value: controller.getDetailsData!.customer!.name,
+                                      ),
+                                      
+                                      if (controller.loginData?.roles?[0].title == "Delivery Agent" &&
+                                          controller.getDetailsData!.customer!.address != null)
+                                        DetailsBox(
+                                          title: "Address",
+                                          value: controller.getDetailsData!.customer?.address,
+                                        ),
+                                      
+                                      if (controller.loginData?.roles?[0].title == "Delivery Agent" &&
+                                          controller.getDetailsData!.customer?.phoneNumber != null)
+                                        DetailsBox(
+                                          title: "Phone Number",
+                                          value: controller.getDetailsData!.customer!.phoneNumber,
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            
+                            SizedBox(height: 1.h),
+                            
+                            // Delivery Agent Selection Card
+                            Obx(() {
+                              if (!controller.showDeliveryAgentSelector.value) {
+                                return SizedBox();
+                              }
+                              
+                              return Card(
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.local_shipping,
+                                            size: 20,
+                                            color: AppColors.primaryColor,
+                                          ),
+                                          SizedBox(width: 8),
+                                          AppText(
+                                            "Delivery Driver",
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          Spacer(),
+                                          if (controller.selectedDeliveryAgent.value != null)
+                                            Container(
+                                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              decoration: BoxDecoration(
+                                                color: Colors.green.withOpacity(0.1),
+                                                borderRadius: BorderRadius.circular(12),
+                                                border: Border.all(color: Colors.green.withOpacity(0.3)),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(Icons.check_circle, size: 14, color: Colors.green),
+                                                  SizedBox(width: 4),
+                                                  AppText(
+                                                    "Assigned",
+                                                    fontSize: 10.sp,
+                                                    color: Colors.green[700]!,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 12),
+                                      
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(color: Colors.grey[300]!),
+                                          borderRadius: BorderRadius.circular(8),
+                                          color: Colors.white,
+                                        ),
+                                        child: controller.isLoadingAgents.value
+                                            ? Padding(
+                                                padding: EdgeInsets.all(8),
+                                                child: Row(
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 16,
+                                                      height: 16,
+                                                      child: CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        color: AppColors.primaryColor,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    AppText(
+                                                      "Loading drivers...",
+                                                      fontSize: 12.sp,
+                                                      color: Colors.grey[600]!,
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                            : DropdownButtonHideUnderline(
+                                                child: DropdownButton<LoginSignUpData>(
+                                                  isExpanded: true,
+                                                  hint: AppText(
+                                                    "Select a delivery driver",
+                                                    fontSize: 12.sp,
+                                                    color: Colors.grey[600]!,
+                                                  ),
+                                                  value: controller.selectedDeliveryAgent.value,
+                                                  onChanged: (LoginSignUpData? newValue) {
+                                                    controller.selectDeliveryAgent(newValue);
+                                                  },
+                                                  items: [
+                                                    DropdownMenuItem<LoginSignUpData>(
+                                                      value: null,
+                                                      child: AppText(
+                                                        "No driver assigned",
+                                                        fontSize: 12.sp,
+                                                        color: Colors.grey[600]!,
+                                                      ),
+                                                    ),
+                                                    ...controller.deliveryAgents.map((LoginSignUpData agent) {
+                                                      return DropdownMenuItem<LoginSignUpData>(
+                                                        value: agent,
+                                                        child: Row(
+                                                          children: [
+                                                            Container(
+                                                              width: 30,
+                                                              height: 30,
+                                                              decoration: BoxDecoration(
+                                                                color: AppColors.primaryColor.withOpacity(0.1),
+                                                                borderRadius: BorderRadius.circular(15),
+                                                              ),
+                                                              child: Icon(
+                                                                Icons.person,
+                                                                size: 16,
+                                                                color: AppColors.primaryColor,
+                                                              ),
+                                                            ),
+                                                            SizedBox(width: 8),
+                                                            Expanded(
+                                                              child: Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                children: [
+                                                                  AppText(
+                                                                    agent.name ?? "Unknown Driver",
+                                                                    fontSize: 12.sp,
+                                                                    fontWeight: FontWeight.w500,
+                                                                    maxLines: 1,
+                                                                  ),
+                                                                  AppText(
+                                                                    agent.email ?? "No email",
+                                                                    fontSize: 10.sp,
+                                                                    color: Colors.grey[600]!,
+                                                                    maxLines: 1,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      );
+                                                    }).toList(),
+                                                  ],
+                                                ),
+                                              ),
+                                      ),
+                                      
+                                      SizedBox(height: 12),
+                                      
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: AppButton(
+                                              title: "Update Driver",
+                                              onTap: () {
+                                                controller.updateDeliveryAgent();
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }),
+                            
+                            SizedBox(height: 1.h),
+                            
+                            // Add Product Button
+                            if (Get.find<HomeController>().isOrderDetails.value &&
+                                Get.find<HomeController>().isOrderEdit.value)
+                              Card(
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: AppButton(
                                     title: "Add Product",
                                     isIcon: true,
                                     icon: Icons.add,
@@ -111,19 +374,62 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                       Get.find<HomeController>().update();
                                     },
                                   ),
-                                ],
+                                ),
                               ),
-                            )
-                          : Container(),
-                      if (controller.loginData?.roles?[0].title ==
-                          "Sales Manager")
-                        ...List.generate(
-                          controller.orderItem.length,
-                          (index) => Card(
-                            elevation: 3,
-                            color: AppColors.whiteColor,
-                            child: Padding(
-                              padding: EdgeInsets.all(10.0),
+                            
+                            SizedBox(height: 1.h),
+                            
+                            // Order Items Section
+                            if (controller.loginData?.roles?[0].title == "Sales Manager" && 
+                                controller.orderItem.isNotEmpty)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 1.h),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.shopping_cart_outlined,
+                                          size: 20,
+                                          color: AppColors.primaryColor,
+                                        ),
+                                        SizedBox(width: 8),
+                                        AppText(
+                                          "Order Items",
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        Spacer(),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primaryColor.withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: AppText(
+                                            "${controller.orderItem.length} items",
+                                            fontSize: 12.sp,
+                                            color: AppColors.primaryColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 12),
+                                  
+                                  // Order Items List
+                                  ...List.generate(
+                                    controller.orderItem.length,
+                                    (index) => Card(
+                                      elevation: 2,
+                                      margin: EdgeInsets.only(bottom: 1.h),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      color: AppColors.whiteColor,
+                                      child: Padding(
+                                        padding: EdgeInsets.all(12.0),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -1004,6 +1310,8 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                             ),
                           ),
                         ),
+                                ],
+                              ),
                       if (controller.loginData?.roles?[0].title ==
                           "Delivery Agent")
                         ...List.generate(
@@ -1348,8 +1656,11 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               );
       },

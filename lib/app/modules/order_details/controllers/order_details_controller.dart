@@ -24,10 +24,17 @@ class OrderDetailsController extends GetxController {
   LoginSignUpData? loginData;
   var signImage = "".obs;
   var isWrongData = false.obs;
+  
+  // Delivery Agent Management
+  List<LoginSignUpData> deliveryAgents = [];
+  var selectedDeliveryAgent = Rxn<LoginSignUpData>();
+  var isLoadingAgents = false.obs;
+  var showDeliveryAgentSelector = false.obs;
 
   @override
   void onInit() {
     orderDetails();
+    loadDeliveryAgents();
     super.onInit();
   }
 
@@ -35,8 +42,245 @@ class OrderDetailsController extends GetxController {
     final data = await getStorageData.readObject(getStorageData.loginData);
     if (data != null) {
       loginData = LoginSignUpData.fromJson(data);
+      // Check if current user is a delivery agent - they shouldn't be able to change driver
+      if (loginData?.roles?.isNotEmpty == true && 
+          loginData!.roles![0].title == "Delivery Agent") {
+        showDeliveryAgentSelector.value = false;
+      } else {
+        showDeliveryAgentSelector.value = true;
+      }
     }
     update();
+  }
+
+  // Load delivery agents from API
+  loadDeliveryAgents() async {
+    try {
+      isLoadingAgents.value = true;
+      
+      final data = await APIFunction().apiCall(
+        apiName: Constants.users,
+        context: Get.context!,
+        token: accessToken,
+        type: "get",
+        isLoading: false,
+      );
+
+      if (data != null && data['data'] != null) {
+        List<dynamic> users = data['data'];
+        deliveryAgents.clear();
+        
+        for (var user in users) {
+          try {
+            LoginSignUpData userData = LoginSignUpData.fromJson(user);
+            // Filter only delivery agents
+            if (userData.roles?.isNotEmpty == true && 
+                userData.roles![0].title == "Delivery Agent") {
+              deliveryAgents.add(userData);
+              print('Added delivery agent: ID=${userData.id}, Name=${userData.name}');
+            }
+          } catch (e) {
+            print('Error parsing user data: $e');
+          }
+        }
+        
+        // Set currently assigned delivery agent
+        if (getDetailsData?.deliveryAgentId != null) {
+          // Convert both to string for comparison to handle type mismatches
+          String orderDeliveryAgentId = getDetailsData!.deliveryAgentId.toString();
+          selectedDeliveryAgent.value = deliveryAgents.firstWhereOrNull(
+            (agent) => agent.id.toString() == orderDeliveryAgentId,
+          );
+          
+          if (selectedDeliveryAgent.value != null) {
+            print('Found and set delivery agent: ${selectedDeliveryAgent.value!.name}');
+          } else {
+            print('Delivery agent with ID $orderDeliveryAgentId not found in agent list');
+          }
+        } else {
+          selectedDeliveryAgent.value = null;
+          print('No delivery agent assigned to this order');
+        }
+        
+        print('Found ${deliveryAgents.length} delivery agents');
+      }
+      
+      isLoadingAgents.value = false;
+      update();
+    } catch (e) {
+      print('Error loading delivery agents: $e');
+      isLoadingAgents.value = false;
+      update();
+    }
+  }
+
+  // Set selected delivery agent
+  void selectDeliveryAgent(LoginSignUpData? agent) {
+    selectedDeliveryAgent.value = agent;
+    update();
+  }
+
+  // Update delivery agent for the order
+  updateDeliveryAgent() async {
+    try {
+      if (getDetailsData == null || orderItem.isEmpty) {
+        Get.snackbar(
+          "Error",
+          "Order data not available",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      String deliveryAgentId = selectedDeliveryAgent.value?.id?.toString() ?? "null";
+      
+      // Validate that delivery agent ID is a positive integer
+      int? deliveryAgentIdInt;
+      if (deliveryAgentId != "null") {
+        deliveryAgentIdInt = int.tryParse(deliveryAgentId);
+        if (deliveryAgentIdInt == null || deliveryAgentIdInt <= 0) {
+          Get.snackbar(
+            "Error",
+            "Invalid delivery agent ID",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+          return;
+        }
+      }
+      
+      // Prepare order items data
+      List categoryList = [];
+      List subCategoryList = [];
+      List productAPIList = [];
+      List packageList = [];
+      List quantityList = [];
+      List salesPriceList = [];
+      List taxList = [];
+      List isBoxList = [];
+
+      for (int i = 0; i < orderItem.length; i++) {
+        categoryList.add(orderItem[i].categoryId);
+        subCategoryList.add(orderItem[i].subCategoryId);
+        productAPIList.add(orderItem[i].productId);
+        packageList.add(orderItem[i].boxSize);
+        quantityList.add(orderItem[i].quantityCount);
+        salesPriceList.add(orderItem[i].salePrice);
+        taxList.add(orderItem[i].taxId);
+        isBoxList.add(orderItem[i].isUnitSelected);
+      }
+
+      // Prepare order items data (required by API)
+      for (int i = 0; i < orderItem.length; i++) {
+        categoryList.add(orderItem[i].categoryId);
+        subCategoryList.add(orderItem[i].subCategoryId);
+        productAPIList.add(orderItem[i].productId);
+        packageList.add(orderItem[i].boxSize);
+        quantityList.add(orderItem[i].quantityCount);
+        salesPriceList.add(orderItem[i].salePrice);
+        taxList.add(orderItem[i].taxId);
+        isBoxList.add(orderItem[i].isUnitSelected);
+      }
+
+      // Include ALL required fields as per API validation
+      final requestData = {
+        "sales_manager_id": getDetailsData!.salesManagerId?.toString() ?? "",
+        "customer_id": getDetailsData!.customerId ?? 0,
+        "delivery_agent_id": deliveryAgentIdInt?.toString(), // Try as string like sales_manager_id
+        "item_category": categoryList,
+        "item_subcategory": subCategoryList,
+        "item_name": productAPIList,
+        "package_val": packageList,
+        "item_quantity": quantityList,
+        "item_sale_priec": salesPriceList,
+        "item_tax_id": taxList,
+        "is_box": isBoxList,
+        "order_total_without_tax": getDetailsData!.orderTotalWithoutTax ?? 0,
+        "order_tax": getDetailsData!.orderTax ?? 0,
+        "discount_type": getDetailsData!.discountType ?? 0,
+        "extra_discount": getDetailsData!.extraDiscount?.toString() ?? "0",
+        "order_total": getDetailsData!.orderTotal ?? 0,
+        "comments": getDetailsData!.comments?.toString() ?? "null",
+        "delivery_note": getDetailsData!.deliveryNote?.toString() ?? "null",
+        "customer_sign": getDetailsData!.customerSign?.toString() ?? "null",
+        "status": "1",
+        "order_date": getDetailsData!.orderDate?.split(".").first ?? DateTime.now().toString().split(" ").first
+      };
+
+      String rawData = jsonEncode(requestData);
+      print("Updating delivery agent with complete order data (${requestData.keys.length} fields)");
+      print("Current user role: ${loginData?.roles?[0].title}");
+      print("Order status: ${getDetailsData!.status}");
+      print("Sales manager ID: ${getDetailsData!.salesManagerId}");
+      print("Target delivery agent ID: $deliveryAgentIdInt");
+      print("Request data contains delivery_agent_id: ${requestData.containsKey('delivery_agent_id')}");
+      // Print only the delivery_agent_id field for clarity
+      print("Sending delivery_agent_id: ${requestData['delivery_agent_id']}");
+      print("Selected delivery agent ID: ${selectedDeliveryAgent.value?.id}");
+      print("Selected delivery agent name: ${selectedDeliveryAgent.value?.name}");
+      print("Validated delivery agent ID (integer): $deliveryAgentIdInt");
+
+      print("About to make API call...");
+      print("API URL: ${Constants.orders}/${id}");
+      print("Access token exists: ${accessToken != null}");
+      print("Context exists: ${Get.context != null}");
+      
+      final data = await APIFunction().apiCall(
+        apiName: "${Constants.orders}/${id}",
+        context: Get.context ?? Get.overlayContext!,
+        token: accessToken,
+        type: "put",
+        rawData: rawData,
+      );
+      
+      print("API call completed, data: $data");
+
+        if (data != null) {
+          print("API Update Response received");
+          
+          // Check if the response contains the updated delivery_agent_id
+          if (data is Map && data.containsKey('data')) {
+            var orderData = data['data'];
+            print("Updated order delivery_agent_id: ${orderData['delivery_agent_id']}");
+            print("Response order ID: ${orderData['id']}");
+            print("Response status: ${orderData['status']}");
+            
+            // Check if the delivery agent was actually updated
+            if (orderData['delivery_agent_id'] == deliveryAgentIdInt) {
+              print("SUCCESS: Delivery agent was updated correctly!");
+            } else {
+              print("ISSUE: Delivery agent was not updated. Expected: $deliveryAgentIdInt, Got: ${orderData['delivery_agent_id']}");
+            }
+          } else {
+            print("API response does not contain 'data' field: $data");
+          }        // Refresh order details to get updated data
+        try {
+          orderDetails();
+        } catch (refreshError) {
+          print("Error refreshing order details: $refreshError");
+        }
+        
+        Get.snackbar(
+          "Success",
+          "Delivery driver updated successfully",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      print('Error updating delivery agent: $e');
+      Get.snackbar(
+        "Error",
+        "Failed to update delivery driver",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 
   var imageEncoded = "".obs;
@@ -71,7 +315,16 @@ class OrderDetailsController extends GetxController {
     if (model.order != null) {
       getDetailsData = model.order!;
       orderItem = model.order!.orderItem!;
+      
+      // Debug: Print delivery agent info
+      print('Order ID: ${getDetailsData?.id}');
+      print('Current delivery_agent_id from API: ${getDetailsData?.deliveryAgentId}');
+      print('delivery_agent_id type: ${getDetailsData?.deliveryAgentId.runtimeType}');
+      
       encodeData(imageUrl: model.order?.customerSign?.split(",").last);
+
+      // Load delivery agents after order details are loaded
+      loadDeliveryAgents();
 
       /// count
 
@@ -98,11 +351,27 @@ class OrderDetailsController extends GetxController {
   Uint8List? bytesImage;
 
   encodeData({imageUrl}) {
-    if (imageUrl != null) {
-      String _imgString = imageUrl;
-      bytesImage = Base64Decoder().convert(_imgString);
-
-      update();
+    if (imageUrl != null && imageUrl.toString().isNotEmpty) {
+      String _imgString = imageUrl.toString();
+      
+      // Check if the string is a valid Base64 string
+      // Base64 strings should be multiples of 4 in length and contain only valid Base64 characters
+      if (_imgString.length % 4 == 0 && 
+          RegExp(r'^[A-Za-z0-9+/]*={0,2}$').hasMatch(_imgString) &&
+          _imgString.length > 4) {
+        try {
+          bytesImage = Base64Decoder().convert(_imgString);
+          update();
+        } catch (e) {
+          print('Error decoding Base64 image: $e');
+          bytesImage = null;
+        }
+      } else {
+        print('Invalid Base64 format for customer signature: $_imgString');
+        bytesImage = null;
+      }
+    } else {
+      bytesImage = null;
     }
   }
 

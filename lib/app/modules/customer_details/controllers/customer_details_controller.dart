@@ -19,6 +19,18 @@ class CustomerDetailsController extends GetxController {
     super.onInit();
   }
 
+  @override
+  void onReady() {
+    // Refresh data when view becomes active
+    refreshData();
+    super.onReady();
+  }
+
+  // Method to refresh data (can be called when returning from order details)
+  refreshData() {
+    getCustomerDetailsAPI(isLoading: false);
+  }
+
   getLoginData() async {
     final data = await getStorageData.readObject(getStorageData.loginData);
     if (data != null) {

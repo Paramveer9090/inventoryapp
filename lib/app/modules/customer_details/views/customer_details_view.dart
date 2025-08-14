@@ -13,7 +13,17 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
       init: CustomerDetailsController(id: id),
       assignId: true,
       builder: (controller) {
-        return Scaffold(
+        return GetBuilder<HomeController>(
+          builder: (homeController) {
+            // Refresh data when coming back from order details
+            if (!homeController.isOrderDetails.value && 
+                !homeController.addOrder.value) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                controller.refreshData();
+              });
+            }
+            
+            return Scaffold(
           backgroundColor: AppColors.greyLightColor,
           body: Column(
             children: [
@@ -319,145 +329,227 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                             
                             SizedBox(height: 12),
                             
-                            // Orders Table
-                            CustomTable(
-                              dataLength: controller.myOrderList.length,
-                              margin: EdgeInsets.zero,
-                              columns: [
-                                DataColumn(
-                                    label: AppText(
-                                  'Action',
-                                  color: AppColors.whiteColor,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12.sp,
-                                )),
-                                DataColumn(
-                                  label: AppText(
-                                    'Order Date',
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.whiteColor,
-                                    fontSize: 12.sp,
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: AppText(
-                                    'No.',
-                                    color: AppColors.whiteColor,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12.sp,
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: AppText(
-                                    'Customer',
-                                    color: AppColors.whiteColor,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12.sp,
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: AppText(
-                                    'Amount',
-                                    color: AppColors.whiteColor,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12.sp,
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: AppText(
-                                    'Status',
-                                    color: AppColors.whiteColor,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12.sp,
-                                  ),
-                                ),
-                              ],
-                              rows: [
-                                ...controller.myOrderList.asMap().entries.map(
-                                  (orderReport) {
-                                    DateTime currentDate;
-                                    DateTime date1 = DateTime.parse(orderReport.value.dueDate.toString());
-                                    currentDate = DateTime.now();
-
-                                    for (int i = 0; i < controller.myOrderList.length; i++) {
-                                      if (orderReport.value.payment!.paymentStatus == "1") {
-                                        orderReport.value.statusTime = "Closed";
-                                        orderReport.value.statusColor = AppColors.lightGreen;
-                                      } else if (currentDate.isAfter(date1)) {
-                                        // Calculate the difference in days between dateTime1 and dateTime2
-                                        int differenceInDays = currentDate.difference(date1).inDays;
-                                        orderReport.value.statusTime = "Overdue $differenceInDays days";
-                                        orderReport.value.statusColor = AppColors.lightRed;
-                                      } else {
-                                        // Calculate the difference in days between dateTime1 and dateTime2
-                                        int differenceInDays = int.parse(currentDate.difference(date1).inDays.toString().split("-").last);
-                                        orderReport.value.statusTime = "Overdue $differenceInDays days";
-                                        orderReport.value.statusColor = AppColors.lightYellow;
-                                      }
-                                    }
-
-                                    return DataRow(
-                                      color: WidgetStatePropertyAll(
-                                        orderReport.value.statusColor,
+                            // Group orders by status
+                            ...() {
+                              // Group orders by status
+                              Map<String, List<dynamic>> groupedOrders = {};
+                              
+                              for (var orderEntry in controller.myOrderList.asMap().entries) {
+                                var order = orderEntry.value;
+                                DateTime currentDate = DateTime.now();
+                                DateTime dueDate = DateTime.parse(order.dueDate.toString());
+                                
+                                String status;
+                                Color statusColor;
+                                
+                                if (order.payment!.paymentStatus == "1") {
+                                  status = "Completed";
+                                  statusColor = AppColors.lightGreen;
+                                } else if (currentDate.isAfter(dueDate)) {
+                                  int overdueDays = currentDate.difference(dueDate).inDays;
+                                  status = "Overdue";
+                                  statusColor = AppColors.lightRed;
+                                  order.statusTime = "Overdue $overdueDays days";
+                                } else {
+                                  status = "Active";
+                                  statusColor = AppColors.lightYellow;
+                                  int daysLeft = dueDate.difference(currentDate).inDays;
+                                  order.statusTime = "Due in $daysLeft days";
+                                }
+                                
+                                order.statusColor = statusColor;
+                                
+                                if (!groupedOrders.containsKey(status)) {
+                                  groupedOrders[status] = [];
+                                }
+                                groupedOrders[status]!.add(order);
+                              }
+                              
+                              // Create widgets for each group
+                              List<Widget> groupWidgets = [];
+                              
+                              // Order of groups: Active, Overdue, Completed
+                              List<String> statusOrder = ["Active", "Overdue", "Completed"];
+                              
+                              for (String status in statusOrder) {
+                                if (groupedOrders.containsKey(status) && groupedOrders[status]!.isNotEmpty) {
+                                  Color groupColor = status == "Active" 
+                                      ? AppColors.lightYellow
+                                      : status == "Overdue" 
+                                          ? AppColors.lightRed 
+                                          : AppColors.lightGreen;
+                                  
+                                  IconData groupIcon = status == "Active"
+                                      ? Icons.pending_actions
+                                      : status == "Overdue"
+                                          ? Icons.warning_amber
+                                          : Icons.check_circle;
+                                  
+                                  groupWidgets.add(
+                                    Container(
+                                      margin: EdgeInsets.only(bottom: 8),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: groupColor.withOpacity(0.3)),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      cells: [
-                                        DataCell(
-                                          CustomTableCellActionButtons(
-                                            showDeleteButton: false,
-                                            showEditButton: (orderReport.value.status == "3") && (orderReport.value.payment!.paymentStatus == "0" && controller.loginData!.id == orderReport.value.salesManagerId) ? true : false,
-                                            // showEditButton: orderReport.value.payment!.paymentStatus == "0" && controller.loginData!.id == orderReport.value.salesManagerId ? true : false,
-                                            isWhite: true,
-                                            onView: () {
-                                              Get.put(MyOrdersController());
-                                              Get.find<MyOrdersController>().id.value = orderReport.value.id.toString();
-                                              Get.find<HomeController>().isSelected.value = 2;
-                                              Get.find<HomeController>().isOrderDetails.value = true;
-                                              Get.find<HomeController>().update();
-                                              controller.update();
-                                            },
-                                            onEdit: () {
-                                              Get.put(MyOrdersController());
-                                              Get.find<MyOrdersController>().id.value = orderReport.value.id.toString();
-                                              Get.find<HomeController>().isSelected.value = 2;
-                                              Get.find<HomeController>().isOrderDetails.value = true;
-                                              Get.find<HomeController>().isOrderEdit.value = true;
-                                              Get.find<HomeController>().update();
-                                              controller.update();
-                                            },
-                                            onDelete: () {},
+                                      child: Theme(
+                                        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                                        child: ExpansionTile(
+                                          initiallyExpanded: status == "Active" || status == "Overdue",
+                                          backgroundColor: Colors.transparent,
+                                          collapsedBackgroundColor: Colors.transparent,
+                                          title: Row(
+                                            children: [
+                                              Icon(
+                                                groupIcon,
+                                                color: groupColor,
+                                                size: 20,
+                                              ),
+                                              SizedBox(width: 8),
+                                              AppText(
+                                                "$status Orders",
+                                                fontSize: 13.sp,
+                                                fontWeight: FontWeight.w600,
+                                                color: AppColors.blackColor,
+                                              ),
+                                              Spacer(),
+                                              Container(
+                                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                                decoration: BoxDecoration(
+                                                  color: groupColor.withOpacity(0.2),
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                child: AppText(
+                                                  "${groupedOrders[status]!.length}",
+                                                  fontSize: 11.sp,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: groupColor,
+                                                ),
+                                              ),
+                                            ],
                                           ),
+                                          children: [
+                                            ...groupedOrders[status]!.map((order) {
+                                              return Container(
+                                                margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                                padding: EdgeInsets.all(12),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey[50],
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  border: Border.all(color: Colors.grey[200]!),
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 2,
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          AppText(
+                                                            "#${order.payment!.orderNumber}",
+                                                            fontSize: 12.sp,
+                                                            fontWeight: FontWeight.w600,
+                                                            color: AppColors.blackColor,
+                                                          ),
+                                                          AppText(
+                                                            order.orderDate!.split(" ").first,
+                                                            fontSize: 10.sp,
+                                                            color: Colors.grey[600]!,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 2,
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          AppText(
+                                                            "\$${order.orderTotal}",
+                                                            fontSize: 12.sp,
+                                                            fontWeight: FontWeight.w600,
+                                                            color: AppColors.blackColor,
+                                                          ),
+                                                          AppText(
+                                                            order.statusTime ?? status,
+                                                            fontSize: 10.sp,
+                                                            color: groupColor,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    // Action buttons
+                                                    Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        InkWell(
+                                                          onTap: () {
+                                                            Get.put(MyOrdersController());
+                                                            Get.find<MyOrdersController>().id.value = order.id.toString();
+                                                            Get.find<HomeController>().isSelected.value = 2;
+                                                            Get.find<HomeController>().isOrderDetails.value = true;
+                                                            Get.find<HomeController>().update();
+                                                            controller.update();
+                                                          },
+                                                          child: Container(
+                                                            padding: EdgeInsets.all(6),
+                                                            decoration: BoxDecoration(
+                                                              color: AppColors.primaryColor.withOpacity(0.1),
+                                                              borderRadius: BorderRadius.circular(4),
+                                                            ),
+                                                            child: Icon(
+                                                              Icons.visibility,
+                                                              size: 16,
+                                                              color: AppColors.primaryColor,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        if ((order.status == "3") && 
+                                                            (order.payment!.paymentStatus == "0" && 
+                                                             controller.loginData!.id == order.salesManagerId))
+                                                          Padding(
+                                                            padding: EdgeInsets.only(left: 4),
+                                                            child: InkWell(
+                                                              onTap: () {
+                                                                Get.put(MyOrdersController());
+                                                                Get.find<MyOrdersController>().id.value = order.id.toString();
+                                                                Get.find<HomeController>().isSelected.value = 2;
+                                                                Get.find<HomeController>().isOrderDetails.value = true;
+                                                                Get.find<HomeController>().isOrderEdit.value = true;
+                                                                Get.find<HomeController>().update();
+                                                                controller.update();
+                                                              },
+                                                              child: Container(
+                                                                padding: EdgeInsets.all(6),
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.orange.withOpacity(0.1),
+                                                                  borderRadius: BorderRadius.circular(4),
+                                                                ),
+                                                                child: Icon(
+                                                                  Icons.edit,
+                                                                  size: 16,
+                                                                  color: Colors.orange,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }).toList(),
+                                            SizedBox(height: 8),
+                                          ],
                                         ),
-                                        DataCell(AppText(
-                                          orderReport.value.orderDate!.split(" ").first,
-                                          color: AppColors.whiteColor,
-                                          fontSize: 11.sp,
-                                        )),
-                                        DataCell(AppText(
-                                          orderReport.value.payment!.orderNumber.toString(),
-                                          color: AppColors.whiteColor,
-                                          fontSize: 11.sp,
-                                        )),
-                                        DataCell(AppText(
-                                          orderReport.value.customer == null ? "" : orderReport.value.customer!.name.toString(),
-                                          color: AppColors.whiteColor,
-                                          fontSize: 11.sp,
-                                        )),
-                                        DataCell(AppText(
-                                          orderReport.value.orderTotal.toString(),
-                                          color: AppColors.whiteColor,
-                                          fontSize: 11.sp,
-                                        )),
-                                        DataCell(AppText(
-                                          orderReport.value.statusTime.toString(),
-                                          color: AppColors.whiteColor,
-                                          fontSize: 11.sp,
-                                        )),
-                                      ],
-                                    );
-                                  },
-                                ).toList()
-                              ],
-                            ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                              
+                              return groupWidgets;
+                            }(),
                           ],
                         ),
                       ),
@@ -468,10 +560,11 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                 ),
               ),
             ],
-          ),
-        );
-      },
-    );
+          ));
+        }
+      );
+    });
+  }
   }
   
   // Helper Widget for Statistics Cards
@@ -561,4 +654,3 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
       ),
     );
   }
-}

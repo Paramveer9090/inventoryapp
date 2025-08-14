@@ -621,6 +621,7 @@ class OrdersController extends GetxController {
           final requestData = {
             "sales_manager_id": getDetailsData!.salesManagerId?.toString() ?? "",
             "customer_id": getDetailsData!.customerId ?? 0,
+            "delivery_agent_id": getDetailsData!.deliveryAgentId,
             "item_category": categoryList,
             "item_subcategory": subCategoryList,
             "item_name": productAPIList,
