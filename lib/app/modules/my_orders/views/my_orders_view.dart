@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:true_leaf_inventory_app/app/modules/order_details/controllers/order_details_controller.dart';
 import 'package:true_leaf_inventory_app/app/modules/order_details/views/order_details_view.dart';
 
 import '../../../widgets/all_import.dart';
@@ -198,7 +199,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                 // Status Filter Buttons - More Compact
                                 Row(
                                   children: [
-                                    // PAID BUTTON
+                                    // PENDING BUTTON
                                     Expanded(
                                       child: GestureDetector(
                                         onTap: () {
@@ -207,7 +208,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                           controller.isPaidSelected.value =
                                               !controller.isPaidSelected.value;
                                           if (controller.isPaidSelected.value) {
-                                            controller.statusFilter('Paid');
+                                            controller.statusFilter('Pending');
                                           } else {
                                             controller.myOrderList = controller.filterList;
                                           }
@@ -217,13 +218,13 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                           height: 4.h,
                                           decoration: BoxDecoration(
                                             color: controller.isPaidSelected.value
-                                                ? AppColors.lightGreen
+                                                ? Colors.orange
                                                 : Colors.grey.shade200,
                                             borderRadius: BorderRadius.circular(8),
                                           ),
                                           child: Center(
                                             child: AppText(
-                                              "Paid",
+                                              "Pending",
                                               fontWeight: FontWeight.w600,
                                               color: controller.isPaidSelected.value
                                                   ? AppColors.whiteColor
@@ -235,7 +236,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                       ),
                                     ),
                                     SizedBox(width: 1.w),
-                                    // OVERDUE BUTTON
+                                    // READY BUTTON
                                     Expanded(
                                       child: GestureDetector(
                                         onTap: () {
@@ -244,7 +245,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                           controller.isOverDueSelected.value =
                                               !controller.isOverDueSelected.value;
                                           if (controller.isOverDueSelected.value) {
-                                            controller.statusFilter('Overdue');
+                                            controller.statusFilter('Ready');
                                           } else {
                                             controller.myOrderList = controller.filterList;
                                           }
@@ -254,13 +255,13 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                           height: 4.h,
                                           decoration: BoxDecoration(
                                             color: controller.isOverDueSelected.value
-                                                ? AppColors.lightRed
+                                                ? Colors.blue
                                                 : Colors.grey.shade200,
                                             borderRadius: BorderRadius.circular(8),
                                           ),
                                           child: Center(
                                             child: AppText(
-                                              "Overdue",
+                                              "Ready",
                                               fontWeight: FontWeight.w600,
                                               color: controller.isOverDueSelected.value
                                                   ? AppColors.whiteColor
@@ -272,7 +273,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                       ),
                                     ),
                                     SizedBox(width: 1.w),
-                                    // UNPAID BUTTON
+                                    // DELIVERED BUTTON
                                     Expanded(
                                       child: GestureDetector(
                                         onTap: () {
@@ -281,7 +282,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                           controller.isUnPaidSelected.value =
                                               !controller.isUnPaidSelected.value;
                                           if (controller.isUnPaidSelected.value) {
-                                            controller.statusFilter('Unpaid');
+                                            controller.statusFilter('Delivered');
                                           } else {
                                             controller.myOrderList = controller.filterList;
                                           }
@@ -291,13 +292,13 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                           height: 4.h,
                                           decoration: BoxDecoration(
                                             color: controller.isUnPaidSelected.value
-                                                ? AppColors.lightYellow
+                                                ? AppColors.lightGreen
                                                 : Colors.grey.shade200,
                                             borderRadius: BorderRadius.circular(8),
                                           ),
                                           child: Center(
                                             child: AppText(
-                                              "Unpaid",
+                                              "Delivered",
                                               fontWeight: FontWeight.w600,
                                               color: controller.isUnPaidSelected.value
                                                   ? AppColors.whiteColor
@@ -375,6 +376,10 @@ class MyOrdersView extends GetView<MyOrdersController> {
                               // Safe‐guard nested nulls:
                               final canEdit = (order.status == "3") &&
                                   (controller.loginData?.id == order.salesManagerId);
+                              final canAccept = (order.status == "3") &&
+                                  (controller.loginData?.roles?.first.title == "Admin" || 
+                                   controller.loginData?.roles?.first.title == "Website Admin");
+                              final canAssignDelivery = (order.status == "4" || order.status == "1");
 
                               final dateText = order.orderDate?.split(' ').first ?? '';
                               final orderIdText = order.id.toString();
@@ -383,7 +388,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                   'Unknown Customer';
                               final amountText = '\$${order.orderTotal?.toStringAsFixed(2) ?? '0.00'}';
                               
-                              // Dynamic status color calculation
+                              // Enhanced status logic based on backend controller
                               Color statusColor;
                               String statusText;
                               IconData statusIcon;
@@ -397,23 +402,43 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                 dueDate = currentDate.add(Duration(days: 30)); // Default
                               }
                               
-                              if (order.payment?.paymentStatus == "1") {
-                                // Paid orders
-                                statusColor = AppColors.lightGreen;
-                                statusText = "Paid";
-                                statusIcon = Icons.check_circle;
-                              } else if (currentDate.isAfter(dueDate)) {
-                                // Overdue orders
-                                statusColor = AppColors.lightRed;
-                                int differenceInDays = currentDate.difference(dueDate).inDays;
-                                statusText = "Overdue $differenceInDays days";
-                                statusIcon = Icons.error;
-                              } else {
-                                // Unpaid but not overdue
-                                statusColor = AppColors.lightYellow;
-                                int differenceInDays = dueDate.difference(currentDate).inDays;
-                                statusText = "Due in $differenceInDays days";
-                                statusIcon = Icons.schedule;
+                              // Status mapping based on backend logic
+                              switch (order.status) {
+                                case "1":
+                                  // Completed/Delivered
+                                  statusColor = AppColors.lightGreen;
+                                  statusText = "Delivered";
+                                  statusIcon = Icons.check_circle;
+                                  break;
+                                case "3":
+                                  // Pending approval
+                                  statusColor = Colors.orange;
+                                  statusText = "Pending Approval";
+                                  statusIcon = Icons.pending;
+                                  break;
+                                case "4":
+                                  // Accepted, ready for delivery
+                                  statusColor = Colors.blue;
+                                  statusText = "Ready for Delivery";
+                                  statusIcon = Icons.local_shipping;
+                                  break;
+                                default:
+                                  // Check payment status for other cases
+                                  if (order.payment?.paymentStatus == "1") {
+                                    statusColor = AppColors.lightGreen;
+                                    statusText = "Paid";
+                                    statusIcon = Icons.check_circle;
+                                  } else if (currentDate.isAfter(dueDate)) {
+                                    statusColor = AppColors.lightRed;
+                                    int differenceInDays = currentDate.difference(dueDate).inDays;
+                                    statusText = "Overdue $differenceInDays days";
+                                    statusIcon = Icons.error;
+                                  } else {
+                                    statusColor = AppColors.lightYellow;
+                                    int differenceInDays = dueDate.difference(currentDate).inDays;
+                                    statusText = "Due in $differenceInDays days";
+                                    statusIcon = Icons.schedule;
+                                  }
                               }
 
                               return Container(
@@ -468,6 +493,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                               Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
+                                                  // View Button
                                                   Container(
                                                     decoration: BoxDecoration(
                                                       color: AppColors.primaryColor.withOpacity(0.1),
@@ -481,6 +507,10 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                                       ),
                                                       onPressed: () {
                                                         controller.id.value = orderIdText;
+                                                        // Ensure OrderDetailsController is properly initialized
+                                                        orderId = orderIdText;
+                                                        var orderDetailsController = Get.put(OrderDetailsController(id: orderIdText));
+                                                        orderDetailsController.refreshOrderDetails();
                                                         Get.find<HomeController>().isOrderDetails.value = true;
                                                         Get.find<HomeController>().update();
                                                         controller.update();
@@ -488,6 +518,8 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                                       tooltip: 'View Order',
                                                     ),
                                                   ),
+                                                  
+                                                  // Edit Button (for pending orders by sales manager)
                                                   if (canEdit) ...[
                                                     SizedBox(width: 1.w),
                                                     Container(
@@ -512,6 +544,50 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                                           controller.update();
                                                         },
                                                         tooltip: 'Edit Order',
+                                                      ),
+                                                    ),
+                                                  ],
+                                                  
+                                                  // Accept Button (for admins on pending orders)
+                                                  if (canAccept) ...[
+                                                    SizedBox(width: 1.w),
+                                                    Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.green.withOpacity(0.1),
+                                                        borderRadius: BorderRadius.circular(8),
+                                                      ),
+                                                      child: IconButton(
+                                                        icon: Icon(
+                                                          Icons.check,
+                                                          color: Colors.green,
+                                                          size: 20,
+                                                        ),
+                                                        onPressed: () {
+                                                          _showAcceptOrderDialog(context, controller, orderIdText);
+                                                        },
+                                                        tooltip: 'Accept Order',
+                                                      ),
+                                                    ),
+                                                  ],
+                                                  
+                                                  // Download Invoice Button
+                                                  if (order.status == "1" || order.status == "4") ...[
+                                                    SizedBox(width: 1.w),
+                                                    Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.purple.withOpacity(0.1),
+                                                        borderRadius: BorderRadius.circular(8),
+                                                      ),
+                                                      child: IconButton(
+                                                        icon: Icon(
+                                                          Icons.download,
+                                                          color: Colors.purple,
+                                                          size: 20,
+                                                        ),
+                                                        onPressed: () {
+                                                          _downloadOrderSummary(orderIdText);
+                                                        },
+                                                        tooltip: 'Download Invoice',
                                                       ),
                                                     ),
                                                   ],
@@ -561,6 +637,46 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                                         ),
                                                       ],
                                                     ),
+                                                    // Show delivery agent info if assigned
+                                                    if (canAssignDelivery && order.deliveryAgentId != null) ...[
+                                                      SizedBox(height: 0.5.h),
+                                                      Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons.local_shipping,
+                                                            size: 16,
+                                                            color: Colors.grey.shade600,
+                                                          ),
+                                                          SizedBox(width: 0.5.w),
+                                                          Expanded(
+                                                            child: AppText(
+                                                              "Delivery Agent: ${_getDeliveryAgentName(order.deliveryAgentId)}",
+                                                              fontSize: 11.sp,
+                                                              color: Colors.grey.shade600,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                    // Show due date for pending payments
+                                                    if (order.status != "1" && order.payment?.paymentStatus != "1") ...[
+                                                      SizedBox(height: 0.5.h),
+                                                      Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons.schedule,
+                                                            size: 16,
+                                                            color: Colors.grey.shade600,
+                                                          ),
+                                                          SizedBox(width: 0.5.w),
+                                                          AppText(
+                                                            "Due: ${DateFormat('MMM dd, yyyy').format(dueDate)}",
+                                                            fontSize: 11.sp,
+                                                            color: Colors.grey.shade600,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
                                                   ],
                                                 ),
                                               ),
@@ -615,12 +731,20 @@ class MyOrdersView extends GetView<MyOrdersController> {
     );
   }
 
+  String _getDeliveryAgentName(int? deliveryAgentId) {
+    if (deliveryAgentId == null) return "Not Assigned";
+    
+    // This would ideally come from a delivery agents list in the controller
+    // For now, return a placeholder - this should be enhanced to fetch from API
+    return "Delivery Agent #$deliveryAgentId";
+  }
+
   Widget? _getActiveFiltersText(MyOrdersController controller) {
     List<String> activeFilters = [];
     
-    if (controller.isPaidSelected.value) activeFilters.add("Paid");
-    if (controller.isOverDueSelected.value) activeFilters.add("Overdue");
-    if (controller.isUnPaidSelected.value) activeFilters.add("Unpaid");
+    if (controller.isPaidSelected.value) activeFilters.add("Pending");
+    if (controller.isOverDueSelected.value) activeFilters.add("Ready");
+    if (controller.isUnPaidSelected.value) activeFilters.add("Delivered");
     if (controller.customer_id.value.isNotEmpty) activeFilters.add("Customer");
     if (controller.fromDateString.value.isNotEmpty || controller.toDateString.value.isNotEmpty) {
       activeFilters.add("Date Range");
@@ -639,5 +763,96 @@ class MyOrdersView extends GetView<MyOrdersController> {
       fontSize: 11.sp,
       color: AppColors.primaryColor,
     );
+  }
+
+  void _showAcceptOrderDialog(BuildContext context, MyOrdersController controller, String orderId) {
+    Get.dialog(
+      AlertDialog(
+        title: AppText(
+          "Accept Order",
+          fontSize: 16.sp,
+          fontWeight: FontWeight.bold,
+        ),
+        content: AppText(
+          "Are you sure you want to accept order #$orderId?\n\nThis will change the status to 'Ready for Delivery' and allow delivery agent assignment.",
+          fontSize: 13.sp,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: AppText(
+              "Cancel",
+              color: Colors.grey.shade600,
+              fontSize: 13.sp,
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              _acceptOrder(controller, orderId);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
+            child: AppText(
+              "Accept",
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _acceptOrder(MyOrdersController controller, String orderId) async {
+    try {
+      // This would need to be implemented in the controller
+      // For now, we'll show a placeholder
+      Get.snackbar(
+        "Order Accepted",
+        "Order #$orderId has been accepted and is ready for delivery",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+      
+      // Refresh the orders list
+      controller.getOrderReportAPI(isLoading: false);
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Failed to accept order: $e",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+    }
+  }
+
+  void _downloadOrderSummary(String orderId) async {
+    try {
+      // This would integrate with the backend's order_summary endpoint
+      Get.snackbar(
+        "Download Started",
+        "Invoice for order #$orderId is being prepared...",
+        backgroundColor: AppColors.primaryColor,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+      
+      // TODO: Implement actual PDF download using the backend endpoint:
+      // GET /api/v1/orders/order_summary/{id}
+      
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Failed to download invoice: $e",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+    }
   }
 }

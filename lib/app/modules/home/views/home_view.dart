@@ -1,6 +1,8 @@
 import 'package:true_leaf_inventory_app/app/modules/cart/views/cart_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/customers/controllers/customers_controller.dart';
 import 'package:true_leaf_inventory_app/app/modules/driver_order/controllers/driver_order_controller.dart';
+import 'package:true_leaf_inventory_app/app/modules/my_orders/controllers/my_orders_controller.dart';
+import 'package:true_leaf_inventory_app/app/modules/order_details/views/order_details_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/orders/views/orders_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/products/views/products_view.dart';
 import 'package:true_leaf_inventory_app/app/widgets/consistent_icon.dart';
@@ -64,11 +66,33 @@ class HomeView extends GetView<HomeController> {
                       controller.isOrderEdit.value) {
                     controller.isOrderDetails.value = false;
                     controller.isOrderEdit.value = false;
-                    Get.find<MyOrdersController>().update();
+                    // Stay on the current tab (don't change isSelected)
+                    // Only update MyOrdersController if we're on the My Orders tab
+                    if (controller.isSelected.value == 2) {
+                      try {
+                        Get.find<MyOrdersController>().update();
+                      } catch (e) {
+                        print("MyOrdersController not found during back navigation: $e");
+                        // Try to reinitialize it if we're on My Orders tab
+                        Get.put(MyOrdersController());
+                      }
+                    }
                     controller.update();
                   } else if (controller.isOrderDetails.value) {
+                    print("Back button pressed from order details, current tab: ${controller.isSelected.value}");
                     controller.isOrderDetails.value = false;
-                    Get.find<MyOrdersController>().update();
+                    // Stay on the current tab (don't change isSelected)
+                    // Only update MyOrdersController if we're on the My Orders tab
+                    if (controller.isSelected.value == 2) {
+                      print("Updating MyOrdersController since we're on My Orders tab");
+                      try {
+                        Get.find<MyOrdersController>().update();
+                      } catch (e) {
+                        print("MyOrdersController not found during back navigation: $e");
+                        // Try to reinitialize it if we're on My Orders tab
+                        Get.put(MyOrdersController());
+                      }
+                    }
                     controller.update();
                   } else if (controller.isCustomerDetails.value) {
                     controller.isCustomerDetails.value = false;
@@ -161,8 +185,16 @@ class HomeView extends GetView<HomeController> {
                                           controller.isOrderDetails.value =
                                               false;
                                           controller.isOrderEdit.value = false;
-                                          Get.find<MyOrdersController>()
-                                              .update();
+                                          // Only update MyOrdersController if we're on the My Orders tab
+                                          if (controller.isSelected.value == 2) {
+                                            try {
+                                              Get.find<MyOrdersController>()
+                                                  .update();
+                                            } catch (e) {
+                                              print("MyOrdersController not found in app bar back: $e");
+                                              Get.put(MyOrdersController());
+                                            }
+                                          }
                                           controller.update();
                                         },
                                         child: Icon(
@@ -175,8 +207,16 @@ class HomeView extends GetView<HomeController> {
                                             onTap: () {
                                               controller.isOrderDetails.value =
                                                   false;
-                                              Get.find<MyOrdersController>()
-                                                  .update();
+                                              // Only update MyOrdersController if we're on the My Orders tab
+                                              if (controller.isSelected.value == 2) {
+                                                try {
+                                                  Get.find<MyOrdersController>()
+                                                      .update();
+                                                } catch (e) {
+                                                  print("MyOrdersController not found in order details back: $e");
+                                                  Get.put(MyOrdersController());
+                                                }
+                                              }
                                               controller.update();
                                             },
                                             child: Icon(
@@ -430,6 +470,8 @@ class HomeView extends GetView<HomeController> {
                                   customerId: controller.isCustomerId.value)
                               : controller.isCart.value
                                   ? CartView()
+                              : controller.isOrderDetails.value
+                                  ? OrderDetailsView(id: orderId)
                                   : controller
                                       .screens[controller.isSelected.value],
                     ),

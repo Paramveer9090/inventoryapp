@@ -33,9 +33,29 @@ class OrderDetailsController extends GetxController {
 
   @override
   void onInit() {
+    print("OrderDetailsController onInit() called with ID: $id");
     orderDetails();
     loadDeliveryAgents();
     super.onInit();
+  }
+
+  @override
+  void onReady() {
+    print("OrderDetailsController onReady() called");
+    // Force refresh if data is not loaded
+    if (getDetailsData == null) {
+      print("No order data found, forcing refresh...");
+      orderDetails();
+    }
+    super.onReady();
+  }
+
+  // Force refresh order details - useful when navigating from different screens
+  void refreshOrderDetails() {
+    print("Force refreshing order details...");
+    getDetailsData = null;
+    orderItem.clear();
+    orderDetails();
   }
 
   getLoginData() async {
@@ -173,23 +193,11 @@ class OrderDetailsController extends GetxController {
         isBoxList.add(orderItem[i].isUnitSelected);
       }
 
-      // Prepare order items data (required by API)
-      for (int i = 0; i < orderItem.length; i++) {
-        categoryList.add(orderItem[i].categoryId);
-        subCategoryList.add(orderItem[i].subCategoryId);
-        productAPIList.add(orderItem[i].productId);
-        packageList.add(orderItem[i].boxSize);
-        quantityList.add(orderItem[i].quantityCount);
-        salesPriceList.add(orderItem[i].salePrice);
-        taxList.add(orderItem[i].taxId);
-        isBoxList.add(orderItem[i].isUnitSelected);
-      }
-
       // Include ALL required fields as per API validation
       final requestData = {
         "sales_manager_id": getDetailsData!.salesManagerId?.toString() ?? "",
         "customer_id": getDetailsData!.customerId ?? 0,
-        "delivery_agent_id": deliveryAgentIdInt?.toString(), // Try as string like sales_manager_id
+        "delivery_agent_id": deliveryAgentIdInt?.toString() ?? "", // Always include, use empty string if null
         "item_category": categoryList,
         "item_subcategory": subCategoryList,
         "item_name": productAPIList,
@@ -222,6 +230,8 @@ class OrderDetailsController extends GetxController {
       print("Selected delivery agent ID: ${selectedDeliveryAgent.value?.id}");
       print("Selected delivery agent name: ${selectedDeliveryAgent.value?.name}");
       print("Validated delivery agent ID (integer): $deliveryAgentIdInt");
+      print("Number of order items being sent: ${orderItem.length}");
+      print("Category list length: ${categoryList.length}");
 
       print("About to make API call...");
       print("API URL: ${Constants.orders}/${id}");
@@ -249,10 +259,30 @@ class OrderDetailsController extends GetxController {
             print("Response status: ${orderData['status']}");
             
             // Check if the delivery agent was actually updated
-            if (orderData['delivery_agent_id'] == deliveryAgentIdInt) {
-              print("SUCCESS: Delivery agent was updated correctly!");
+            var responseDeliveryAgentId = orderData['delivery_agent_id'];
+            var responseIdAsInt = responseDeliveryAgentId is String ? int.tryParse(responseDeliveryAgentId) : responseDeliveryAgentId;
+            
+            if (responseIdAsInt == deliveryAgentIdInt) {
+              print("SUCCESS: Delivery agent was updated correctly! ID: $deliveryAgentIdInt");
+              
+              // Show success message only if the update was actually successful
+              Get.snackbar(
+                "Success",
+                "Delivery driver assigned successfully to ${selectedDeliveryAgent.value?.name}",
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: Colors.green,
+                colorText: Colors.white,
+              );
             } else {
-              print("ISSUE: Delivery agent was not updated. Expected: $deliveryAgentIdInt, Got: ${orderData['delivery_agent_id']}");
+              print("ISSUE: Delivery agent was not updated. Expected: $deliveryAgentIdInt, Got: $responseIdAsInt (original: $responseDeliveryAgentId)");
+              
+              Get.snackbar(
+                "Warning", 
+                "Delivery driver assignment may not have been successful",
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: Colors.orange,
+                colorText: Colors.white,
+              );
             }
           } else {
             print("API response does not contain 'data' field: $data");
@@ -263,13 +293,14 @@ class OrderDetailsController extends GetxController {
           print("Error refreshing order details: $refreshError");
         }
         
-        Get.snackbar(
-          "Success",
-          "Delivery driver updated successfully",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
+        // Remove the generic success message since we now have specific ones above
+        // Get.snackbar(
+        //   "Success",
+        //   "Delivery driver updated successfully",
+        //   snackPosition: SnackPosition.BOTTOM,
+        //   backgroundColor: Colors.green,
+        //   colorText: Colors.white,
+        // );
       }
     } catch (e) {
       print('Error updating delivery agent: $e');
@@ -297,10 +328,40 @@ class OrderDetailsController extends GetxController {
   orderDetails() async {
     await getLoginData();
 
-    if (await id == null || id == "") {
-      print("assign value");
-      id = orderId;
+    // Improved ID handling - check constructor parameter first, then MyOrdersController, then global orderId
+    if (id == null || id == "" || id == "0") {
+      // Try to get from MyOrdersController if available
+      try {
+        var myOrdersController = Get.find<MyOrdersController>();
+        if (myOrdersController.id.value.isNotEmpty && myOrdersController.id.value != "0") {
+          id = myOrdersController.id.value;
+          print("Using ID from MyOrdersController: $id");
+        } else {
+          id = orderId;
+          print("Using global orderId: $id");
+        }
+      } catch (e) {
+        // MyOrdersController not found, use global orderId
+        id = orderId;
+        print("Using global orderId (fallback): $id");
+      }
+    } else {
+      print("Using constructor ID: $id");
     }
+
+    if (id == null || id == "" || id == "0") {
+      print("ERROR: No valid order ID found");
+      Get.snackbar(
+        "Error",
+        "Order ID not found. Please try again.",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
+    print("Fetching order details for ID: $id");
 
     final data = await APIFunction().apiCall(
       apiName: "${Constants.orders}/${id}",
@@ -316,8 +377,13 @@ class OrderDetailsController extends GetxController {
       getDetailsData = model.order!;
       orderItem = model.order!.orderItem!;
       
-      // Debug: Print delivery agent info
+      // Debug: Print customer and order info
       print('Order ID: ${getDetailsData?.id}');
+      print('Customer ID: ${getDetailsData?.customerId}');
+      print('Customer data available: ${getDetailsData?.customer != null}');
+      if (getDetailsData?.customer != null) {
+        print('Customer name: ${getDetailsData?.customer?.name}');
+      }
       print('Current delivery_agent_id from API: ${getDetailsData?.deliveryAgentId}');
       print('delivery_agent_id type: ${getDetailsData?.deliveryAgentId.runtimeType}');
       
@@ -434,7 +500,7 @@ class OrderDetailsController extends GetxController {
   }
 
   editOrderAPI() async {
-    print("after call api call");
+    print("editOrderAPI() called - updating order details/items");
     List categoryList = [];
     List subCategoryList = [];
     List productList = [];
@@ -460,7 +526,7 @@ class OrderDetailsController extends GetxController {
     if (categoryList.isNotEmpty) {
       try {
         String rawData =
-            '{"sales_manager_id": "${getDetailsData!.salesManagerId}","customer_id": "${getDetailsData!.customerId}","item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${getDetailsData!.orderTotalWithoutTax},"order_tax": ${getDetailsData!.orderTax},"discount_type": ${getDetailsData!.discountType},"extra_discount": "${getDetailsData!.extraDiscount}","order_total": "${getDetailsData!.orderTotal}","comment": ${jsonEncode(commentList)},"comments": "${comments.text}","delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${signImage.value.isNotEmpty ? signImage.value : getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${getDetailsData!.orderDate!.split(".").first}","delivery_pic":"${fileURL.value}"}';
+            '{"sales_manager_id": "${getDetailsData!.salesManagerId}","customer_id": "${getDetailsData!.customerId}","delivery_agent_id": "${getDetailsData!.deliveryAgentId ?? ""}","item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${getDetailsData!.orderTotalWithoutTax},"order_tax": ${getDetailsData!.orderTax},"discount_type": ${getDetailsData!.discountType},"extra_discount": "${getDetailsData!.extraDiscount}","order_total": "${getDetailsData!.orderTotal}","comment": ${jsonEncode(commentList)},"comments": "${comments.text}","delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${signImage.value.isNotEmpty ? signImage.value : getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${getDetailsData!.orderDate!.split(".").first}","delivery_pic":"${fileURL.value}"}';
 
         final data = await APIFunction().apiCall(
           apiName: "${Constants.orders}/${id}",
@@ -475,7 +541,15 @@ class OrderDetailsController extends GetxController {
         if (model.data != null) {
           Get.find<HomeController>().isOrderEdit.value = false;
           Get.find<HomeController>().isOrderDetails.value = false;
-          Get.find<MyOrdersController>().update();
+          // Safely update MyOrdersController only if on My Orders tab
+          var homeController = Get.find<HomeController>();
+          if (homeController.isSelected.value == 2) {
+            try {
+              Get.find<MyOrdersController>().update();
+            } catch (e) {
+              print("MyOrdersController not found in editOrderAPI: $e");
+            }
+          }
           Get.find<HomeController>().update();
           update();
         } else {

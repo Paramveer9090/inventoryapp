@@ -152,20 +152,41 @@ class MyOrdersController extends GetxController {
 
     myOrderList = filterList.where((order) {
       String orderStatus = order.status?.toString() ?? '';
+      String paymentStatus = order.payment?.paymentStatus?.toString() ?? '';
 
-      print('Order ${order.id}: status = "$orderStatus"');
+      print('Order ${order.id}: status = "$orderStatus", payment = "$paymentStatus"');
 
-      // Map text status to numeric values
+      // Enhanced status filtering based on backend logic
       bool matches = false;
       switch (status.toLowerCase()) {
+        case 'delivered':
+        case 'completed':
+          matches = orderStatus == '1'; // Delivered/Completed
+          break;
+        case 'pending':
+        case 'pending approval':
+          matches = orderStatus == '3'; // Pending approval
+          break;
+        case 'ready':
+        case 'ready for delivery':
+          matches = orderStatus == '4'; // Accepted, ready for delivery
+          break;
         case 'paid':
-          matches = orderStatus == '1'; // Assuming 1 = Paid
+          matches = paymentStatus == '1'; // Payment completed
           break;
         case 'overdue':
-          matches = orderStatus == '3'; // Assuming 2 = Overdue
+          // Check if due date has passed and not paid
+          if (paymentStatus != '1' && order.dueDate != null) {
+            try {
+              DateTime dueDate = DateTime.parse(order.dueDate.toString());
+              matches = DateTime.now().isAfter(dueDate);
+            } catch (e) {
+              matches = false;
+            }
+          }
           break;
         case 'unpaid':
-          matches = orderStatus == '4' ; // Assuming 3,4 = Unpaid
+          matches = paymentStatus != '1' && orderStatus != '1'; // Not paid and not delivered
           break;
       }
 
@@ -214,9 +235,9 @@ class MyOrdersController extends GetxController {
 
   void clearAllFilters() {
     // Reset all filter states
-    isPaidSelected.value = false;
-    isUnPaidSelected.value = false;
-    isOverDueSelected.value = false;
+    isPaidSelected.value = false;      // Now represents "Pending" filter
+    isUnPaidSelected.value = false;    // Now represents "Delivered" filter  
+    isOverDueSelected.value = false;   // Now represents "Ready" filter
     customer_id.value = "";
     fromDateString.value = "";
     toDateString.value = "";

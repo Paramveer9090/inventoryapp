@@ -1,3 +1,4 @@
+import 'package:true_leaf_inventory_app/app/modules/order_details/controllers/order_details_controller.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 import 'package:true_leaf_inventory_app/app/widgets/app_button.dart';
 
@@ -379,7 +380,14 @@ class _OrderCard extends StatelessWidget {
         onTap: () {
           Get.put(MyOrdersController());
           Get.find<MyOrdersController>().id.value = order.id.toString();
-          Get.find<HomeController>().isSelected.value = 2;
+          // Set the global orderId for OrderDetailsController
+          orderId = order.id.toString();
+          // Also initialize OrderDetailsController with the correct ID
+          var orderDetailsController = Get.put(OrderDetailsController(id: order.id.toString()));
+          // Force refresh to ensure data is loaded
+          orderDetailsController.refreshOrderDetails();
+          // Don't change the selected tab when opening order details from dashboard
+          // Get.find<HomeController>().isSelected.value = 2;
           Get.find<HomeController>().isOrderDetails.value = true;
           Get.find<HomeController>().update();
           controller.update();
