@@ -42,27 +42,7 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                       ),
                       child: Row(
                         children: [
-                          InkWell(
-                            onTap: () {
-                              Get.find<HomeController>().isOrderDetails.value = false;
-                              Get.find<HomeController>().isOrderEdit.value = false;
-                              Get.find<MyOrdersController>().update();
-                              Get.find<HomeController>().update();
-                              controller.update();
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.arrow_back_ios,
-                                color: AppColors.primaryColor,
-                                size: 20,
-                              ),
-                            ),
-                          ),
+                          // Removed duplicate back button - using app bar back button instead
                           SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -1441,8 +1421,16 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                                 Get.find<HomeController>()
                                                     .isOrderDetails
                                                     .value = false;
-                                                Get.find<MyOrdersController>()
-                                                    .update();
+                                                // Safely update MyOrdersController only if on My Orders tab
+                                                var homeController = Get.find<HomeController>();
+                                                if (homeController.isSelected.value == 2) {
+                                                  try {
+                                                    Get.find<MyOrdersController>()
+                                                        .update();
+                                                  } catch (e) {
+                                                    print("MyOrdersController not found in cancel: $e");
+                                                  }
+                                                }
                                                 Get.find<HomeController>()
                                                     .update();
                                               },
