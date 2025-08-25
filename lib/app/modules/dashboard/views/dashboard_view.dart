@@ -62,7 +62,7 @@ class DashboardView extends GetView<DashboardController> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           gradient: LinearGradient(
-            colors: [AppColors.primaryColor, AppColors.primaryColor.withOpacity(0.8)],
+            colors: [AppColors.primaryColor, AppColors.primaryColor.withValues(alpha: 0.8)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -72,7 +72,7 @@ class DashboardView extends GetView<DashboardController> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(Icons.dashboard, color: Colors.white, size: 24),
@@ -85,7 +85,7 @@ class DashboardView extends GetView<DashboardController> {
                   AppText(
                     'Welcome back,',
                     fontSize: 12.sp,
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                   ),
                   AppText(
                     userName,
@@ -96,7 +96,7 @@ class DashboardView extends GetView<DashboardController> {
                   AppText(
                     userRole ?? 'User',
                     fontSize: 11.sp,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ],
               ),
@@ -176,7 +176,7 @@ class DashboardView extends GetView<DashboardController> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryColor.withOpacity(0.1),
+                    color: AppColors.primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: AppText(
@@ -328,12 +328,12 @@ class _ModernStatsCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.2),
+                    color: color.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, color: color, size: 20),
                 ),
-                Icon(Icons.trending_up, color: color.withOpacity(0.7), size: 16),
+                Icon(Icons.trending_up, color: color.withValues(alpha: 0.7), size: 16),
               ],
             ),
             SizedBox(height: 1.5.h),
@@ -347,7 +347,7 @@ class _ModernStatsCard extends StatelessWidget {
             AppText(
               title,
               fontSize: 12.sp,
-              color: color.withOpacity(0.8),
+              color: color.withValues(alpha: 0.8),
               maxLines: 2,
             ),
           ],
@@ -424,7 +424,7 @@ class _OrderCard extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: statusColor.withOpacity(0.2),
+                                color: statusColor.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: AppText(

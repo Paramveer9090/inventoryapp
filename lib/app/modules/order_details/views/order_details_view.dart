@@ -33,7 +33,7 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
+                            color: Colors.grey.withValues(alpha: 0.1),
                             spreadRadius: 1,
                             blurRadius: 3,
                             offset: Offset(0, 2),
@@ -178,9 +178,9 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                             Container(
                                               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
-                                                color: Colors.green.withOpacity(0.1),
+                                                color: Colors.green.withValues(alpha: 0.1),
                                                 borderRadius: BorderRadius.circular(12),
-                                                border: Border.all(color: Colors.green.withOpacity(0.3)),
+                                                border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
                                               ),
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
@@ -259,7 +259,7 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                                               width: 30,
                                                               height: 30,
                                                               decoration: BoxDecoration(
-                                                                color: AppColors.primaryColor.withOpacity(0.1),
+                                                                color: AppColors.primaryColor.withValues(alpha: 0.1),
                                                                 borderRadius: BorderRadius.circular(15),
                                                               ),
                                                               child: Icon(
@@ -384,7 +384,7 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                         Container(
                                           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                           decoration: BoxDecoration(
-                                            color: AppColors.primaryColor.withOpacity(0.1),
+                                            color: AppColors.primaryColor.withValues(alpha: 0.1),
                                             borderRadius: BorderRadius.circular(12),
                                           ),
                                           child: AppText(

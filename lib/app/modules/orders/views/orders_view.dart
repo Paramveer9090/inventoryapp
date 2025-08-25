@@ -13,8 +13,6 @@ class OrdersView extends GetView<OrdersController> {
 
   @override
   Widget build(BuildContext context) {
-    final orderId = Get.parameters['orderId'] ?? '';
-    
     return GetBuilder<OrdersController>(
       assignId: true,
       init: OrdersController(customerId: customerId),

@@ -35,7 +35,7 @@ class ProductsView extends GetView<ProductsController> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.1),
+                              color: Colors.grey.withValues(alpha: 0.1),
                               spreadRadius: 1,
                               blurRadius: 3,
                               offset: Offset(0, 2),
@@ -341,7 +341,7 @@ class ProductsView extends GetView<ProductsController> {
                                   borderRadius: BorderRadius.circular(4),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
+                                      color: Colors.black.withValues(alpha: 0.1),
                                       blurRadius: 2,
                                       offset: Offset(0, 1),
                                     ),
@@ -421,8 +421,8 @@ class ProductsView extends GetView<ProductsController> {
                             padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: (product.stock ?? 0) > 0 
-                                  ? Colors.green.withOpacity(0.1)
-                                  : Colors.red.withOpacity(0.1),
+                                  ? Colors.green.withValues(alpha: 0.1)
+                                  : Colors.red.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -449,7 +449,7 @@ class ProductsView extends GetView<ProductsController> {
           Obx(() => controller.isSelectionMode.value && isSelected
               ? Container(
                   decoration: BoxDecoration(
-                    color: AppColors.primaryColor.withOpacity(0.1),
+                    color: AppColors.primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: AppColors.primaryColor,
@@ -493,7 +493,7 @@ class ProductsView extends GetView<ProductsController> {
                 ? Border.all(color: AppColors.primaryColor, width: 2)
                 : null,
             color: controller.isSelectionMode.value && isSelected
-                ? AppColors.primaryColor.withOpacity(0.05)
+                ? AppColors.primaryColor.withValues(alpha: 0.05)
                 : null,
           ),
           child: Padding(
@@ -586,8 +586,8 @@ class ProductsView extends GetView<ProductsController> {
                             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: (product.stock ?? 0) > 0 
-                                  ? Colors.green.withOpacity(0.1)
-                                  : Colors.red.withOpacity(0.1),
+                                  ? Colors.green.withValues(alpha: 0.1)
+                                  : Colors.red.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(

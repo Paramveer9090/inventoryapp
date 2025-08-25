@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 import 'package:true_leaf_inventory_app/app/modules/driver_order/controllers/driver_order_controller.dart';
 
@@ -51,7 +49,7 @@ class DriverOrderDetailView extends GetView<DriverOrderDetailController> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 3,
             offset: const Offset(0, 2),
@@ -82,7 +80,7 @@ class DriverOrderDetailView extends GetView<DriverOrderDetailController> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.primaryColor.withOpacity(0.1),
+                color: AppColors.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -143,7 +141,7 @@ class DriverOrderDetailView extends GetView<DriverOrderDetailController> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryColor.withOpacity(0.1),
+                          color: AppColors.primaryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -208,7 +206,7 @@ class DriverOrderDetailView extends GetView<DriverOrderDetailController> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
+                          color: Colors.blue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -291,7 +289,7 @@ class DriverOrderDetailView extends GetView<DriverOrderDetailController> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
+                          color: Colors.green.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -315,7 +313,7 @@ class DriverOrderDetailView extends GetView<DriverOrderDetailController> {
                         return Container(
                           padding: EdgeInsets.symmetric(horizontal: 1.h, vertical: 0.5.h),
                           decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.1),
+                            color: Colors.green.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: AppText(

@@ -24,7 +24,7 @@ class ConsistentIcon extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: isSelected 
-          ? Colors.white.withOpacity(0.1) 
+          ? Colors.white.withValues(alpha: 0.1) 
           : Colors.transparent,
       ),
       child: Container(

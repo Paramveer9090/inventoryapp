@@ -62,7 +62,7 @@ class CartView extends GetView<CartController> {
                           padding: EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: AppColors.greyColor.withOpacity(0.05),
+                            color: AppColors.greyColor.withValues(alpha: 0.05),
                           ),
                           child: Icon(
                             Icons.shopping_bag_outlined,
@@ -590,7 +590,7 @@ class CartView extends GetView<CartController> {
                                                             width: 30,
                                                             height: 30,
                                                             decoration: BoxDecoration(
-                                                              color: AppColors.primaryColor.withOpacity(0.1),
+                                                              color: AppColors.primaryColor.withValues(alpha: 0.1),
                                                               borderRadius: BorderRadius.circular(15),
                                                             ),
                                                             child: Icon(

@@ -34,7 +34,10 @@ class NavigationGroup extends StatelessWidget {
                 child: SvgPicture.asset(
                   "${icon}",
                   width: 18.0,
-                  color: AppColors.whiteColor.withValues(alpha: 0.6),
+                  colorFilter: ColorFilter.mode(
+                    AppColors.whiteColor.withValues(alpha: 0.6),
+                    BlendMode.srcIn,
+                  ),
                   height: 18.0,
                 ),
               ),
@@ -66,7 +69,7 @@ class NavigationItem extends StatelessWidget {
   final String label;
   final String? icon;
   final Color? tileColor;
-  void Function()? onTap;
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +94,10 @@ class NavigationItem extends StatelessWidget {
                     child: SvgPicture.asset(
                       "${icon}",
                       width: 18.0,
-                      color: AppColors.whiteColor.withValues(alpha: 0.6),
+                      colorFilter: ColorFilter.mode(
+                        AppColors.whiteColor.withValues(alpha: 0.6),
+                        BlendMode.srcIn,
+                      ),
                       height: 18.0,
                     ),
                   ),

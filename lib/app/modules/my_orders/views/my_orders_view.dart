@@ -38,7 +38,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                         borderRadius: BorderRadius.circular(25),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
+                            color: Colors.grey.withValues(alpha: 0.1),
                             spreadRadius: 1,
                             blurRadius: 4,
                             offset: Offset(0, 1),
@@ -496,7 +496,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                                   // View Button
                                                   Container(
                                                     decoration: BoxDecoration(
-                                                      color: AppColors.primaryColor.withOpacity(0.1),
+                                                      color: AppColors.primaryColor.withValues(alpha: 0.1),
                                                       borderRadius: BorderRadius.circular(8),
                                                     ),
                                                     child: IconButton(
@@ -524,7 +524,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                                     SizedBox(width: 1.w),
                                                     Container(
                                                       decoration: BoxDecoration(
-                                                        color: Colors.blue.withOpacity(0.1),
+                                                        color: Colors.blue.withValues(alpha: 0.1),
                                                         borderRadius: BorderRadius.circular(8),
                                                       ),
                                                       child: IconButton(
@@ -553,7 +553,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                                     SizedBox(width: 1.w),
                                                     Container(
                                                       decoration: BoxDecoration(
-                                                        color: Colors.green.withOpacity(0.1),
+                                                        color: Colors.green.withValues(alpha: 0.1),
                                                         borderRadius: BorderRadius.circular(8),
                                                       ),
                                                       child: IconButton(
@@ -575,7 +575,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                                     SizedBox(width: 1.w),
                                                     Container(
                                                       decoration: BoxDecoration(
-                                                        color: Colors.purple.withOpacity(0.1),
+                                                        color: Colors.purple.withValues(alpha: 0.1),
                                                         borderRadius: BorderRadius.circular(8),
                                                       ),
                                                       child: IconButton(
@@ -688,10 +688,10 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                                   vertical: 6,
                                                 ),
                                                 decoration: BoxDecoration(
-                                                  color: statusColor.withOpacity(0.2),
+                                                  color: statusColor.withValues(alpha: 0.2),
                                                   borderRadius: BorderRadius.circular(20),
                                                   border: Border.all(
-                                                    color: statusColor.withOpacity(0.3),
+                                                    color: statusColor.withValues(alpha: 0.3),
                                                     width: 1,
                                                   ),
                                                 ),

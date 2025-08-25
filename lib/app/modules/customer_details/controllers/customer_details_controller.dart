@@ -11,6 +11,10 @@ class CustomerDetailsController extends GetxController {
   var paid = "0".obs;
   var unPaid = "0".obs;
   LoginSignUpData? loginData;
+  
+  // Flag to prevent multiple simultaneous API calls
+  bool _isLoadingData = false;
+  DateTime? _lastRefreshTime;
 
   @override
   void onInit() {
@@ -21,14 +25,28 @@ class CustomerDetailsController extends GetxController {
 
   @override
   void onReady() {
-    // Refresh data when view becomes active
-    refreshData();
+    // Don't call refreshData here since onInit already called getCustomerDetailsAPI
+    // refreshData();
     super.onReady();
+  }
+
+  // Check if enough time has passed since last refresh to avoid rate limiting
+  bool _shouldRefreshData() {
+    if (_lastRefreshTime == null) {
+      return true;
+    }
+    
+    // Only allow refresh if at least 5 seconds have passed
+    return DateTime.now().difference(_lastRefreshTime!) > Duration(seconds: 5);
   }
 
   // Method to refresh data (can be called when returning from order details)
   refreshData() {
-    getCustomerDetailsAPI(isLoading: false);
+    // Only refresh if not already loading and enough time has passed
+    if (!_isLoadingData && _shouldRefreshData()) {
+      _lastRefreshTime = DateTime.now();
+      getCustomerDetailsAPI(isLoading: false);
+    }
   }
 
   getLoginData() async {
@@ -40,31 +58,44 @@ class CustomerDetailsController extends GetxController {
   }
 
   getCustomerDetailsAPI({var isLoading = true}) async {
-    final data = await APIFunction().apiCall(
-      apiName: "${Constants.customers}/${id}",
-      context: Get.context!,
-      token: accessToken,
-      type: "get",
-      isLoading: isLoading,
-    );
-
-    ReportModel model = ReportModel.fromJson(data);
-
-    if (model.customerDetails != null) {
-      customerDetails = model.customerDetails;
-      update();
+    // Prevent multiple simultaneous API calls
+    if (_isLoadingData) {
+      return;
     }
+    
+    _isLoadingData = true;
+    
+    try {
+      final data = await APIFunction().apiCall(
+        apiName: "${Constants.customers}/${id}",
+        context: Get.context!,
+        token: accessToken,
+        type: "get",
+        isLoading: isLoading,
+      );
 
-    totalOrder.value = model.totalOrder.toString();
-    paid.value = model.paid.toString();
-    unPaid.value = model.unpaid.toString();
-    update();
-    if (model.orders!.isNotEmpty) {
-      myOrderList = model.orders!;
+      ReportModel model = ReportModel.fromJson(data);
 
+      if (model.customerDetails != null) {
+        customerDetails = model.customerDetails;
+        update();
+      }
+
+      totalOrder.value = model.totalOrder.toString();
+      paid.value = model.paid.toString();
+      unPaid.value = model.unpaid.toString();
       update();
-    } else {
-      print("In else part");
+      
+      if (model.orders!.isNotEmpty) {
+        myOrderList = model.orders!;
+        update();
+      } else {
+        print("In else part");
+      }
+    } catch (e) {
+      print("Error loading customer details: $e");
+    } finally {
+      _isLoadingData = false;
     }
   }
 }

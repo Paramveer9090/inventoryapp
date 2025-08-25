@@ -77,7 +77,7 @@ class DriverDashboardView extends GetView<DriverDashboardController> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           gradient: LinearGradient(
-            colors: [AppColors.tableColor, AppColors.tableColor.withOpacity(0.8)],
+            colors: [AppColors.tableColor, AppColors.tableColor.withValues(alpha: 0.8)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -87,7 +87,7 @@ class DriverDashboardView extends GetView<DriverDashboardController> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(Icons.local_shipping, color: Colors.white, size: 24),
@@ -106,7 +106,7 @@ class DriverDashboardView extends GetView<DriverDashboardController> {
                   AppText(
                     'Delivery Management',
                     fontSize: 12.sp,
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                   ),
                 ],
               ),
@@ -140,7 +140,7 @@ class DriverDashboardView extends GetView<DriverDashboardController> {
                 count: "\$${controller.totalOrder.value}",
                 icon: Icons.assignment_outlined,
                 color: AppColors.tableColor,
-                backgroundColor: AppColors.tableColor.withOpacity(0.1),
+                backgroundColor: AppColors.tableColor.withValues(alpha: 0.1),
               ),
             ),
             SizedBox(width: 1.h),
@@ -192,7 +192,7 @@ class DriverDashboardView extends GetView<DriverDashboardController> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryColor.withOpacity(0.1),
+                    color: AppColors.primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: AppText(
@@ -298,7 +298,7 @@ class _ModernDriverStatsCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color, size: 20),
@@ -315,7 +315,7 @@ class _ModernDriverStatsCard extends StatelessWidget {
             AppText(
               title,
               fontSize: 10.sp,
-              color: color.withOpacity(0.8),
+              color: color.withValues(alpha: 0.8),
               maxLines: 2,
               textAlign: TextAlign.center,
             ),
@@ -386,7 +386,7 @@ class _DriverOrderCard extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: statusColor.withOpacity(0.2),
+                                color: statusColor.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: AppText(

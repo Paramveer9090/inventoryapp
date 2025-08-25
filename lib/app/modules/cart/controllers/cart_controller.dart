@@ -100,7 +100,7 @@ class CartController extends GetxController {
     Get.back();
     print(customerCartId);
     print(id);
-    final data = await APIFunction().apiCall(
+    await APIFunction().apiCall(
       apiName: "${Constants.cart}/$customerCartId/$id",
       context: Get.context!,
       token: accessToken,
@@ -133,7 +133,7 @@ class CartController extends GetxController {
   }
 
   deleteCartListAPI({var isBack = false}) async {
-    final data = await APIFunction().apiCall(
+    await APIFunction().apiCall(
       apiName: "${Constants.cart}/$customerCartId",
       context: Get.context!,
       token: accessToken,

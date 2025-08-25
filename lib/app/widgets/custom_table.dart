@@ -134,9 +134,9 @@ class _CustomTableState extends State<CustomTable> {
     int rowCount,
     int rowsPerPage,
   ) {
-    int startIndex = rowCount * rowsPerPage;
-    int endIndex = (rowCount + 1) * rowsPerPage;
+    int startIndex = rowCount;
+    int endIndex = rowCount + rowsPerPage;
     endIndex = endIndex > totalRows.length ? totalRows.length : endIndex;
-    return totalRows.sublist(rowCount, rowCount + rowsPerPage > totalRows.length ? totalRows.length : rowCount + rowsPerPage);
+    return totalRows.sublist(startIndex, endIndex);
   }
 }

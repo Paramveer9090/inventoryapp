@@ -93,6 +93,8 @@ class HttpUtil {
                 return ErrorEntity(code: errCode, message: "Can not reach server");
               case 405:
                 return ErrorEntity(code: errCode, message: "Request method is forbidden");
+              case 429:
+                return ErrorEntity(code: errCode, message: "Too many requests. Please try again later.");
               case 500:
                 return ErrorEntity(code: errCode, message: "Internal server error");
               case 502:
@@ -102,7 +104,18 @@ class HttpUtil {
               case 505:
                 return ErrorEntity(code: errCode, message: "HTTP protocol requests are not supported");
               default:
-                return ErrorEntity(code: errCode, message: error.response != null ? error.response!.data! : "");
+                String errorMessage = "";
+                if (error.response != null && error.response!.data != null) {
+                  if (error.response!.data is Map<String, dynamic>) {
+                    final data = error.response!.data as Map<String, dynamic>;
+                    errorMessage = data['message']?.toString() ?? "Unknown error occurred";
+                  } else if (error.response!.data is String) {
+                    errorMessage = error.response!.data as String;
+                  } else {
+                    errorMessage = error.response!.data.toString();
+                  }
+                }
+                return ErrorEntity(code: errCode, message: errorMessage);
             }
           } on Exception catch (_) {
             return ErrorEntity(code: 00, message: "Unknown mistake");

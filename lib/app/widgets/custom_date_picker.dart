@@ -23,7 +23,7 @@ class CustomDatePicker extends StatelessWidget {
         hintText: hint,
         filled: true,
         fillColor: AppColors.textFillColor,
-        hintStyle: TextStyle(color: Colors.black.withOpacity(0.6)),
+        hintStyle: TextStyle(color: Colors.black.withValues(alpha: 0.6)),
         suffixIcon: Padding(
           padding: EdgeInsets.only(right: 2, top: 2, bottom: 2),
           child: Image.asset(

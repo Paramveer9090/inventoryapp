@@ -40,7 +40,7 @@ class CustomDropDownSearch<T> extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               borderSide: enabled ? BorderSide() : BorderSide(color: AppColors.blackColor),
             ),
-            labelStyle: TextStyle(color: Colors.black.withOpacity(0.7)),
+            labelStyle: TextStyle(color: Colors.black.withValues(alpha: 0.7)),
             filled: true,
             fillColor: enabled ? AppColors.textFillColor : AppColors.greyLightColor,
             focusedBorder: OutlineInputBorder(

@@ -41,6 +41,7 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   flutter_test:
     sdk: flutter
+  storybook_flutter: ^0.14.1
     
 dependency_overrides:
   win32: ^5.5.1

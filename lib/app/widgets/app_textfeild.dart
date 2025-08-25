@@ -14,9 +14,9 @@ class CustomTextFormField extends StatefulWidget {
   final AutovalidateMode? autovalidateMode;
   final TextEditingController? controller;
   final FloatingLabelBehavior? floatingLabelBehavior;
-  Color? fillColor;
+  final Color? fillColor;
   final String? hintText;
-  bool? obscureText;
+  final bool? obscureText;
 
   CustomTextFormField({
     super.key,
@@ -43,9 +43,17 @@ class CustomTextFormField extends StatefulWidget {
 }
 
 class _CustomTextFormFieldState extends State<CustomTextFormField> {
+  late bool _obscureText;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscureText = widget.obscureText ?? false;
+  }
+
   toggle() {
     setState(() {
-      widget.obscureText = !widget.obscureText!;
+      _obscureText = !_obscureText;
     });
   }
 
@@ -65,7 +73,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
             autovalidateMode: widget.autovalidateMode,
             cursorColor: Colors.indigo.withValues(alpha: 0.6),
             controller: widget.controller,
-            obscureText: widget.obscureText!,
+            obscureText: _obscureText,
             decoration: InputDecoration(
               prefixIcon: widget.prefixIcon,
               alignLabelWithHint: true,
@@ -88,7 +96,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                         child: Container(
                           margin: EdgeInsets.only(right: 1.h, top: 1.h, bottom: 1.h),
                           child: Image.asset(
-                            widget.obscureText! ? AppImages.ic_hide : AppImages.ic_eye,
+                            _obscureText ? AppImages.ic_hide : AppImages.ic_eye,
                             height: 1.h,
                             width: 1.h,
                             color: Color(0xff43474e),

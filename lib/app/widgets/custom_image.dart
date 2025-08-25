@@ -94,7 +94,9 @@ class CustomImageView extends StatelessWidget {
               height: height,
               width: width,
               fit: BoxFit.cover,
-              color: color,
+              colorFilter: color != null 
+                  ? ColorFilter.mode(color!, BlendMode.srcIn)
+                  : null,
             ),
           );
         case ImageType.file:
@@ -111,6 +113,9 @@ class CustomImageView extends StatelessWidget {
             height: height,
             width: width,
             fit: BoxFit.cover,
+            colorFilter: color != null 
+                ? ColorFilter.mode(color!, BlendMode.srcIn)
+                : null,
           );
         case ImageType.network:
           return CachedNetworkImage(

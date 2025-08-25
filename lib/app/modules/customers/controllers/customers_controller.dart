@@ -23,7 +23,7 @@ class CustomersController extends GetxController {
   }
 
   deleteCartAPI() async {
-    final data = await APIFunction().apiCall(
+    await APIFunction().apiCall(
       apiName: "${Constants.cart}/$customerCartId",
       context: Get.context!,
       token: accessToken,

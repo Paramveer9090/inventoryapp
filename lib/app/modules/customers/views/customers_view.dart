@@ -72,7 +72,7 @@ class _CustomersListViewState extends State<_CustomersListView> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       spreadRadius: 1,
                       blurRadius: 3,
                       offset: Offset(0, 2),
@@ -205,7 +205,7 @@ class _CustomersListViewState extends State<_CustomersListView> {
                                           width: 50,
                                           height: 50,
                                           decoration: BoxDecoration(
-                                            color: AppColors.primaryColor.withOpacity(0.1),
+                                            color: AppColors.primaryColor.withValues(alpha: 0.1),
                                             borderRadius: BorderRadius.circular(25),
                                           ),
                                           child: Icon(
@@ -272,7 +272,7 @@ class _CustomersListViewState extends State<_CustomersListView> {
                                         Container(
                                           padding: EdgeInsets.all(8),
                                           decoration: BoxDecoration(
-                                            color: AppColors.primaryColor.withOpacity(0.1),
+                                            color: AppColors.primaryColor.withValues(alpha: 0.1),
                                             borderRadius: BorderRadius.circular(8),
                                           ),
                                           child: Icon(

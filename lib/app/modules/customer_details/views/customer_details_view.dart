@@ -15,7 +15,8 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
       builder: (controller) {
         return GetBuilder<HomeController>(
           builder: (homeController) {
-            // Refresh data when coming back from order details
+            // Only refresh data when coming back from order details
+            // The controller will handle rate limiting internally
             if (!homeController.isOrderDetails.value && 
                 !homeController.addOrder.value) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -38,7 +39,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       spreadRadius: 1,
                       blurRadius: 3,
                       offset: Offset(0, 2),
@@ -56,7 +57,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                       child: Container(
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryColor.withOpacity(0.1),
+                          color: AppColors.primaryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -164,7 +165,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                                   width: 50,
                                   height: 50,
                                   decoration: BoxDecoration(
-                                    color: AppColors.primaryColor.withOpacity(0.1),
+                                    color: AppColors.primaryColor.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(25),
                                   ),
                                   child: Icon(
@@ -315,7 +316,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primaryColor.withOpacity(0.1),
+                                    color: AppColors.primaryColor.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: AppText(
@@ -389,7 +390,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                                     Container(
                                       margin: EdgeInsets.only(bottom: 8),
                                       decoration: BoxDecoration(
-                                        border: Border.all(color: groupColor.withOpacity(0.3)),
+                                        border: Border.all(color: groupColor.withValues(alpha: 0.3)),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Theme(
@@ -416,7 +417,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                                               Container(
                                                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                                 decoration: BoxDecoration(
-                                                  color: groupColor.withOpacity(0.2),
+                                                  color: groupColor.withValues(alpha: 0.2),
                                                   borderRadius: BorderRadius.circular(12),
                                                 ),
                                                 child: AppText(
@@ -494,7 +495,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                                                           child: Container(
                                                             padding: EdgeInsets.all(6),
                                                             decoration: BoxDecoration(
-                                                              color: AppColors.primaryColor.withOpacity(0.1),
+                                                              color: AppColors.primaryColor.withValues(alpha: 0.1),
                                                               borderRadius: BorderRadius.circular(4),
                                                             ),
                                                             child: Icon(
@@ -522,7 +523,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                                                               child: Container(
                                                                 padding: EdgeInsets.all(6),
                                                                 decoration: BoxDecoration(
-                                                                  color: Colors.orange.withOpacity(0.1),
+                                                                  color: Colors.orange.withValues(alpha: 0.1),
                                                                   borderRadius: BorderRadius.circular(4),
                                                                 ),
                                                                 child: Icon(
@@ -622,7 +623,7 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: AppColors.primaryColor.withOpacity(0.1),
+              color: AppColors.primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(

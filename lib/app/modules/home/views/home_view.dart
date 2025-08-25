@@ -1,7 +1,6 @@
 import 'package:true_leaf_inventory_app/app/modules/cart/views/cart_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/customers/controllers/customers_controller.dart';
 import 'package:true_leaf_inventory_app/app/modules/driver_order/controllers/driver_order_controller.dart';
-import 'package:true_leaf_inventory_app/app/modules/my_orders/controllers/my_orders_controller.dart';
 import 'package:true_leaf_inventory_app/app/modules/order_details/views/order_details_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/orders/views/orders_view.dart';
 import 'package:true_leaf_inventory_app/app/modules/products/views/products_view.dart';

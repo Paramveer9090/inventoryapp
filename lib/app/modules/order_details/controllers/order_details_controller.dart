@@ -458,6 +458,37 @@ class OrderDetailsController extends GetxController {
 
       // If you need a dart:io File object:
       final file = File(picked.path);
+      
+      // Validate file exists and get file info
+      if (await file.exists()) {
+        final fileSize = await file.length();
+        final fileName = file.path.split('/').last;
+        
+        print('Selected file: $fileName');
+        print('File size: ${(fileSize / 1024).toStringAsFixed(2)} KB');
+        
+        // Optional: Check file size limit (e.g., 10MB)
+        const maxFileSize = 10 * 1024 * 1024; // 10MB in bytes
+        if (fileSize > maxFileSize) {
+          Get.snackbar(
+            "Error",
+            "File size too large. Please select a file smaller than 10MB.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+          return;
+        }
+      } else {
+        Get.snackbar(
+          "Error",
+          "Selected file does not exist.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
 
       if (imageFile.isNotEmpty) {
         uploadFileAPI();
@@ -628,7 +659,7 @@ class OrderDetailsController extends GetxController {
               pw.Divider(),
               pw.Text('Order Items:',
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-              pw.Table.fromTextArray(
+              pw.TableHelper.fromTextArray(
                 headers: ['Product', 'Qty', 'Price', 'Tax', 'Total'],
                 data: orderItem
                     .map((item) => [
@@ -695,7 +726,7 @@ class OrderDetailsController extends GetxController {
               pw.Divider(),
               pw.Text('Items to Pack:',
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-              pw.Table.fromTextArray(
+              pw.TableHelper.fromTextArray(
                 headers: ['Product', 'Qty'],
                 data: orderItem
                     .map((item) => [

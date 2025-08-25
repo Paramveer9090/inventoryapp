@@ -1,4 +1,3 @@
-import 'package:get/get.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
 import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/modules/driver_order/controllers/driver_order_controller.dart';

@@ -34,8 +34,8 @@ class ReportModel {
   });
 
   ReportModel.fromJson(Map<String, dynamic> json)
-      : accept = json['accept'] as int?,
-        review = json['review'] as int?,
+      : accept = json['accept'] is num ? (json['accept'] as num).toInt() : null,
+        review = json['review'] is num ? (json['review'] as num).toInt() : null,
         unpaid = json['unpaid'],
         paid = json['paid'],
         totalOrder = json['total_order'],
@@ -97,7 +97,7 @@ class Customer {
   });
 
   Customer.fromJson(Map<String, dynamic> json)
-      : id = json['id'] as int?,
+      : id = json['id'] is num ? (json['id'] as num).toInt() : null,
         name = json['name'] as String?,
         address = json['address'] as String?,
         phoneNumber = json['phone_number'] as String?,
@@ -220,16 +220,16 @@ class ExpenseItems {
 
   ExpenseItems.fromJson(Map<String, dynamic> json)
       : name = json['name'] as String?,
-        productId = json['product_id'] as int?,
-        stock = json['stock'] as int?,
-        isBox = json['is_box'] as int?,
-        purchasePrice = json['purchase_price'] as int?,
-        boxSize = json['box_size'] as int?,
+        productId = json['product_id'] is num ? (json['product_id'] as num).toInt() : null,
+        stock = json['stock'] is num ? (json['stock'] as num).toInt() : null,
+        isBox = json['is_box'] is num ? (json['is_box'] as num).toInt() : null,
+        purchasePrice = json['purchase_price'] is num ? (json['purchase_price'] as num).toInt() : null,
+        boxSize = json['box_size'] is num ? (json['box_size'] as num).toInt() : null,
         statusTime = json['statusTime'] ?? "",
         statusColor = json['statusColor'] ?? Colors.white,
         expDate = json['exp_date'] as String?,
         invoiceNumber = json['invoice_number'] as String?,
-        id = json['id'] as int?;
+        id = json['id'] is num ? (json['id'] as num).toInt() : null;
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -304,7 +304,7 @@ class Orders {
   });
 
   Orders.fromJson(Map<String, dynamic> json)
-      : id = json['id'] as int?,
+      : id = json['id'] is num ? (json['id'] as num).toInt() : null,
         orderTotal = json['order_total'],
         comments = json['comments'],
         deliveryNote = json['delivery_note'],
@@ -316,8 +316,8 @@ class Orders {
         statusColor = json['statusColor'] ?? Colors.white,
         deletedAt = json['deleted_at'],
         isEdit = json['isEdit'] ?? false,
-        salesManagerId = json['sales_manager_id'] as int?,
-        customerId = json['customer_id'] as int?,
+        salesManagerId = json['sales_manager_id'] is num ? (json['sales_manager_id'] as num).toInt() : null,
+        customerId = json['customer_id'] is num ? (json['customer_id'] as num).toInt() : null,
         extraDiscount = json['extra_discount'],
         deliveryAgentId = json['delivery_agent_id'],
         orderTotalWithoutTax = json['order_total_without_tax'],
@@ -376,7 +376,7 @@ class Products {
 
   Products.fromJson(Map<String, dynamic> json)
       : name = json['name'] as String?,
-        id = json['id'] as int?,
+        id = json['id'] is num ? (json['id'] as num).toInt() : null,
         productImage = json['product_image'],
         media = json['media'] as List?;
 
@@ -579,22 +579,22 @@ class Payment {
   });
 
   Payment.fromJson(Map<String, dynamic> json)
-      : id = json['id'] as int?,
-        supplierId = json['supplier_id'] as int?,
+      : id = json['id'] is num ? (json['id'] as num).toInt() : null,
+        supplierId = json['supplier_id'] is num ? (json['supplier_id'] as num).toInt() : null,
         invoiceNumber = json['invoice_number'] as String?,
         expenseTotal = json['expense_total'],
-        expensePaid = json['expense_paid'] as int?,
+        expensePaid = json['expense_paid'] is num ? (json['expense_paid'] as num).toInt() : null,
         expensePending = json['expense_pending'],
         paymentStatus = json['payment_status'] as String?,
         createdAt = json['created_at'] as String?,
         updatedAt = json['updated_at'] as String?,
         deletedAt = json['deleted_at'],
-        customerId = json['customer_id'] as int?,
-        orderNumber = json['order_number'] as int?,
+        customerId = json['customer_id'] is num ? (json['customer_id'] as num).toInt() : null,
+        orderNumber = json['order_number'] is num ? (json['order_number'] as num).toInt() : null,
         orderTotal = json['order_total'],
-        orderPaid = json['order_paid'] as int?,
+        orderPaid = json['order_paid'] is num ? (json['order_paid'] as num).toInt() : null,
         orderPending = json['order_pending'],
-        expenseId = json['expense_id'] as int?;
+        expenseId = json['expense_id'] is num ? (json['expense_id'] as num).toInt() : null;
 
   Map<String, dynamic> toJson() => {
         'id': id,
