@@ -194,9 +194,9 @@ class CartView extends GetView<CartController> {
                                                       controller.orderItemList[index].amountOnlyTax = controller.amountTax.toString();
                                                       controller.orderItemList[index].finalAmount = (controller.amount + controller.amountTax).toString();
 
-                                                      controller.orderTotal.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
-                                                      controller.orderTax.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
-                                                      controller.orderFinalTotal.value = (double.parse(controller.orderTotal.value) + double.parse(controller.orderTax.value)).toString();
+                                                      controller.orderTotal.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toStringAsFixed(2);
+                                                      controller.orderTax.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toStringAsFixed(2);
+                                                      controller.orderFinalTotal.value = (double.parse(controller.orderTotal.value) + double.parse(controller.orderTax.value)).toStringAsFixed(2);
 
                                                       data.quantity!.isEmpty
                                                           ? controller.isWrongData.value = true
@@ -242,9 +242,9 @@ class CartView extends GetView<CartController> {
                                                       controller.orderItemList[index].amountOnlyTax = controller.amountTax.toString();
                                                       controller.orderItemList[index].finalAmount = (controller.amount + controller.amountTax).toString();
 
-                                                      controller.orderTotal.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
-                                                      controller.orderTax.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
-                                                      controller.orderFinalTotal.value = (double.parse(controller.orderTotal.value) + double.parse(controller.orderTax.value)).toString();
+                                                      controller.orderTotal.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toStringAsFixed(2);
+                                                      controller.orderTax.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toStringAsFixed(2);
+                                                      controller.orderFinalTotal.value = (double.parse(controller.orderTotal.value) + double.parse(controller.orderTax.value)).toStringAsFixed(2);
 
                                                       ///
                                                       data.quantity!.isEmpty
@@ -366,9 +366,9 @@ class CartView extends GetView<CartController> {
                                                             controller.orderItemList[index].amountOnlyTax = controller.amountTax.toString();
                                                             controller.orderItemList[index].finalAmount = (controller.amount + controller.amountTax).toString();
 
-                                                            controller.orderTotal.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
-                                                            controller.orderTax.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
-                                                            controller.orderFinalTotal.value = (double.parse(controller.orderTotal.value) + double.parse(controller.orderTax.value)).toString();
+                                                            controller.orderTotal.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toStringAsFixed(2);
+                                                            controller.orderTax.value = (controller.orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toStringAsFixed(2);
+                                                            controller.orderFinalTotal.value = (double.parse(controller.orderTotal.value) + double.parse(controller.orderTax.value)).toStringAsFixed(2);
 
                                                             controller.update();
                                                           }

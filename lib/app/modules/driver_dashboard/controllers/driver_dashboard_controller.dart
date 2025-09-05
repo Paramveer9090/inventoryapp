@@ -26,7 +26,7 @@ class DriverDashboardController extends GetxController {
     GetDataListResponseModel model = GetDataListResponseModel.fromJson(data);
 
     if (model.data!.isNotEmpty) {
-      totalOrder.value = model.totalOrder.toString();
+      totalOrder.value = model.totalOrder != null ? double.parse(model.totalOrder.toString()).toStringAsFixed(2) : "0.00";
       delivered.value = model.deliver.toString();
       pending.value = model.pending.toString();
       orderList = model.data!;

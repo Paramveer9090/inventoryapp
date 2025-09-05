@@ -118,15 +118,15 @@ class CartController extends GetxController {
       // } else {
       amountTax = ((double.parse(orderItemList[i].quantity.toString()) * double.parse(orderItemList[i].price.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
       amount = (double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price.toString());
-      orderItemList[i].amountWithoutTax = amount.toString();
-      orderItemList[i].amountOnlyTax = amountTax.toString();
-      orderItemList[i].finalAmount = (amount + amountTax).toString();
+      orderItemList[i].amountWithoutTax = amount.toStringAsFixed(2);
+      orderItemList[i].amountOnlyTax = amountTax.toStringAsFixed(2);
+      orderItemList[i].finalAmount = (amount + amountTax).toStringAsFixed(2);
       // }
     }
 
-    orderTotal.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
-    orderTax.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
-    orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toString();
+    orderTotal.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toStringAsFixed(2);
+    orderTax.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toStringAsFixed(2);
+    orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toStringAsFixed(2);
 
     cartLength = (int.parse(cartLength) - 1).toString();
     update();
@@ -194,15 +194,15 @@ class CartController extends GetxController {
         // } else {
         amountTax = ((double.parse(orderItemList[i].quantity.toString()) * double.parse(orderItemList[i].price.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
         amount = (double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price.toString());
-        orderItemList[i].amountWithoutTax = amount.toString();
-        orderItemList[i].amountOnlyTax = amountTax.toString();
-        orderItemList[i].finalAmount = (amount + amountTax).toString();
+        orderItemList[i].amountWithoutTax = amount.toStringAsFixed(2);
+        orderItemList[i].amountOnlyTax = amountTax.toStringAsFixed(2);
+        orderItemList[i].finalAmount = (amount + amountTax).toStringAsFixed(2);
         // }
       }
 
-      orderTotal.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toString();
-      orderTax.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
-      orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toString();
+      orderTotal.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toStringAsFixed(2);
+      orderTax.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toStringAsFixed(2);
+      orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toStringAsFixed(2);
       print("orderTotalvalueorderTotalvalueorderTotalvalue");
       print(orderTotal.value);
       print(orderTax.value);

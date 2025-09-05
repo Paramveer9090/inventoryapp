@@ -88,12 +88,13 @@ class ProductsController extends GetxController {
     print('🔍 FilterList length: ${filterList.length}');
     
     if (text.trim().isEmpty) {
-      productList = filterList;
+      productList = filterList; // filterList already contains only products with stock
       noData.value = "";
-      print('🔍 Empty search - showing all ${productList.length} products');
+      print('🔍 Empty search - showing all ${productList.length} products with stock');
     } else {
       List<GetDataListResponseData> tempList = [];
       for (int i = 0; i < filterList.length; i++) {
+        // filterList already contains only products with stock > 0
         if (filterList[i]
                 .name
                 .toString()
@@ -108,7 +109,7 @@ class ProductsController extends GetxController {
                 .toLowerCase()
                 .contains(text.toLowerCase())) {
           tempList.add(filterList[i]);
-          print('🔍 Match found: ${filterList[i].name}');
+          print('🔍 Match found: ${filterList[i].name} (stock: ${filterList[i].stock})');
         }
       }
       
@@ -118,7 +119,7 @@ class ProductsController extends GetxController {
         print('🔍 No matches found');
       } else {
         noData.value = "";
-        print('🔍 Found ${tempList.length} matches');
+        print('🔍 Found ${tempList.length} matches with stock');
       }
       
       productList = tempList;
@@ -129,7 +130,7 @@ class ProductsController extends GetxController {
     update();
   }
 
-  /// Get Products
+  /// Get Products (filtered to show only products with stock > 0)
   getProductAPI({bool isLoading = true}) async {
     final data = await APIFunction().apiCall(
       apiName: Constants.products,
@@ -142,20 +143,25 @@ class ProductsController extends GetxController {
     GetDataListResponseModel model = GetDataListResponseModel.fromJson(data);
 
     if (model.data!.isNotEmpty) {
-      productList = model.data!;
-      filterList = model.data!;
-      allProductsList = model.data!; // Store all products
+      // Filter out products with zero stock - only show products with stock > 0
+      List<GetDataListResponseData> productsWithStock = model.data!
+          .where((product) => product.stock != null && product.stock! > 0)
+          .toList();
+      
+      productList = productsWithStock;
+      filterList = productsWithStock;
+      allProductsList = productsWithStock; // Store all products with stock
 
       // 👉 Log how many items you got
-      debugPrint('🔥 fetched ${productList.length} products');
+      debugPrint('🔥 fetched ${model.data!.length} total products, ${productList.length} with stock > 0');
 
       // 👉 Loop through and print key fields (only first 10 for performance)
       for (var p in productList.take(10)) {
         debugPrint(
-            ' • [${p.id}] ${p.name}  → category: ${p.categoryType}, sub: ${p.subCategoryType}');
+            ' • [${p.id}] ${p.name} (stock: ${p.stock}) → category: ${p.categoryType}, sub: ${p.subCategoryType}');
       }
       if (productList.length > 10) {
-        debugPrint(' • ... and ${productList.length - 10} more products');
+        debugPrint(' • ... and ${productList.length - 10} more products with stock');
       }
 
       // Initialize pagination

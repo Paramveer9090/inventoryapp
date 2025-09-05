@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:printing/printing.dart';
 import 'package:true_leaf_inventory_app/app/modules/order_details/controllers/order_details_controller.dart';
 import 'package:true_leaf_inventory_app/app/modules/order_details/views/order_details_view.dart';
 
@@ -832,26 +833,86 @@ class MyOrdersView extends GetView<MyOrdersController> {
   }
 
   void _downloadOrderSummary(String orderId) async {
+    // Show loading dialog
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+              ),
+              SizedBox(height: 16),
+              AppText(
+                "Generating Invoice...",
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+              ),
+              SizedBox(height: 8),
+              AppText(
+                "Please wait while we prepare your invoice",
+                fontSize: 12.sp,
+                color: Colors.grey.shade600,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+
     try {
-      // This would integrate with the backend's order_summary endpoint
-      Get.snackbar(
-        "Download Started",
-        "Invoice for order #$orderId is being prepared...",
-        backgroundColor: AppColors.primaryColor,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
+      // Create an OrderDetailsController instance to generate the PDF
+      final orderDetailsController = OrderDetailsController(id: orderId);
+      
+      // Load the order details first
+      await orderDetailsController.orderDetails();
+      
+      // Ensure we have the required data
+      if (orderDetailsController.getDetailsData == null || 
+          orderDetailsController.orderItem.isEmpty) {
+        throw Exception("Unable to load order details for invoice generation");
+      }
+      
+      // Generate the PDF using the existing method
+      final pdfData = await orderDetailsController.generateInvoicePdf();
+      
+      // Close loading dialog
+      Get.back();
+      
+      // Share/Download the PDF
+      await Printing.sharePdf(
+        bytes: pdfData, 
+        filename: 'invoice_order_$orderId.pdf'
       );
       
-      // TODO: Implement actual PDF download using the backend endpoint:
-      // GET /api/v1/orders/order_summary/{id}
+      Get.snackbar(
+        "Success",
+        "Invoice for order #$orderId has been generated successfully!",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        icon: Icon(Icons.check_circle, color: Colors.white),
+      );
       
     } catch (e) {
+      // Close loading dialog if still open
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+      
+      print('PDF generation error: $e');
       Get.snackbar(
         "Error",
-        "Failed to download invoice: $e",
+        "Failed to generate invoice: ${e.toString()}",
         backgroundColor: Colors.red,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
+        icon: Icon(Icons.error, color: Colors.white),
       );
     }
   }

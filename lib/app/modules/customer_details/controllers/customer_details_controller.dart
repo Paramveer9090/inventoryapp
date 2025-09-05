@@ -81,9 +81,9 @@ class CustomerDetailsController extends GetxController {
         update();
       }
 
-      totalOrder.value = model.totalOrder.toString();
-      paid.value = model.paid.toString();
-      unPaid.value = model.unpaid.toString();
+      totalOrder.value = model.totalOrder != null ? double.parse(model.totalOrder.toString()).toStringAsFixed(2) : "0.00";
+      paid.value = model.paid != null ? double.parse(model.paid.toString()).toStringAsFixed(2) : "0.00";
+      unPaid.value = model.unpaid != null ? double.parse(model.unpaid.toString()).toStringAsFixed(2) : "0.00";
       update();
       
       if (model.orders!.isNotEmpty) {
