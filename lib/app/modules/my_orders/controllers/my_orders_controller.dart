@@ -110,21 +110,21 @@ class MyOrdersController extends GetxController {
   customerSearch({var id}) async {
     List<Orders> tempList = [];
     
-    print('=== CUSTOMER SEARCH DEBUG ===');
-    print('Selected customer ID: $id');
-    print('Total orders to search: ${filterList.length}');
+    
+    
+    
     
     for (int i = 0; i < filterList.length; i++) {
-      print('Order ${filterList[i].id}: customerId=${filterList[i].customerId}, customer.id=${filterList[i].customer?.id}');
+      
       
       // Try both customerId field and customer.id field
       bool matches = false;
       if (filterList[i].customerId?.toString() == id.toString()) {
         matches = true;
-        print('  → Match found via customerId');
+        
       } else if (filterList[i].customer?.id?.toString() == id.toString()) {
         matches = true;
-        print('  → Match found via customer.id');
+        
       }
       
       if (matches) {
@@ -132,8 +132,8 @@ class MyOrdersController extends GetxController {
       }
     }
     
-    print('Matching orders found: ${tempList.length}');
-    print('==============================');
+    
+    
     
     if (tempList.isNotEmpty) {
       myOrderList = tempList;
@@ -147,14 +147,14 @@ class MyOrdersController extends GetxController {
   }
 
   void statusFilter(String status) {
-    print('Filtering by status: $status');
-    print('Total orders before filter: ${filterList.length}');
+    
+    
 
     myOrderList = filterList.where((order) {
       String orderStatus = order.status?.toString() ?? '';
       String paymentStatus = order.payment?.paymentStatus?.toString() ?? '';
 
-      print('Order ${order.id}: status = "$orderStatus", payment = "$paymentStatus"');
+      
 
       // Enhanced status filtering based on backend logic
       bool matches = false;
@@ -193,7 +193,7 @@ class MyOrdersController extends GetxController {
       return matches;
     }).toList();
 
-    print('Orders after filter: ${myOrderList.length}');
+    
     update();
   }
 
@@ -246,7 +246,7 @@ class MyOrdersController extends GetxController {
     myOrderList = filterList;
     noData.value = "";
     
-    print('All filters cleared. Showing ${myOrderList.length} orders');
+    
     update();
   }
 

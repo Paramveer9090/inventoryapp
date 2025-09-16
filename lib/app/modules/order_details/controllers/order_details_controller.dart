@@ -33,7 +33,6 @@ class OrderDetailsController extends GetxController {
 
   @override
   void onInit() {
-    print("OrderDetailsController onInit() called with ID: $id");
     orderDetails();
     loadDeliveryAgents();
     super.onInit();
@@ -41,10 +40,8 @@ class OrderDetailsController extends GetxController {
 
   @override
   void onReady() {
-    print("OrderDetailsController onReady() called");
     // Force refresh if data is not loaded
     if (getDetailsData == null) {
-      print("No order data found, forcing refresh...");
       orderDetails();
     }
     super.onReady();
@@ -52,7 +49,6 @@ class OrderDetailsController extends GetxController {
 
   // Force refresh order details - useful when navigating from different screens
   void refreshOrderDetails() {
-    print("Force refreshing order details...");
     getDetailsData = null;
     orderItem.clear();
     orderDetails();
@@ -97,10 +93,9 @@ class OrderDetailsController extends GetxController {
             if (userData.roles?.isNotEmpty == true && 
                 userData.roles![0].title == "Delivery Agent") {
               deliveryAgents.add(userData);
-              print('Added delivery agent: ID=${userData.id}, Name=${userData.name}');
             }
           } catch (e) {
-            print('Error parsing user data: $e');
+            // Silently handle parsing errors
           }
         }
         
@@ -112,23 +107,14 @@ class OrderDetailsController extends GetxController {
             (agent) => agent.id.toString() == orderDeliveryAgentId,
           );
           
-          if (selectedDeliveryAgent.value != null) {
-            print('Found and set delivery agent: ${selectedDeliveryAgent.value!.name}');
-          } else {
-            print('Delivery agent with ID $orderDeliveryAgentId not found in agent list');
-          }
         } else {
           selectedDeliveryAgent.value = null;
-          print('No delivery agent assigned to this order');
         }
-        
-        print('Found ${deliveryAgents.length} delivery agents');
       }
       
       isLoadingAgents.value = false;
       update();
     } catch (e) {
-      print('Error loading delivery agents: $e');
       isLoadingAgents.value = false;
       update();
     }
@@ -219,25 +205,6 @@ class OrderDetailsController extends GetxController {
       };
 
       String rawData = jsonEncode(requestData);
-      print("Updating delivery agent with complete order data (${requestData.keys.length} fields)");
-      print("Current user role: ${loginData?.roles?[0].title}");
-      print("Order status: ${getDetailsData!.status}");
-      print("Sales manager ID: ${getDetailsData!.salesManagerId}");
-      print("Target delivery agent ID: $deliveryAgentIdInt");
-      print("Request data contains delivery_agent_id: ${requestData.containsKey('delivery_agent_id')}");
-      // Print only the delivery_agent_id field for clarity
-      print("Sending delivery_agent_id: ${requestData['delivery_agent_id']}");
-      print("Selected delivery agent ID: ${selectedDeliveryAgent.value?.id}");
-      print("Selected delivery agent name: ${selectedDeliveryAgent.value?.name}");
-      print("Validated delivery agent ID (integer): $deliveryAgentIdInt");
-      print("Number of order items being sent: ${orderItem.length}");
-      print("Category list length: ${categoryList.length}");
-
-      print("About to make API call...");
-      print("API URL: ${Constants.orders}/${id}");
-      print("Access token exists: ${accessToken != null}");
-      print("Context exists: ${Get.context != null}");
-      
       final data = await APIFunction().apiCall(
         apiName: "${Constants.orders}/${id}",
         context: Get.context ?? Get.overlayContext!,
@@ -245,8 +212,6 @@ class OrderDetailsController extends GetxController {
         type: "put",
         rawData: rawData,
       );
-      
-      print("API call completed, data: $data");
 
         if (data != null) {
           print("API Update Response received");

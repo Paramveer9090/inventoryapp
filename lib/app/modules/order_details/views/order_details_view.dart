@@ -334,7 +334,6 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                     isIcon: true,
                                     icon: Icons.add,
                                     onTap: () {
-                                      print("add product");
                                       Get.find<HomeController>()
                                           .isOrderDetails
                                           .value = false;
@@ -344,7 +343,6 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                       Get.find<HomeController>()
                                           .isSelected
                                           .value = 5;
-                                      print("ididididid $id");
                                       Get.find<HomeController>()
                                           .isCustomerId
                                           .value = id;
@@ -640,7 +638,7 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                               if (value != null) {
                                                 var amountTax;
                                                 var amount;
-                                                print("value not null");
+                                                
                                                 controller.orderItem[index]
                                                     .salePrice = value;
                                                 print(controller
@@ -718,7 +716,7 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
 
                                                 controller.update();
                                               } else {
-                                                print("value are null");
+                                                
                                               }
                                             });
                                           },
@@ -1428,7 +1426,7 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                                     Get.find<MyOrdersController>()
                                                         .update();
                                                   } catch (e) {
-                                                    print("MyOrdersController not found in cancel: $e");
+                                                    
                                                   }
                                                 }
                                                 Get.find<HomeController>()
@@ -1555,7 +1553,7 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                               .last,
                                       // suffix: Text('Pick File'),
                                       onTap: () async {
-                                        print("on tap call thy 6e");
+                                        
                                         controller.getFile();
                                       },
                                     ),

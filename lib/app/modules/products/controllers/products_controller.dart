@@ -84,13 +84,9 @@ class ProductsController extends GetxController {
 
   /// Search
   search({required String text}) async {
-    print('🔍 Search called with text: "$text"');
-    print('🔍 FilterList length: ${filterList.length}');
-    
     if (text.trim().isEmpty) {
       productList = filterList; // filterList already contains only products with stock
       noData.value = "";
-      print('🔍 Empty search - showing all ${productList.length} products with stock');
     } else {
       List<GetDataListResponseData> tempList = [];
       for (int i = 0; i < filterList.length; i++) {
@@ -109,17 +105,14 @@ class ProductsController extends GetxController {
                 .toLowerCase()
                 .contains(text.toLowerCase())) {
           tempList.add(filterList[i]);
-          print('🔍 Match found: ${filterList[i].name} (stock: ${filterList[i].stock})');
         }
       }
       
       // Set noData message only after checking all items
       if (tempList.isEmpty) {
         noData.value = "No result found";
-        print('🔍 No matches found');
       } else {
         noData.value = "";
-        print('🔍 Found ${tempList.length} matches with stock');
       }
       
       productList = tempList;
@@ -152,23 +145,9 @@ class ProductsController extends GetxController {
       filterList = productsWithStock;
       allProductsList = productsWithStock; // Store all products with stock
 
-      // 👉 Log how many items you got
-      debugPrint('🔥 fetched ${model.data!.length} total products, ${productList.length} with stock > 0');
-
-      // 👉 Loop through and print key fields (only first 10 for performance)
-      for (var p in productList.take(10)) {
-        debugPrint(
-            ' • [${p.id}] ${p.name} (stock: ${p.stock}) → category: ${p.categoryType}, sub: ${p.subCategoryType}');
-      }
-      if (productList.length > 10) {
-        debugPrint(' • ... and ${productList.length - 10} more products with stock');
-      }
-
       // Initialize pagination
       resetPagination();
       update();
-    } else {
-      print("In else part");
     }
   }
 
@@ -271,7 +250,7 @@ class ProductsController extends GetxController {
       final ByteData data = await rootBundle.load('assets/images/logo.png');
       logoBytes = data.buffer.asUint8List();
     } catch (e) {
-      debugPrint('Error loading logo: $e');
+      // Handle logo loading error silently
     }
 
     pdf.addPage(
@@ -492,7 +471,7 @@ class ProductsController extends GetxController {
         colorText: Colors.white,
       );
     } catch (e) {
-      debugPrint('Error exporting PDF: $e');
+      // Handle PDF export error silently
       Get.snackbar(
         'Error',
         'Failed to export PDF. Please try with fewer products.',
@@ -522,7 +501,7 @@ class ProductsController extends GetxController {
         filename: 'selected_products_${DateTime.now().millisecondsSinceEpoch}.pdf',
       );
     } catch (e) {
-      debugPrint('Error sharing PDF: $e');
+      // Handle PDF sharing error silently
       Get.snackbar(
         'Error',
         'Failed to share PDF: $e',

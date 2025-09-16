@@ -89,11 +89,9 @@ class CustomerDetailsController extends GetxController {
       if (model.orders!.isNotEmpty) {
         myOrderList = model.orders!;
         update();
-      } else {
-        print("In else part");
       }
     } catch (e) {
-      print("Error loading customer details: $e");
+      // Handle error silently or show user-friendly message
     } finally {
       _isLoadingData = false;
     }

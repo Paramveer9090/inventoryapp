@@ -144,13 +144,13 @@ class OrdersController extends GetxController {
           '✅ Loaded ${productList.length} products for subCategory $subCategoryId');
       update();
     } else {
-      print("In else part");
+      
     }
   }
 
   getProduct({required var subCategoryId, type}) {
     isProduct.value = true;
-    print("product get");
+    
     if (productList.isNotEmpty) {
       productList.clear();
     }
@@ -165,9 +165,9 @@ class OrdersController extends GetxController {
           type == "subCategory") {
         noData.value = "";
         print(tempProductList[i].stock);
-        print("tempProductList[i].quantity first");
+        
         if (tempProductList[i].stock != 0) {
-          print("add product");
+          
           productList.add(
             GetDataListResponseData(
               id: tempProductList[i].id,
@@ -196,7 +196,7 @@ class OrdersController extends GetxController {
             ),
           );
         } else {
-          print("in else part");
+          
         }
 
         update();
@@ -206,7 +206,7 @@ class OrdersController extends GetxController {
           type == "category") {
         noData.value = "";
         print(tempProductList[i].stock);
-        print("tempProductList[i].quantity second");
+        
         if (tempProductList[i].stock != 0) {
           productList.add(
             GetDataListResponseData(
@@ -243,7 +243,7 @@ class OrdersController extends GetxController {
     if (productList.isEmpty) {
       noData.value = "No Data Found";
     }
-    print("productList length");
+    
     print(productList.length);
   }
 
@@ -270,9 +270,9 @@ class OrdersController extends GetxController {
         customerId = getDetailsData!.customerId.toString();
       }
       
-      print("Customer ID set to: ${homeController.isCustomerId.value}");
+      
       print(orderItem.length);
-      print("orderItem.length");
+      
       update();
     } else {
       update();
@@ -285,7 +285,7 @@ class OrdersController extends GetxController {
 
   /// work edit order
   // editOrderAPI() async {
-  //   print("check length");
+  //   
   //   print(orderItem.length);
   //   print(productList.length);
   //
@@ -294,15 +294,15 @@ class OrdersController extends GetxController {
   //   bool whichListIsBig = l <= k;
   //
   //   print(whichListIsBig);
-  //   print("whichListIsBig");
+  //   
   //
   //   if (whichListIsBig) {
-  //     print("productList big");
+  //     
   //     for (int i = 0; i < productList.length; i++) {
   //       for (int j = 0; j < orderItem.length; j++) {
   //         if (await productList[i].quantityCount != "0") {
   //           print(productList[i].name);
-  //           print("orderItem[j].name");
+  //           
   //           if (await productList[i].productId == orderItem[j].productId) {
   //             orderItem[j] = productList[i];
   //           } else {
@@ -310,31 +310,31 @@ class OrdersController extends GetxController {
   //             // break;
   //           }
   //         } else {
-  //           print("quantity value 0");
+  //           
   //         }
   //       }
   //     }
   //   } else {
-  //     print("orderItem big");
+  //     
   //     for (int i = 0; i < orderItem.length; i++) {
   //       for (int j = 0; j < productList.length; j++) {
   //         if (await productList[j].quantityCount != "0") {
   //           print(productList[j].name);
-  //           print("orderItem[j].name");
+  //           
   //           if (await productList[j].productId == orderItem[i].productId) {
-  //             print("value replace");
+  //             
   //             orderItem[i] = productList[j];
   //           } else {
-  //             print("value added");
+  //             
   //             orderItem.add(productList[j]);
   //             // break;
   //           }
   //         } else {
-  //           print("quantity value 0");
+  //           
   //         }
   //         // if (await productList[j].quantityCount != "0") {
   //         //   if (orderItem.contains(productList[j])) {
-  //         //     print("replace value");
+  //         //     
   //         //     orderItem[i] = GetDataListResponseData();
   //         //     orderItem[i] = productList[j];
   //         //     break;
@@ -343,7 +343,7 @@ class OrdersController extends GetxController {
   //         //     break;
   //         //   }
   //         // } else {
-  //         //   print("quantity value 0");
+  //         //   
   //         // }
   //       }
   //       // break;
@@ -351,7 +351,7 @@ class OrdersController extends GetxController {
   //   }
   //
   //   print(orderItem.length);
-  //   print("orderItemorderItemorderItem");
+  //   
   //
   //   List categoryList = [];
   //   List subCategoryList = [];
@@ -399,7 +399,7 @@ class OrdersController extends GetxController {
   //     orderTax.value = (apiList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toString();
   //     orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toString();
   //   }
-  //   print("orderTotal.value");
+  //   
   //   print(orderTotal.value);
   //   print(orderTax.value);
   //   print(orderFinalTotal.value);
@@ -415,7 +415,7 @@ class OrdersController extends GetxController {
   //   print(taxList);
   //   print(isBoxList);
   //
-  //   print("isBoxListisBoxListisBoxListisBoxListisBoxList");
+  //   
   //   // print(getDetailsData!.orderTotalWithoutTax);
   //   // print(orderTotal.value);
   //   // print(getDetailsData!.orderTax);
@@ -425,7 +425,7 @@ class OrdersController extends GetxController {
   //   // print(getDetailsData!.status);
   //   // print(getDetailsData!.discountType);
   //   // print(getDetailsData!.orderDate!.split(".").first);
-  //   // print("categoryListcategoryListcategoryList");
+  //   // 
   //   /// api call
   //
   //   if (categoryList.isNotEmpty) {
@@ -453,12 +453,12 @@ class OrdersController extends GetxController {
   //         Get.find<HomeController>().isOrderDetails.value = true;
   //         Get.find<HomeController>().isOrderEdit.value = true;
   //         print(Get.find<MyOrdersController>().id.value);
-  //         print("Get.find<MyOrdersController>().id.value");
+  //         
   //         Get.find<HomeController>().update();
   //         update();
   //         Get.back();
   //       } else {
-  //         print("In else part");
+  //         
   //       }
   //     } on Exception catch (error) {
   //       utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
@@ -469,15 +469,15 @@ class OrdersController extends GetxController {
   // worked on it
 
   editOrderAPI() async {
-    print("Adding products to existing order");
+    
 
     // Get order ID
     String currentOrderId = orderId.toString();
-    print("Order ID: $currentOrderId");
-    print("Customer ID: $customerId");
+    
+    
 
     if (currentOrderId.isEmpty || currentOrderId == "0") {
-      print("ERROR: Order ID is empty!");
+      
       Get.snackbar("Error", "Order information not available");
       return;
     }
@@ -582,7 +582,7 @@ class OrdersController extends GetxController {
             item.amountOnlyTax = amountTax.toString();
             item.finalAmount = (amount + amountTax).toString();
           } catch (e) {
-            print("Error calculating amounts for item $k: $e");
+            
             item.amountWithoutTax = "0";
             item.amountOnlyTax = "0";
             item.finalAmount = "0";
@@ -603,17 +603,17 @@ class OrdersController extends GetxController {
           orderTax.value = totalTax.toString();
           orderFinalTotal.value = (totalWithoutTax + totalTax).toString();
         } catch (e) {
-          print("Error calculating totals: $e");
+          
           orderTotal.value = "0";
           orderTax.value = "0";
           orderFinalTotal.value = "0";
         }
       }
 
-      print("Order totals calculated:");
-      print("orderTotal: ${orderTotal.value}");
-      print("orderTax: ${orderTax.value}");
-      print("orderFinalTotal: ${orderFinalTotal.value}");
+      
+      
+      
+      
 
       // Make API call to update existing order
       if (categoryList.isNotEmpty && getDetailsData != null) {
@@ -643,7 +643,7 @@ class OrdersController extends GetxController {
           };
 
           String rawData = jsonEncode(requestData);
-          print("API Request Data: $rawData");
+          
 
           final data = await APIFunction().apiCall(
             apiName: "${Constants.orders}/$currentOrderId",
@@ -655,7 +655,7 @@ class OrdersController extends GetxController {
 
           // Check if API call was successful
           if (data != null) {
-            print("Order updated successfully");
+            
             
             // Preserve customer ID for next operations
             final homeController = Get.find<HomeController>();
@@ -672,22 +672,22 @@ class OrdersController extends GetxController {
             utils.showSnackBar(context: Get.context!, message: "Products added successfully! You can add more products or go back to order details.");
             update();
           } else {
-            print("API response: Data is null");
+            
             utils.showSnackBar(context: Get.context!, message: "Failed to update order");
           }
         } catch (error) {
-          print("Error updating order: $error");
+          
           utils.showSnackBar(
               context: Get.context!, message: "Error updating order: $error");
         }
       } else {
-        print("ERROR: No products to update or getDetailsData is null");
+        
         utils.showSnackBar(
             context: Get.context!,
             message: "No products selected or order data missing");
       }
     } catch (error) {
-      print("ERROR in editOrderAPI: $error");
+      
       utils.showSnackBar(
           context: Get.context!, message: "Error adding products: $error");
     }
@@ -695,24 +695,24 @@ class OrdersController extends GetxController {
 
   /// add to cart api
   addToCartAPI() async {
-    print("=== addToCartAPI DEBUG ===");
-    print("Controller customerId: $customerId");
+    
+    
     print(
         "HomeController customerId: ${Get.find<HomeController>().isCustomerId.value}");
-    print("Is Order Edit: ${Get.find<HomeController>().isOrderEdit.value}");
+    
 
     // Check if we're adding to an existing order
     final homeController = Get.find<HomeController>();
     final isEditingOrder = homeController.isOrderEdit.value;
 
     if (isEditingOrder) {
-      print("Routing to editOrderAPI for existing order");
+      
       await editOrderAPI();
       return;
     }
 
     // Original logic for creating new orders
-    print("Creating new order/cart");
+    
 
     List productIdList = [];
     List priceList = [];
@@ -766,7 +766,7 @@ class OrdersController extends GetxController {
               context: Get.context!, message: "Successfully added to cart");
           update();
         } else {
-          print("In else part");
+          
         }
       } on Exception {
         utils.showSnackBar(

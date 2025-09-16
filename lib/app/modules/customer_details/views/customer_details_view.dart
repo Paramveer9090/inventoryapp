@@ -272,10 +272,10 @@ class CustomerDetailsView extends GetView<CustomerDetailsController> {
                           onTap: () {
                             Get.find<HomeController>().isCustomerDetails.value = false;
                             Get.find<HomeController>().isSelected.value = 5;
-                            print("customer id $id");
+                            
                             Get.find<HomeController>().isCustomerId.value = id;
 
-                            print("home customer id ${Get.find<HomeController>().isCustomerId.value}");
+                            
                             if (Get.find<HomeController>().isCustomerId.value.isNotEmpty) {
                               Get.find<HomeController>().addOrder.value = true;
                             }

@@ -112,10 +112,10 @@ class ProductsView extends GetView<ProductsController> {
                                     // Selection Mode Toggle
                                     Obx(() => IconButton(
                                       onPressed: () {
-                                        print('🎯 Selection Mode Toggle pressed');
-                                        print('🎯 Current selection mode: ${controller.isSelectionMode.value}');
+                                        
+                                        
                                         controller.toggleSelectionMode();
-                                        print('🎯 New selection mode: ${controller.isSelectionMode.value}');
+                                        
                                       },
                                       icon: Icon(
                                         controller.isSelectionMode.value
@@ -326,18 +326,18 @@ class ProductsView extends GetView<ProductsController> {
           InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () {
-              print('🔥 Grid Card Tapped - Product: ${product.name}');
-              print('🔥 Selection Mode: ${controller.isSelectionMode.value}');
+              
+              
               if (controller.isSelectionMode.value) {
                 // In selection mode, tap toggles selection
-                print('🔥 Before toggle - Selected products count: ${controller.selectedProducts.length}');
-                print('🔥 Product selected before toggle: ${controller.selectedProducts.contains(product)}');
+                
+                
                 controller.toggleProductSelection(product);
-                print('🔥 After toggle - Selected products count: ${controller.selectedProducts.length}');
-                print('🔥 Product selected after toggle: ${controller.selectedProducts.contains(product)}');
+                
+                
               } else {
                 // Normal mode, tap opens product details
-                print('🔥 Opening product details for: ${product.name}');
+                
                 controller.productDetails.value = true;
                 Get.find<HomeController>().update();
                 controller.update();
@@ -420,8 +420,8 @@ class ProductsView extends GetView<ProductsController> {
                                 child: Checkbox(
                                   value: isSelected,
                                   onChanged: (value) {
-                                    print('🔄 Grid Checkbox tapped - Product: ${product.name}');
-                                    print('🔄 Checkbox value: $value');
+                                    
+                                    
                                     controller.toggleProductSelection(product);
                                   },
                                   activeColor: AppColors.primaryColor,
@@ -521,7 +521,7 @@ class ProductsView extends GetView<ProductsController> {
           // Selection Overlay
           Obx(() {
             final isSelected = controller.selectedProducts.contains(product);
-            print('🎨 Grid Selection Overlay - Product: ${product.name}, Selected: $isSelected, SelectionMode: ${controller.isSelectionMode.value}');
+            
             return controller.isSelectionMode.value && isSelected
               ? IgnorePointer(
                   child: Container(
@@ -550,18 +550,18 @@ class ProductsView extends GetView<ProductsController> {
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: () {
-          print('🚀 List Item Tapped - Product: ${product.name}');
-          print('🚀 Selection Mode: ${controller.isSelectionMode.value}');
+          
+          
           if (controller.isSelectionMode.value) {
             // In selection mode, tap toggles selection
-            print('🚀 Before toggle - Selected products count: ${controller.selectedProducts.length}');
-            print('🚀 Product selected before toggle: ${controller.selectedProducts.contains(product)}');
+            
+            
             controller.toggleProductSelection(product);
-            print('🚀 After toggle - Selected products count: ${controller.selectedProducts.length}');
-            print('🚀 Product selected after toggle: ${controller.selectedProducts.contains(product)}');
+            
+            
           } else {
             // Normal mode, tap opens product details
-            print('🚀 Opening product details for: ${product.name}');
+            
             controller.productDetails.value = true;
             Get.find<HomeController>().update();
             controller.update();
@@ -572,7 +572,7 @@ class ProductsView extends GetView<ProductsController> {
         },
         child: Obx(() {
           final isSelected = controller.selectedProducts.contains(product);
-          print('🎨 List Selection Border - Product: ${product.name}, Selected: $isSelected, SelectionMode: ${controller.isSelectionMode.value}');
+          
           return Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
@@ -594,8 +594,8 @@ class ProductsView extends GetView<ProductsController> {
                       ? Checkbox(
                           value: isSelected,
                           onChanged: (value) {
-                            print('✅ List Checkbox tapped - Product: ${product.name}');
-                            print('✅ Checkbox value: $value');
+                            
+                            
                             controller.toggleProductSelection(product);
                           },
                           activeColor: AppColors.primaryColor,
