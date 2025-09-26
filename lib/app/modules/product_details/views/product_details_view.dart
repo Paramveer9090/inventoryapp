@@ -81,6 +81,38 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                           ],
                         ),
                       ),
+                      // Edit/Save/Cancel buttons
+                      Obx(() => controller.isEditMode.value 
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                onPressed: () => controller.updateProductCategory(),
+                                icon: Icon(
+                                  Icons.check,
+                                  color: Colors.green,
+                                ),
+                                tooltip: 'Save Changes',
+                              ),
+                              IconButton(
+                                onPressed: () => controller.cancelEdit(),
+                                icon: Icon(
+                                  Icons.close,
+                                  color: Colors.red,
+                                ),
+                                tooltip: 'Cancel',
+                              ),
+                            ],
+                          )
+                        : IconButton(
+                            onPressed: () => controller.toggleEditMode(),
+                            icon: Icon(
+                              Icons.edit,
+                              color: AppColors.primaryColor,
+                            ),
+                            tooltip: 'Edit Category',
+                          ),
+                      ),
                     ],
                   ),
                 ),
@@ -188,10 +220,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
         _buildInfoCard('Basic Information', [
           _buildInfoRow('ID', id ?? 'N/A'),
           _buildInfoRow('Name', controller.getDetailsData?.name ?? 'N/A'),
-          if (categoryName != null && categoryName!.isNotEmpty)
-            _buildInfoRow('Category', categoryName!),
-          if (subCategoryName != null && subCategoryName!.isNotEmpty)
-            _buildInfoRow('Sub Category', subCategoryName!),
+          _buildCategorySection(controller),
         ]),
 
         SizedBox(height: 1.h),
@@ -279,6 +308,162 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                 color: valueColor ?? AppColors.greyColor,
               ),
               textAlign: TextAlign.end,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategorySection(ProductDetailsController controller) {
+    return Obx(() => controller.isEditMode.value 
+      ? Column(
+          children: [
+            _buildCategoryDropdown(controller),
+            SizedBox(height: 1.h),
+            _buildSubCategoryDropdown(controller),
+          ],
+        )
+      : Column(
+          children: [
+            if (categoryName != null && categoryName!.isNotEmpty)
+              _buildInfoRow('Category', categoryName!),
+            if (subCategoryName != null && subCategoryName!.isNotEmpty)
+              _buildInfoRow('Sub Category', subCategoryName!),
+          ],
+        ),
+    );
+  }
+
+  Widget _buildCategoryDropdown(ProductDetailsController controller) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 0.5.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              'Category',
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
+                color: AppColors.blackColor,
+              ),
+            ),
+          ),
+          SizedBox(width: 2.w),
+          Expanded(
+            flex: 3,
+            child: Container(
+              height: 45,
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.greyColor.withValues(alpha: 0.3)),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: controller.selectedCategoryId.value.isEmpty 
+                    ? null 
+                    : controller.selectedCategoryId.value,
+                  hint: Text(
+                    'Select Category',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: AppColors.greyColor,
+                    ),
+                  ),
+                  isExpanded: true,
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  items: controller.categoryList.map((category) {
+                    return DropdownMenuItem<String>(
+                      value: category.id.toString(),
+                      child: Text(
+                        category.name ?? 'Unknown Category',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: AppColors.blackColor,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String? value) {
+                    if (value != null) {
+                      controller.onCategoryChanged(value);
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubCategoryDropdown(ProductDetailsController controller) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 0.5.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              'Sub Category',
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
+                color: AppColors.blackColor,
+              ),
+            ),
+          ),
+          SizedBox(width: 2.w),
+          Expanded(
+            flex: 3,
+            child: Container(
+              height: 45,
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.greyColor.withValues(alpha: 0.3)),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: controller.selectedSubCategoryId.value.isEmpty 
+                    ? null 
+                    : controller.selectedSubCategoryId.value,
+                  hint: Text(
+                    controller.subCategoryList.isEmpty 
+                      ? 'Select category first' 
+                      : 'Select Sub Category',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: AppColors.greyColor,
+                    ),
+                  ),
+                  isExpanded: true,
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  items: controller.subCategoryList.map((subCategory) {
+                    return DropdownMenuItem<String>(
+                      value: subCategory.id.toString(),
+                      child: Text(
+                        subCategory.name ?? 'Unknown Sub Category',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: AppColors.blackColor,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: controller.subCategoryList.isEmpty 
+                    ? null 
+                    : (String? value) {
+                        if (value != null) {
+                          controller.onSubCategoryChanged(value);
+                        }
+                      },
+                ),
+              ),
             ),
           ),
         ],
