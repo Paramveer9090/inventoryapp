@@ -4,12 +4,14 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
   final String? id;
   final String? categoryName;
   final String? subCategoryName;
+  final String? description; // optional routed description (e.g., description_invoice)
 
   const ProductDetailsView({
     Key? key, 
     this.id, 
     this.categoryName, 
-    this.subCategoryName
+    this.subCategoryName,
+    this.description,
   }) : super(key: key);
 
   @override
@@ -159,56 +161,61 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
       children: [
         // Product Image Card
         if (controller.getDetailsData?.imageUrl != null)
-          Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Container(
-              height: 25.h,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: AppColors.greyLightColor,
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  '${Constants.imageBaseUrl}${controller.getDetailsData!.imageUrl}',
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primaryColor,
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 25.h,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.image_not_supported_outlined,
-                            size: 50,
-                            color: AppColors.greyColor,
-                          ),
-                          SizedBox(height: 1.h),
-                          Text(
-                            'Image not available',
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: AppColors.greyColor,
+          GestureDetector(
+            onTap: () {
+              // Show full-screen image viewer
+              showDialog(
+                context: Get.context!,
+                builder: (BuildContext dialogContext) {
+                  return Dialog(
+                    backgroundColor: Colors.black,
+                    insetPadding: EdgeInsets.zero,
+                    child: Stack(
+                      children: [
+                        // Full screen image with zoom capability
+                        Center(
+                          child: InteractiveViewer(
+                            minScale: 0.5,
+                            maxScale: 4.0,
+                            child: OptimizedNetworkImage(
+                              imageUrl: '${Constants.imageBaseUrl}${controller.getDetailsData!.imageUrl}',
+                              width: double.infinity,
+                              fit: BoxFit.contain,
                             ),
                           ),
-                        ],
-                      ),
-                    );
-                  },
+                        ),
+                        // Close button
+                        Positioned(
+                          top: 40,
+                          right: 20,
+                          child: IconButton(
+                            icon: Icon(Icons.close, color: Colors.white, size: 30),
+                            onPressed: () => Navigator.of(dialogContext).pop(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Container(
+                height: 25.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: AppColors.greyLightColor,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: OptimizedNetworkImage(
+                    imageUrl: '${Constants.imageBaseUrl}${controller.getDetailsData!.imageUrl}',
+                    width: double.infinity,
+                    height: 25.h,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
@@ -218,7 +225,6 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
 
         // Product Information Cards
         _buildInfoCard('Basic Information', [
-          _buildInfoRow('ID', id ?? 'N/A'),
           _buildInfoRow('Name', controller.getDetailsData?.name ?? 'N/A'),
           _buildCategorySection(controller),
         ]),
@@ -228,7 +234,7 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
         _buildInfoCard('Pricing & Stock', [
           _buildInfoRow(
             'Price', 
-            '\$${controller.getDetailsData?.maximumSellingPrice?.toString() ?? 'N/A'}',
+            '\$${controller.getDetailsData?.sellingPrice?.toString() ?? 'N/A'}',
           ),
           _buildInfoRow(
             'Stock', 
@@ -328,8 +334,16 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
           children: [
             if (categoryName != null && categoryName!.isNotEmpty)
               _buildInfoRow('Category', categoryName!),
-            if (subCategoryName != null && subCategoryName!.isNotEmpty)
-              _buildInfoRow('Sub Category', subCategoryName!),
+            _buildInfoRow(
+              'Description',
+              () {
+                final routed = description?.trim();
+                if (routed != null && routed.isNotEmpty) return routed; // prefer description_invoice routed in
+                final apiDesc = controller.getDetailsData?.description?.trim();
+                if (apiDesc != null && apiDesc.isNotEmpty) return apiDesc;
+                return 'N/A';
+              }(),
+            ),
           ],
         ),
     );

@@ -2,7 +2,6 @@ import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
 import 'package:flutter/services.dart';
 import 'package:true_leaf_inventory_app/app/modules/orders/controllers/orders_controller.dart';
 import 'package:true_leaf_inventory_app/app/widgets/app_button.dart';
-import 'package:true_leaf_inventory_app/app/widgets/custom_image.dart';
 
 import '../../../widgets/all_import.dart';
 
@@ -13,22 +12,30 @@ class OrdersView extends GetView<OrdersController> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<OrdersController>(
-      assignId: true,
-      init: OrdersController(customerId: customerId),
-      builder: (controller) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 2.5.h),
-            GestureDetector(
-              onTap: () async {
-                if (controller.isSubCategory.value && controller.isProduct.value == false) {
-                  // Going back from subcategories to categories
-                  controller.isSubCategory.value = false;
-                  controller.isCategory.value = true;
-                  controller.isAddToCartButton.value = false;
-                  controller.getCategoriesAPI(categoryId: "0"); // Always go to root categories
+    return MediaQuery.removePadding(
+      context: context,
+      removeBottom: true,
+      child: GetBuilder<OrdersController>(
+        assignId: true,
+        init: OrdersController(customerId: customerId),
+        builder: (controller) {
+          return GestureDetector(
+            onTap: () {
+              // Dismiss keyboard when tapping outside
+              FocusScope.of(context).unfocus();
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 2.5.h),
+                GestureDetector(
+                  onTap: () async {
+                    if (controller.isSubCategory.value && controller.isProduct.value == false) {
+                      // Going back from subcategories to categories
+                      controller.isSubCategory.value = false;
+                      controller.isCategory.value = true;
+                      controller.isAddToCartButton.value = false;
+                      controller.getCategoriesAPI(categoryId: "0"); // Always go to root categories
                   controller.update();
                 }
                 if (controller.isProduct.value) {
@@ -79,6 +86,29 @@ class OrdersView extends GetView<OrdersController> {
                 ),
               ),
             ),
+            // Add Search Field for Sub-Category and Product views
+            Obx(() {
+              if (controller.isSubCategory.value || controller.isProduct.value) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 2.5.h, vertical: 1.h),
+                  child: CustomSearchBar(
+                    hint: controller.isProduct.value 
+                        ? 'Search products...' 
+                        : 'Search sub-categories...',
+                    onChanged: (value) {
+                      if (controller.isProduct.value) {
+                        // Search products
+                        controller.searchProducts(text: value);
+                      } else {
+                        // Search sub-categories
+                        controller.searchSubCategories(text: value);
+                      }
+                    },
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            }),
             SizedBox(height: 1.h),
             (controller.categoryList.isEmpty &&
                         controller.productList.isEmpty) ||
@@ -100,11 +130,17 @@ class OrdersView extends GetView<OrdersController> {
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 1.5.h),
                       child: controller.isProduct.value
-                          ? OrientationBuilder(builder:
-                              (BuildContext context, Orientation orientation) {
-                              print(
-                                  "🖼️ Rendering ${controller.productList.length} product cards");
-                              return Stack(
+                          ? LayoutBuilder(
+                              key: ValueKey('products_${controller.productList.length}'),
+                              builder: (BuildContext context, BoxConstraints constraints) {
+                                // Responsive grid columns for different screen sizes
+                                // Optimized for phones, tablets, and large tablets
+                                final crossAxisCount = constraints.maxWidth > 1200 ? 6  // Large tablets (iPad Pro, etc)
+                                                     : constraints.maxWidth > 900 ? 5   // Medium tablets
+                                                     : constraints.maxWidth > 600 ? 4   // Small tablets / landscape phones
+                                                     : 2;                                // Phones (portrait)
+                                
+                                return Stack(
                                 alignment: Alignment.bottomCenter,
                                 children: [
                                   Padding(
@@ -116,58 +152,65 @@ class OrdersView extends GetView<OrdersController> {
                                     child: DynamicHeightGridView(
                                       itemCount: controller.productList.length,
                                       physics: const BouncingScrollPhysics(),
-                                      crossAxisCount:
-                                          orientation == Orientation.portrait
-                                              ? 2
-                                              : 4,
+                                      crossAxisCount: crossAxisCount,
                                       builder: (ctx, index) {
                                         return Card(
                                             elevation: 3,
                                             color: AppColors.whiteColor,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                  child: Container(
-                                                    height: 25.h,
-                                                    child: CustomImageView(
-                                                      imagePath: controller
-                                                                  .productList[
-                                                                      index]
-                                                                  .imageUrl !=
-                                                              null
-                                                          ? "${Constants.imageBaseUrl}${controller.productList[index].imageUrl}"
-                                                          : AppImages.dummy,
-                                                      fit: BoxFit.cover,
+                                            child: Padding(
+                                              padding: EdgeInsets.all(1.h),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(12),
+                                                    child: Container(
+                                                      height: 140,
                                                       width: double.infinity,
+                                                      child: OptimizedNetworkImage(
+                                                        imageUrl: controller
+                                                                    .productList[
+                                                                        index]
+                                                                    .imageUrl !=
+                                                                null
+                                                            ? "${Constants.imageBaseUrl}${controller.productList[index].imageUrl}"
+                                                            : AppImages.dummy,
+                                                        fit: BoxFit.contain,
+                                                        width: double.infinity,
+                                                        height: 140,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                                SizedBox(height: 1.h),
-                                                Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 1.5.h),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      AppText(
-                                                        controller
-                                                            .productList[index]
-                                                            .name
-                                                            .toString(),
-                                                        maxLines: 10,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        fontSize: 13.sp,
-                                                        color: AppColors
-                                                            .primaryColor,
+                                                  SizedBox(height: 1.h),
+                                                  AppText(
+                                                    controller
+                                                        .productList[index]
+                                                        .name
+                                                        .toString(),
+                                                    maxLines: 2,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    fontWeight:
+                                                        FontWeight.w600,
+                                                    fontSize: 13.sp,
+                                                    color: AppColors
+                                                        .primaryColor,
+                                                  ),
+                                                  if (controller.productList[index].descriptionInvoice != null &&
+                                                      controller.productList[index].descriptionInvoice!.isNotEmpty)
+                                                    Padding(
+                                                      padding: EdgeInsets.only(top: 0.3.h),
+                                                      child: AppText(
+                                                        controller.productList[index].descriptionInvoice.toString(),
+                                                        fontSize: 9.sp,
+                                                        color: Colors.grey[600],
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis,
                                                       ),
-                                                      SizedBox(height: 2.h),
+                                                    ),
+                                                  SizedBox(height: 0.8.h),
                                                       Row(
                                                         children: [
                                                           AppText(
@@ -179,7 +222,8 @@ class OrdersView extends GetView<OrdersController> {
                                                             color: const Color(
                                                                 0XFF44474d),
                                                           ),
-                                                          GestureDetector(
+                                                          Flexible(
+                                                            child: GestureDetector(
                                                             onTap: () {
                                                               controller
                                                                       .sellingPriceText
@@ -293,7 +337,8 @@ class OrdersView extends GetView<OrdersController> {
                                                               ),
                                                               child: AppText(
                                                                 "${controller.productList[index].sellingPrice.toString()}",
-                                                                maxLines: 10,
+                                                                maxLines: 1,
+                                                                overflow: TextOverflow.ellipsis,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w600,
@@ -303,12 +348,13 @@ class OrdersView extends GetView<OrdersController> {
                                                               ),
                                                             ),
                                                           ),
-                                                          const Spacer(),
+                                                          ),
+                                                          SizedBox(width: 1.h),
                                                           Image.asset(
                                                             AppImages.ic_stock,
                                                             scale: 3.8,
                                                           ),
-                                                          SizedBox(width: 1.h),
+                                                          SizedBox(width: 0.5.h),
                                                           AppText(
                                                             "${controller.productList[index].stock.toString()}",
                                                             maxLines: 10,
@@ -391,19 +437,21 @@ class OrdersView extends GetView<OrdersController> {
                                                                   .isAddedData
                                                                   .value = true;
 
-                                                              if (int.parse(controller
+                                                              double currentQty = double.tryParse(controller
                                                                       .productList[
                                                                           index]
-                                                                      .quantityCount!) >
-                                                                  0) {
-                                                                controller
-                                                                    .productList[
-                                                                        index]
-                                                                    .quantityCount = (int.parse(controller
-                                                                            .productList[index]
-                                                                            .quantityCount!) -
-                                                                        1)
-                                                                    .toString();
+                                                                      .quantityCount ?? "0") ?? 0;
+                                                              
+                                                              if (currentQty > 0) {
+                                                                // Decrement by 1
+                                                                currentQty = currentQty - 1;
+                                                                if (currentQty < 0) currentQty = 0;
+                                                                
+                                                                // Format: remove unnecessary .0
+                                                                controller.productList[index].quantityCount = 
+                                                                    currentQty == currentQty.toInt() 
+                                                                      ? currentQty.toInt().toString()
+                                                                      : currentQty.toString();
                                                               }
 
                                                               // Check if any product has quantity > 0 for cart button
@@ -439,32 +487,174 @@ class OrdersView extends GetView<OrdersController> {
                                                             child: Container(
                                                               padding:
                                                                   const EdgeInsets
-                                                                      .all(5),
+                                                                      .all(8),
                                                               decoration:
-                                                                  const BoxDecoration(
-                                                                color: Color(
-                                                                    0xffe0e2ea),
-                                                                shape: BoxShape
-                                                                    .circle,
+                                                                  BoxDecoration(
+                                                                color: AppColors.primaryColor.withValues(alpha: 0.1),
+                                                                border: Border.all(
+                                                                  color: AppColors.primaryColor.withValues(alpha: 0.5),
+                                                                  width: 1.5,
+                                                                ),
+                                                                borderRadius: BorderRadius.circular(8),
                                                               ),
                                                               child: const Icon(
                                                                 Icons.remove,
-                                                                size: 15,
+                                                                size: 20,
                                                                 color: AppColors
-                                                                    .tableColor,
+                                                                    .primaryColor,
                                                               ),
                                                             ),
                                                           ),
-                                                          SizedBox(width: 1.h),
+                                                          SizedBox(width: 0.5.h),
 
                                                           Expanded(
-                                                              child: Center(
-                                                            child: AppText(controller
-                                                                .productList[
-                                                                    index]
-                                                                .quantityCount),
-                                                          )),
-                                                          SizedBox(width: 1.h),
+                                                            child: GestureDetector(
+                                                              onTap: () {
+                                                                controller
+                                                                        .quantityText
+                                                                        .text =
+                                                                    controller
+                                                                        .productList[
+                                                                            index]
+                                                                        .quantityCount
+                                                                        .toString();
+                                                                Get.defaultDialog(
+                                                                  title: "Edit Quantity",
+                                                                  barrierDismissible: false,
+                                                                  content: StatefulBuilder(
+                                                                      builder: (dialogContext,
+                                                                          dialogSetState) {
+                                                                    return SingleChildScrollView(
+                                                                      child: Container(
+                                                                        width: 200,
+                                                                        child:
+                                                                            Column(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize
+                                                                                  .min,
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment
+                                                                                  .start,
+                                                                          children: [
+                                                                            TextFormField(
+                                                                              style: TextStyle(
+                                                                                  color: Colors.black,
+                                                                                  fontSize: 13.sp),
+                                                                              controller:
+                                                                                  controller.quantityText,
+                                                                              keyboardType:
+                                                                                  TextInputType.numberWithOptions(decimal: true),
+                                                                              inputFormatters: [
+                                                                                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                                                                              ],
+                                                                              decoration:
+                                                                                  InputDecoration(
+                                                                                hintText:
+                                                                                    "Enter Quantity",
+                                                                                border: OutlineInputBorder(
+                                                                                    borderRadius: BorderRadius.circular(5),
+                                                                                    borderSide: const BorderSide(
+                                                                                      color: Color(0xffe9e7ea),
+                                                                                    )),
+                                                                                focusedBorder:
+                                                                                    OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
+                                                                                enabledBorder:
+                                                                                    OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
+                                                                                errorBorder:
+                                                                                    OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
+                                                                                disabledBorder:
+                                                                                    OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
+                                                                              ),
+                                                                              onChanged:
+                                                                                  (value) {
+                                                                                dialogSetState(() {});
+                                                                              },
+                                                                            ),
+                                                                            SizedBox(
+                                                                                height:
+                                                                                    0.5.h),
+                                                                            AppText(
+                                                                              controller.quantityText.text.isEmpty || double.tryParse(controller.quantityText.text) == null || double.parse(controller.quantityText.text) <= 0
+                                                                                  ? "Quantity can't be 0"
+                                                                                  : double.tryParse(controller.quantityText.text) != null && 
+                                                                                    double.tryParse(controller.productList[index].stock?.toString() ?? "0") != null &&
+                                                                                    double.parse(controller.quantityText.text) > double.parse(controller.productList[index].stock.toString())
+                                                                                      ? "Quantity can't be greater than In Stock"
+                                                                                      : "",
+                                                                              color:
+                                                                                  AppColors.darkRedColor,
+                                                                            ),
+                                                                            SizedBox(
+                                                                                height:
+                                                                                    2.h),
+                                                                            AppButton(
+                                                                                title:
+                                                                                    "Save",
+                                                                                onTap:
+                                                                                    () {
+                                                                                  controller.isAddedData.value = true;
+
+                                                                                  // Only unit logic:
+                                                                                  if (controller.quantityText.text.isEmpty || double.tryParse(controller.quantityText.text) == null || double.parse(controller.quantityText.text) <= 0) {
+                                                                                    controller.productList[index].isWrongData = true;
+                                                                                  } else if (double.parse(controller.quantityText.text) > double.parse(controller.productList[index].stock.toString())) {
+                                                                                    controller.productList[index].isWrongData = true;
+                                                                                  } else {
+                                                                                    controller.productList[index].isWrongData = false;
+                                                                                  }
+                                                                                  controller.update();
+                                                                                  if (controller.productList[index].isWrongData != true) {
+                                                                                    // Update cart button based on all products
+                                                                                    controller.isAddToCartButton.value = controller.productList.any((p) => (p.quantityCount ?? "0") != "0");
+                                                                                    Get.back(result: controller.quantityText.text);
+                                                                                  }
+                                                                                }),
+                                                                          ],
+                                                                        )),
+                                                                    );
+                                                              }),
+                                                                ).then((value) {
+                                                                  print(value);
+                                                                  if (value !=
+                                                                      null) {
+                                                                    controller
+                                                                        .productList[
+                                                                            index]
+                                                                        .quantityCount = value;
+                                                                    controller
+                                                                        .update();
+                                                                  }
+                                                                });
+                                                              },
+                                                              child: Container(
+                                                                padding: EdgeInsets.symmetric(
+                                                                  horizontal: 6, 
+                                                                  vertical: 4
+                                                                ),
+                                                                decoration: BoxDecoration(
+                                                                  color: AppColors.primaryColor.withValues(alpha: 0.1),
+                                                                  border: Border.all(
+                                                                    color: AppColors.primaryColor.withValues(alpha: 0.5),
+                                                                    width: 1.5,
+                                                                  ),
+                                                                  borderRadius: BorderRadius.circular(6),
+                                                                ),
+                                                                child: Row(
+                                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                                  mainAxisSize: MainAxisSize.min,
+                                                                  children: [
+                                                                    AppText(
+                                                                      controller.productList[index].quantityCount ?? "0",
+                                                                      fontSize: 13.sp,
+                                                                      fontWeight: FontWeight.w600,
+                                                                      color: AppColors.primaryColor,
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          SizedBox(width: 0.5.h),
 
                                                           // PLUS BUTTON
                                                           GestureDetector(
@@ -477,25 +667,27 @@ class OrdersView extends GetView<OrdersController> {
                                                                   controller
                                                                           .productList[
                                                                       index];
-                                                              final qty = int.tryParse(
+                                                              final qty = double.tryParse(
                                                                       product.quantityCount ??
                                                                           "0") ??
-                                                                  0;
+                                                                  0.0;
                                                               final stock =
-                                                                  int.tryParse(product
+                                                                  double.tryParse(product
                                                                               .stock
                                                                               ?.toString() ??
                                                                           "0") ??
-                                                                      0;
+                                                                      0.0;
 
                                                               final nextQty =
                                                                   qty + 1;
 
                                                               if (nextQty <=
                                                                   stock) {
+                                                                // Format: remove unnecessary .0
                                                                 product.quantityCount =
-                                                                    nextQty
-                                                                        .toString();
+                                                                    nextQty == nextQty.toInt() 
+                                                                      ? nextQty.toInt().toString()
+                                                                      : nextQty.toString();
                                                                 controller.isAddToCartButton.value =
                                                                     controller
                                                                         .productList
@@ -512,19 +704,21 @@ class OrdersView extends GetView<OrdersController> {
                                                             child: Container(
                                                               padding:
                                                                   const EdgeInsets
-                                                                      .all(5),
+                                                                      .all(8),
                                                               decoration:
-                                                                  const BoxDecoration(
-                                                                color: Color(
-                                                                    0xffe0e2ea),
-                                                                shape: BoxShape
-                                                                    .circle,
+                                                                  BoxDecoration(
+                                                                color: AppColors.primaryColor.withValues(alpha: 0.1),
+                                                                border: Border.all(
+                                                                  color: AppColors.primaryColor.withValues(alpha: 0.5),
+                                                                  width: 1.5,
+                                                                ),
+                                                                borderRadius: BorderRadius.circular(8),
                                                               ),
                                                               child: const Icon(
                                                                 Icons.add,
-                                                                size: 15,
+                                                                size: 20,
                                                                 color: AppColors
-                                                                    .tableColor,
+                                                                    .primaryColor,
                                                               ),
                                                             ),
                                                           ),
@@ -571,140 +765,9 @@ class OrdersView extends GetView<OrdersController> {
                                                           fontSize: 10.sp,
                                                         ),
                                                       ),
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .bottomRight,
-                                                        child: GestureDetector(
-                                                          onTap: () {
-                                                            controller
-                                                                    .quantityText
-                                                                    .text =
-                                                                controller
-                                                                    .productList[
-                                                                        index]
-                                                                    .quantityCount
-                                                                    .toString();
-                                                            Get.defaultDialog(
-                                                              title:
-                                                                  "Add Quantity",
-                                                              content: StatefulBuilder(
-                                                                  builder: (context,
-                                                                      setState) {
-                                                                return Container(
-                                                                    width: 200,
-                                                                    child:
-                                                                        Column(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .min,
-                                                                      crossAxisAlignment:
-                                                                          CrossAxisAlignment
-                                                                              .start,
-                                                                      children: [
-                                                                        TextFormField(
-                                                                          style: TextStyle(
-                                                                              color: Colors.black,
-                                                                              fontSize: 13.sp),
-                                                                          controller:
-                                                                              controller.quantityText,
-                                                                          keyboardType:
-                                                                              TextInputType.number,
-                                                                          inputFormatters: [
-                                                                            FilteringTextInputFormatter.allow(RegExp('[0-9]')),
-                                                                          ],
-                                                                          decoration:
-                                                                              InputDecoration(
-                                                                            hintText:
-                                                                                "Add Quantity",
-                                                                            border: OutlineInputBorder(
-                                                                                borderRadius: BorderRadius.circular(5),
-                                                                                borderSide: const BorderSide(
-                                                                                  color: Color(0xffe9e7ea),
-                                                                                )),
-                                                                            focusedBorder:
-                                                                                OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
-                                                                            enabledBorder:
-                                                                                OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
-                                                                            errorBorder:
-                                                                                OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
-                                                                            disabledBorder:
-                                                                                OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide(color: AppColors.blackColor)),
-                                                                          ),
-                                                                          onChanged:
-                                                                              (value) {
-                                                                            controller.update();
-                                                                            setState(() {});
-                                                                          },
-                                                                        ),
-                                                                        SizedBox(
-                                                                            height:
-                                                                                0.5.h),
-                                                                        AppText(
-                                                                          controller.quantityText.text.isEmpty || double.tryParse(controller.quantityText.text) == null || double.parse(controller.quantityText.text) <= 0
-                                                                              ? "Quantity can't be 0"
-                                                                              : double.tryParse(controller.quantityText.text) != null && 
-                                                                                double.tryParse(controller.productList[index].stock?.toString() ?? "0") != null &&
-                                                                                double.parse(controller.quantityText.text) > double.parse(controller.productList[index].stock.toString())
-                                                                                  ? "Quantity can't be greater than In Stock"
-                                                                                  : "",
-                                                                          color:
-                                                                              AppColors.darkRedColor,
-                                                                        ),
-                                                                        SizedBox(
-                                                                            height:
-                                                                                2.h),
-                                                                        AppButton(
-                                                                            title:
-                                                                                "Save",
-                                                                            onTap:
-                                                                                () {
-                                                                              controller.isAddedData.value = true;
-
-                                                                              // Only unit logic:
-                                                                              if (controller.quantityText.text.isEmpty || double.tryParse(controller.quantityText.text) == null || double.parse(controller.quantityText.text) <= 0) {
-                                                                                controller.productList[index].isWrongData = true;
-                                                                              } else if (double.parse(controller.quantityText.text) > double.parse(controller.productList[index].stock.toString())) {
-                                                                                controller.productList[index].isWrongData = true;
-                                                                              } else {
-                                                                                controller.productList[index].isWrongData = false;
-                                                                              }
-                                                                              controller.update();
-                                                                              if (controller.productList[index].isWrongData != true) {
-                                                                                // Update cart button based on all products
-                                                                                controller.isAddToCartButton.value = controller.productList.any((p) => (p.quantityCount ?? "0") != "0");
-                                                                                Get.back(result: controller.quantityText.text);
-                                                                              }
-                                                                            }),
-                                                                      ],
-                                                                    ));
-                                                              }),
-                                                            ).then((value) {
-                                                              print(value);
-                                                              if (value !=
-                                                                  null) {
-                                                                controller
-                                                                    .productList[
-                                                                        index]
-                                                                    .quantityCount = value;
-                                                                controller
-                                                                    .update();
-                                                              }
-                                                            });
-                                                          },
-                                                          child: const Icon(
-                                                            Icons.edit,
-                                                            size: 18,
-                                                            color: AppColors
-                                                                .tableColor,
-                                                          ),
-                                                        ),
-                                                      ),
                                                       SizedBox(height: 1.h),
-                                                    ],
-                                                  ),
-                                                ),
-                                                SizedBox(height: 1.h),
-                                              ],
+                                                ],
+                                              ),
                                             ));
                                       },
                                     ),
@@ -807,18 +870,20 @@ class OrdersView extends GetView<OrdersController> {
                                 ],
                               );
                             })
-                          : OrientationBuilder(
+                          : LayoutBuilder(
+                              key: ValueKey('categories_${controller.categoryList.length}'),
                               builder: (BuildContext context,
-                                  Orientation orientation) {
-                                print(
-                                    '🔨 Rendering ${controller.productList.length} product cards');
+                                  BoxConstraints constraints) {
+                                // Responsive grid columns for different screen sizes
+                                final crossAxisCount = constraints.maxWidth > 1200 ? 6  // Large tablets
+                                                     : constraints.maxWidth > 900 ? 5   // Medium tablets
+                                                     : constraints.maxWidth > 600 ? 4   // Small tablets
+                                                     : 2;                                // Phones
+                                
                                 return DynamicHeightGridView(
                                   itemCount: controller.categoryList.length,
                                   physics: const BouncingScrollPhysics(),
-                                  crossAxisCount:
-                                      orientation == Orientation.portrait
-                                          ? 2
-                                          : 4,
+                                  crossAxisCount: crossAxisCount,
                                   builder: (ctx, index) {
                                     return GestureDetector(
                                       onTap: () async {
@@ -850,28 +915,32 @@ class OrdersView extends GetView<OrdersController> {
                                       child: Card(
                                           elevation: 3,
                                           color: AppColors.whiteColor,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                child: Container(
-                                                  height: 25.h,
-                                                  child: CustomImageView(
-                                                    imagePath: controller
-                                                                .categoryList[
-                                                                    index]
-                                                                .imageUrl !=
-                                                            null
-                                                        ? "${Constants.imageBaseUrl}${controller.categoryList[index].imageUrl}"
-                                                        : AppImages.dummy,
-                                                    fit: BoxFit.cover,
+                                          child: SizedBox(
+                                            height: 250, // Fixed card height for categories
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  child: Container(
+                                                    height: 150, // Fixed image height
                                                     width: double.infinity,
+                                                    child: OptimizedNetworkImage(
+                                                      imageUrl: controller
+                                                                  .categoryList[
+                                                                      index]
+                                                                  .imageUrl !=
+                                                              null
+                                                          ? "${Constants.imageBaseUrl}${controller.categoryList[index].imageUrl}"
+                                                          : AppImages.dummy,
+                                                      fit: BoxFit.contain,
+                                                      width: double.infinity,
+                                                      height: 150,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
                                               SizedBox(height: 1.h),
                                               Padding(
                                                 padding: EdgeInsets.symmetric(
@@ -887,7 +956,8 @@ class OrdersView extends GetView<OrdersController> {
                                                             .categoryList[index]
                                                             .name
                                                             .toString(),
-                                                        maxLines: 10,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow.ellipsis,
                                                         fontSize: 12.sp,
                                                       ),
                                                     ),
@@ -901,7 +971,8 @@ class OrdersView extends GetView<OrdersController> {
                                                 ),
                                               ),
                                               SizedBox(height: 1.h),
-                                            ],
+                                              ],
+                                            ),
                                           )),
                                     );
                                   },
@@ -911,8 +982,10 @@ class OrdersView extends GetView<OrdersController> {
                     ),
                   )
           ],
+        ),
         );
       },
+      ),
     );
   }
 }

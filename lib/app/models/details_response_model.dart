@@ -103,10 +103,10 @@ class GetDetailsData {
   final String? subCategoryName;
 
   final String? categoryName;
-  final int? quantity;
+  final dynamic quantity;
   final String? productName;
   final int? isBox;
-  final int? price;
+  final dynamic price;
   final String? customerName;
 
   GetDetailsData({
@@ -256,10 +256,10 @@ class GetDetailsData {
         deliveryPic = json['delivery_pic'],
         subCategoryName = json['sub_category_name'] as String?,
         categoryName = json['category_name'] as String?,
-        quantity = json['quantity'] as int?,
+        quantity = json['quantity'],
         productName = json['product_name'] as String?,
         isBox = json['is_box'] as int?,
-        price = json['price'] as int?,
+        price = json['price'],
         customerName = json['customer_name'] as String?,
         cartDetails = (json['cart_details'] as List?)?.map((dynamic e) => CartDetails.fromJson(e as Map<String, dynamic>)).toList(),
         salesManager = (json['sales_manager'] as Map<String, dynamic>?) != null ? SalesManager.fromJson(json['sales_manager'] as Map<String, dynamic>) : null,

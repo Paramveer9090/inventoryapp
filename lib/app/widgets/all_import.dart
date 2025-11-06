@@ -28,6 +28,7 @@ export 'package:true_leaf_inventory_app/app/widgets/custom_dropdown_search.dart'
 export 'package:true_leaf_inventory_app/app/widgets/custom_search_bar.dart';
 export 'package:true_leaf_inventory_app/app/widgets/custom_table.dart';
 export 'package:true_leaf_inventory_app/app/widgets/custom_table_cell_action_buttons.dart';
+export 'package:true_leaf_inventory_app/app/utils/image_cache_config.dart';
 
 /// Controller
 export 'package:true_leaf_inventory_app/app/modules/home/controllers/home_controller.dart';

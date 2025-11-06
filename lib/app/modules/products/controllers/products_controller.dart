@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -17,6 +18,7 @@ class ProductsController extends GetxController {
   var categoryType = "".obs;
   var subCategoryType = "".obs;
   var id = "".obs;
+  var descriptionText = "".obs; // holds description_invoice/description fallback for routing to details
 
   // Selection and UI state
   var selectedProducts = <GetDataListResponseData>[].obs;
@@ -82,31 +84,57 @@ class ProductsController extends GetxController {
     update();
   }
 
-  /// Search
+  /// Improved search with better performance and relevance ranking
   search({required String text}) async {
-    if (text.trim().isEmpty) {
+    // Trim whitespace from search text
+    final searchText = text.trim();
+    
+    if (searchText.isEmpty) {
       productList = filterList; // filterList already contains only products with stock
       noData.value = "";
     } else {
-      List<GetDataListResponseData> tempList = [];
-      for (int i = 0; i < filterList.length; i++) {
-        // filterList already contains only products with stock > 0
-        if (filterList[i]
-                .name
-                .toString()
-                .toLowerCase()
-                .contains(text.toLowerCase()) ||
-            filterList[i]
-                .categoryType!
-                .toLowerCase()
-                .contains(text.toLowerCase()) ||
-            filterList[i]
-                .subCategoryType!
-                .toLowerCase()
-                .contains(text.toLowerCase())) {
-          tempList.add(filterList[i]);
-        }
-      }
+      // Convert search text to lowercase once for efficiency
+      final searchLower = searchText.toLowerCase();
+      
+      // Use where() instead of loop for better performance
+      List<GetDataListResponseData> tempList = filterList.where((product) {
+        // Search in product name
+        final nameMatch = product.name?.toLowerCase().contains(searchLower) ?? false;
+        
+        // Search in category type
+        final categoryMatch = product.categoryType?.toLowerCase().contains(searchLower) ?? false;
+        
+        // Search in sub-category type
+        final subCategoryMatch = product.subCategoryType?.toLowerCase().contains(searchLower) ?? false;
+        
+        // Search in product ID (for quick lookup by ID)
+        final idMatch = product.id?.toString().contains(searchText) ?? false;
+        
+        // Search in description if available
+        final descriptionMatch = product.description?.toLowerCase().contains(searchLower) ?? false;
+        
+        // Return true if any field matches
+        return nameMatch || categoryMatch || subCategoryMatch || idMatch || descriptionMatch;
+      }).toList();
+      
+      // Sort results by relevance: exact matches first, then starts-with, then contains
+      tempList.sort((a, b) {
+        final aName = a.name?.toLowerCase() ?? '';
+        final bName = b.name?.toLowerCase() ?? '';
+        
+        // Exact name matches come first (highest priority)
+        if (aName == searchLower && bName != searchLower) return -1;
+        if (bName == searchLower && aName != searchLower) return 1;
+        
+        // Then matches that start with the search text
+        final aStartsWith = aName.startsWith(searchLower);
+        final bStartsWith = bName.startsWith(searchLower);
+        if (aStartsWith && !bStartsWith) return -1;
+        if (bStartsWith && !aStartsWith) return 1;
+        
+        // Otherwise maintain original order
+        return 0;
+      });
       
       // Set noData message only after checking all items
       if (tempList.isEmpty) {
@@ -264,7 +292,7 @@ class ProductsController extends GetxController {
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
                 logoBytes != null
-                    ? pw.Image(pw.MemoryImage(logoBytes), width: 60, height: 60)
+                    ? pw.Image(pw.MemoryImage(logoBytes), width: 60, height: 60, fit: pw.BoxFit.contain)
                     : pw.Container(),
                 pw.Text(
                   'Selected Products Export',
@@ -289,7 +317,7 @@ class ProductsController extends GetxController {
         build: (context) => [
           pw.SizedBox(height: 20),
           pw.Text(
-            'Exported on: ${DateTime.now().toString().split('.')[0]}',
+            'Exported on: ${DateFormat('dd MMM yyyy').format(DateTime.now())}',
             style: const pw.TextStyle(fontSize: 12),
           ),
           pw.Text(
@@ -304,10 +332,8 @@ class ProductsController extends GetxController {
             columnWidths: {
               0: const pw.FlexColumnWidth(1),
               1: const pw.FlexColumnWidth(3),
-              2: const pw.FlexColumnWidth(2),
-              3: const pw.FlexColumnWidth(2),
-              4: const pw.FlexColumnWidth(1.5),
-              5: const pw.FlexColumnWidth(1.5),
+              2: const pw.FlexColumnWidth(4),
+              3: const pw.FlexColumnWidth(1.5),
             },
             children: [
               // Header row
@@ -335,15 +361,7 @@ class ProductsController extends GetxController {
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
                     child: pw.Text(
-                      'Category',
-                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                      textAlign: pw.TextAlign.center,
-                    ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text(
-                      'Sub Category',
+                      'Description',
                       style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                       textAlign: pw.TextAlign.center,
                     ),
@@ -352,14 +370,6 @@ class ProductsController extends GetxController {
                     padding: const pw.EdgeInsets.all(8),
                     child: pw.Text(
                       'Price (\$)',
-                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                      textAlign: pw.TextAlign.center,
-                    ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text(
-                      'Stock',
                       style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                       textAlign: pw.TextAlign.center,
                     ),
@@ -388,31 +398,14 @@ class ProductsController extends GetxController {
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(6),
                     child: pw.Text(
-                      product.categoryType ?? 'No Category',
-                      textAlign: pw.TextAlign.center,
-                      style: const pw.TextStyle(fontSize: 10),
-                    ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(6),
-                    child: pw.Text(
-                      product.subCategoryType ?? 'No Sub-Category',
-                      textAlign: pw.TextAlign.center,
-                      style: const pw.TextStyle(fontSize: 10),
+                      product.descriptionInvoice ?? product.description ?? 'No description',
+                      style: const pw.TextStyle(fontSize: 9),
                     ),
                   ),
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(6),
                     child: pw.Text(
                       '${product.sellingPrice ?? 0}',
-                      textAlign: pw.TextAlign.center,
-                      style: const pw.TextStyle(fontSize: 10),
-                    ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(6),
-                    child: pw.Text(
-                      '${product.stock ?? 0}',
                       textAlign: pw.TextAlign.center,
                       style: const pw.TextStyle(fontSize: 10),
                     ),

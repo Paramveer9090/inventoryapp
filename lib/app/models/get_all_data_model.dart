@@ -71,6 +71,8 @@ class GetDataListResponseData {
   String? date;
   dynamic quantityCount;
   String? description;
+  String? descriptionInvoice;
+  String? descriptionWebsite;
   final dynamic productId;
   dynamic isUnitSelected;
   final dynamic addedById;
@@ -132,7 +134,7 @@ class GetDataListResponseData {
   final int? orderPaid;
   final List<Roles>? roles;
   final dynamic price;
-  int? quantity;
+  dynamic quantity;
   int? isBox;
 
   GetDataListResponseData({
@@ -174,6 +176,8 @@ class GetDataListResponseData {
     this.date,
     this.delivery_note,
     this.description,
+    this.descriptionInvoice,
+    this.descriptionWebsite,
     this.productId,
     this.addedById,
     this.product,
@@ -268,6 +272,8 @@ class GetDataListResponseData {
         number = json['number'] as int?,
         date = json['date'] as String?,
         description = json['description'] as String?,
+        descriptionInvoice = json['description_invoice'] as String?,
+        descriptionWebsite = json['description_website'] as String?,
         productId = json['product_id'],
         addedById = json['added_by_id'],
         supplierName = json['supplier_name'] as String?,
@@ -316,7 +322,7 @@ class GetDataListResponseData {
         orderPending = json['order_pending'],
         emailVerifiedAt = json['email_verified_at'],
         price = json['price'],
-        quantity = json['quantity'] as int?,
+        quantity = json['quantity'],
         isBox = json['is_box'] ?? 1,
         roles = (json['roles'] as List?)?.map((dynamic e) => Roles.fromJson(e as Map<String, dynamic>)).toList(),
         supplier = (json['supplier'] as Map<String, dynamic>?) != null ? Supplier.fromJson(json['supplier'] as Map<String, dynamic>) : null,
@@ -364,6 +370,8 @@ class GetDataListResponseData {
         'number': number,
         'date': date,
         'description': description,
+        'description_invoice': descriptionInvoice,
+        'description_website': descriptionWebsite,
         'product_id': productId,
         'added_by_id': addedById,
         'product': product?.toJson(),

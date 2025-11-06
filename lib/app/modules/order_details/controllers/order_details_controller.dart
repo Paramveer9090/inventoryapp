@@ -3,10 +3,12 @@ import 'dart:ui' as ui;
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 class OrderDetailsController extends GetxController {
@@ -356,6 +358,11 @@ class OrderDetailsController extends GetxController {
 
       // Load delivery agents after order details are loaded
       loadDeliveryAgents();
+      
+      // Initialize comments field with order notes
+      if (getDetailsData?.comments != null && getDetailsData!.comments.toString().isNotEmpty) {
+        comments.text = getDetailsData!.comments.toString();
+      }
 
       /// count
 
@@ -522,7 +529,7 @@ class OrderDetailsController extends GetxController {
     if (categoryList.isNotEmpty) {
       try {
         String rawData =
-            '{"sales_manager_id": "${getDetailsData!.salesManagerId}","customer_id": "${getDetailsData!.customerId}","delivery_agent_id": "${getDetailsData!.deliveryAgentId ?? ""}","item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${getDetailsData!.orderTotalWithoutTax},"order_tax": ${getDetailsData!.orderTax},"discount_type": ${getDetailsData!.discountType},"extra_discount": "${getDetailsData!.extraDiscount}","order_total": "${getDetailsData!.orderTotal}","comment": ${jsonEncode(commentList)},"comments": "${comments.text}","delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${signImage.value.isNotEmpty ? signImage.value : getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${getDetailsData!.orderDate!.split(".").first}","delivery_pic":"${fileURL.value}"}';
+            '{"sales_manager_id": "${getDetailsData!.salesManagerId}","customer_id": "${getDetailsData!.customerId}","delivery_agent_id": "${getDetailsData!.deliveryAgentId ?? ""}","item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${getDetailsData!.orderTotalWithoutTax},"order_tax": ${getDetailsData!.orderTax},"discount_type": ${getDetailsData!.discountType},"extra_discount": "${getDetailsData!.extraDiscount}","order_total": "${getDetailsData!.orderTotal}","comment": ${jsonEncode(commentList)},"comments": ${jsonEncode(comments.text)},"delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${signImage.value.isNotEmpty ? signImage.value : getDetailsData!.customerSign}","status": "${getDetailsData!.status}","order_date":"${getDetailsData!.orderDate!.split(".").first}","delivery_pic":"${fileURL.value}"}';
 
         final data = await APIFunction().apiCall(
           apiName: "${Constants.orders}/${id}",
@@ -595,48 +602,172 @@ class OrderDetailsController extends GetxController {
   }
 
   Future<Uint8List> generateInvoicePdf() async {
+    print('🔍 Generating invoice PDF...');
+    print('� Order ID: ${getDetailsData?.id}');
+    print('�📦 Order items count: ${orderItem.length}');
+    print('💰 Order total: ${getDetailsData?.orderTotal}');
+    print('👤 Customer: ${getDetailsData?.customer?.name}');
+    print('📊 getDetailsData is null: ${getDetailsData == null}');
+    print('📊 orderItem is empty: ${orderItem.isEmpty}');
+    
+    // Check if data is loaded
+    if (getDetailsData == null) {
+      print('❌ ERROR: getDetailsData is null! Cannot generate PDF.');
+      Get.snackbar(
+        "Error",
+        "Order data not loaded. Please wait and try again.",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+      throw Exception('Order data not loaded');
+    }
+    
+    if (orderItem.isEmpty) {
+      print('⚠️ WARNING: Order has no items!');
+    }
+    
     final pdf = pw.Document();
-    final logo = pw.MemoryImage(
-      (await rootBundle.load('assets/images/logo.png')).buffer.asUint8List(),
-    );
+    
+    // Load logo, fallback to placeholder if not found
+    pw.MemoryImage? logo;
+    try {
+      logo = pw.MemoryImage(
+        (await rootBundle.load('assets/images/logo.png')).buffer.asUint8List(),
+      );
+      print('✅ Logo loaded successfully');
+    } catch (e) {
+      print('⚠️ Logo not found, continuing without it: $e');
+    }
 
     pdf.addPage(
-      pw.Page(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: pw.EdgeInsets.all(40),
         build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Row(
+          return [
+            // Header with logo and customer info
+            pw.Container(
+              padding: pw.EdgeInsets.only(bottom: 20),
+              decoration: pw.BoxDecoration(
+                border: pw.Border(bottom: pw.BorderSide(color: PdfColors.black, width: 2)),
+              ),
+              child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
-                  pw.Image(logo, width: 80),
-                  pw.Text('INVOICE',
-                      style: pw.TextStyle(
-                          fontSize: 32, fontWeight: pw.FontWeight.bold)),
+                  if (logo != null)
+                    pw.Image(logo, width: 80, height: 80, fit: pw.BoxFit.contain)
+                  else
+                    pw.Container(width: 80, height: 80, color: PdfColors.grey200),
+                  pw.Expanded(
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                      children: [
+                        pw.Text(
+                          getDetailsData?.customer?.name?.toString() ?? 'Customer',
+                          style: pw.TextStyle(
+                            fontSize: 22, 
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.black,
+                          ),
+                          textAlign: pw.TextAlign.right,
+                          maxLines: 2,
+                        ),
+                        pw.SizedBox(height: 4),
+                        pw.Text(
+                          'Order #${getDetailsData?.id?.toString() ?? "N/A"}',
+                          style: pw.TextStyle(
+                            fontSize: 16, 
+                            color: PdfColors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-              pw.SizedBox(height: 16),
+            ),
+            pw.SizedBox(height: 16),
+              
+              // Invoice details
               pw.Text(
-                  'Company: ${getDetailsData?.customer?.companyName ?? ""}'),
-              pw.Text(
-                  'Contact: ${getDetailsData?.customer?.contactName ?? ""}'),
-              pw.Text('Customer: ${getDetailsData?.customer?.name ?? ""}'),
-              pw.Divider(),
-              pw.Text('Order Items:',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-              pw.TableHelper.fromTextArray(
-                headers: ['Product', 'Qty', 'Price', 'Tax', 'Total'],
-                data: orderItem
-                    .map((item) => [
-                          item.name ?? '',
-                          item.quantityCount?.toString() ?? '',
-                          '\$${item.salePrice ?? ''}',
-                          '${item.tax ?? ''}%',
-                          '\$${item.finalAmount ?? ''}',
-                        ])
-                    .toList(),
+                'Invoice Date: ${DateFormat('dd MMM yyyy').format(DateTime.now())}',
+                style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
               ),
-              pw.Divider(),
+              pw.SizedBox(height: 8),
+              pw.Text(
+                'Company: ${getDetailsData?.customer?.companyName ?? "N/A"}',
+                style: pw.TextStyle(fontSize: 11, color: PdfColors.black),
+              ),
+              pw.Text(
+                'Contact: ${getDetailsData?.customer?.contactName ?? "N/A"}',
+                style: pw.TextStyle(fontSize: 11, color: PdfColors.black),
+              ),
+              
+              pw.SizedBox(height: 16),
+              pw.Divider(thickness: 2, color: PdfColors.black),
+              pw.SizedBox(height: 8),
+              
+              // Order items title
+              pw.Text(
+                'Order Items:',
+                style: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold, 
+                  fontSize: 14,
+                  color: PdfColors.black,
+                ),
+              ),
+              pw.SizedBox(height: 8),
+              
+              // Items table
+              pw.TableHelper.fromTextArray(
+                border: pw.TableBorder.all(color: PdfColors.black, width: 1),
+                headerStyle: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold, 
+                  fontSize: 10,
+                  color: PdfColors.black,
+                ),
+                cellStyle: pw.TextStyle(
+                  fontSize: 10,
+                  color: PdfColors.black,
+                ),
+                headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
+                cellHeight: 30,
+                cellAlignments: {
+                  0: pw.Alignment.centerLeft,
+                  1: pw.Alignment.center,
+                  2: pw.Alignment.centerRight,
+                  3: pw.Alignment.center,
+                  4: pw.Alignment.centerRight,
+                },
+                headers: ['Product', 'Qty', 'Price', 'Tax', 'Total'],
+                data: orderItem.isEmpty 
+                  ? [['No items in this order', '', '', '', '']]
+                  : orderItem.map((item) {
+                      print('📄 Adding item: ${item.name} - Qty: ${item.quantityCount}');
+                      
+                      // Format prices to 2 decimal places
+                      String formatPrice(dynamic price) {
+                        if (price == null) return '0.00';
+                        double priceValue = double.tryParse(price.toString()) ?? 0.0;
+                        return priceValue.toStringAsFixed(2);
+                      }
+                      
+                      return [
+                        item.name?.toString() ?? 'N/A',
+                        item.quantityCount?.toString() ?? '0',
+                        '\$${formatPrice(item.salePrice)}',
+                        '${item.tax?.toString() ?? "0"}%',
+                        '\$${formatPrice(item.finalAmount)}',
+                      ];
+                    }).toList(),
+              ),
+              
+              pw.SizedBox(height: 16),
+              pw.Divider(thickness: 2),
+              pw.SizedBox(height: 8),
+              
+              // Totals section
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.end,
                 children: [
@@ -644,67 +775,224 @@ class OrderDetailsController extends GetxController {
                     crossAxisAlignment: pw.CrossAxisAlignment.end,
                     children: [
                       pw.Text(
-                          'Total: \$${getDetailsData?.orderTotalWithoutTax ?? ""}'),
+                        'Subtotal: \$${(double.tryParse(getDetailsData?.orderTotalWithoutTax?.toString() ?? "0") ?? 0.0).toStringAsFixed(2)}',
+                        style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
+                      ),
+                      pw.SizedBox(height: 4),
                       pw.Text(
-                          'Taxes & charges: \$${getDetailsData?.orderTax ?? ""}'),
-                      pw.Text(
-                          'Grand Total: \$${getDetailsData?.orderTotal ?? ""}',
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        'Taxes & charges: \$${(double.tryParse(getDetailsData?.orderTax?.toString() ?? "0") ?? 0.0).toStringAsFixed(2)}',
+                        style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
+                      ),
+                      pw.SizedBox(height: 8),
+                      pw.Container(
+                        padding: pw.EdgeInsets.all(8),
+                        decoration: pw.BoxDecoration(
+                          color: PdfColors.grey300,
+                          borderRadius: pw.BorderRadius.circular(4),
+                        ),
+                        child: pw.Text(
+                          'Grand Total: \$${(double.tryParse(getDetailsData?.orderTotal?.toString() ?? "0") ?? 0.0).toStringAsFixed(2)}',
+                          style: pw.TextStyle(
+                            fontWeight: pw.FontWeight.bold, 
+                            fontSize: 14,
+                            color: PdfColors.black,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
-            ],
-          );
+              
+              // Notes section if available
+              if (getDetailsData?.comments != null && 
+                  getDetailsData!.comments.toString().trim().isNotEmpty &&
+                  getDetailsData!.comments.toString() != 'null')
+                ...[
+                  pw.SizedBox(height: 20),
+                  pw.Divider(color: PdfColors.black),
+                  pw.Text(
+                    'Notes:',
+                    style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold, 
+                      fontSize: 14,
+                      color: PdfColors.black,
+                    ),
+                  ),
+                  pw.SizedBox(height: 8),
+                  pw.Text(
+                    getDetailsData!.comments.toString(),
+                    style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
+                  ),
+                ],
+          ];
         },
       ),
     );
 
+    print('✅ Invoice PDF generated successfully');
     return pdf.save();
   }
   
   Future<Uint8List> generatePackagingSlipPdf() async {
     final pdf = pw.Document();
-    final logo = pw.MemoryImage(
-      (await rootBundle.load('assets/images/logo.png')).buffer.asUint8List(),
-    );
+    
+    // Load logo, fallback to placeholder if not found
+    pw.MemoryImage? logo;
+    try {
+      logo = pw.MemoryImage(
+        (await rootBundle.load('assets/images/logo.png')).buffer.asUint8List(),
+      );
+    } catch (e) {
+      print('Logo not found, continuing without it: $e');
+    }
 
     pdf.addPage(
-      pw.Page(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: pw.EdgeInsets.all(40),
         build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Row(
+          return [
+            // Header with logo and customer info
+            pw.Container(
+              padding: pw.EdgeInsets.only(bottom: 20),
+              decoration: pw.BoxDecoration(
+                border: pw.Border(bottom: pw.BorderSide(color: PdfColors.black, width: 2)),
+              ),
+              child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
-                  pw.Image(logo, width: 80),
-                  pw.Text('PACKAGING SLIP',
-                      style: pw.TextStyle(
-                          fontSize: 28, fontWeight: pw.FontWeight.bold)),
+                  if (logo != null)
+                    pw.Image(logo, width: 80, height: 80, fit: pw.BoxFit.contain)
+                  else
+                    pw.Container(width: 80, height: 80, color: PdfColors.grey200),
+                  pw.Expanded(
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                      children: [
+                        pw.Text(
+                          getDetailsData?.customer?.name?.toString() ?? 'Customer',
+                          style: pw.TextStyle(
+                            fontSize: 22, 
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.black,
+                          ),
+                          textAlign: pw.TextAlign.right,
+                          maxLines: 2,
+                        ),
+                        pw.SizedBox(height: 4),
+                        pw.Text(
+                          'Order #${getDetailsData?.id?.toString() ?? "N/A"}',
+                          style: pw.TextStyle(
+                            fontSize: 16, 
+                            color: PdfColors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-              pw.SizedBox(height: 16),
-              pw.Text('Customer: ${getDetailsData?.customer?.name ?? ""}'),
-              pw.Text('Order ID: ${getDetailsData?.id ?? ""}'),
-              pw.Text('Order Date: ${getDetailsData?.orderDate ?? ""}'),
-              pw.Divider(),
-              pw.Text('Items to Pack:',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-              pw.TableHelper.fromTextArray(
-                headers: ['Product', 'Qty'],
-                data: orderItem
-                    .map((item) => [
-                          item.name ?? '',
-                          item.quantityCount?.toString() ?? '',
-                        ])
-                    .toList(),
+            ),
+            pw.SizedBox(height: 16),
+              
+            
+            // Packaging slip details
+            pw.Text(
+              'Packaging Date: ${DateFormat('dd MMM yyyy').format(DateTime.now())}',
+              style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
+            ),
+            pw.SizedBox(height: 8),
+            pw.Text(
+              'Company: ${getDetailsData?.customer?.companyName ?? "N/A"}',
+              style: pw.TextStyle(fontSize: 11, color: PdfColors.black),
+            ),
+            pw.Text(
+              'Order Date: ${getDetailsData?.orderDate ?? "N/A"}',
+              style: pw.TextStyle(fontSize: 11, color: PdfColors.black),
+            ),
+            
+            pw.SizedBox(height: 16),
+            pw.Divider(thickness: 2, color: PdfColors.black),
+            pw.SizedBox(height: 8),
+            
+            // Items to pack title
+            pw.Text(
+              'Items to Pack:',
+              style: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold, 
+                fontSize: 14,
+                color: PdfColors.black,
               ),
-              pw.SizedBox(height: 32),
-              pw.Text('Please ensure all items are packed and checked.',
-                  style: pw.TextStyle(fontSize: 14)),
-            ],
-          );
+            ),
+            pw.SizedBox(height: 8),
+            
+            // Items table
+            pw.TableHelper.fromTextArray(
+              border: pw.TableBorder.all(color: PdfColors.black, width: 1),
+              headerStyle: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold, 
+                fontSize: 12,
+                color: PdfColors.black,
+              ),
+              cellStyle: pw.TextStyle(
+                fontSize: 12,
+                color: PdfColors.black,
+              ),
+              headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
+              cellHeight: 40,
+              cellAlignments: {
+                0: pw.Alignment.centerLeft,
+                1: pw.Alignment.center,
+              },
+              headers: ['Product', 'Quantity'],
+              data: orderItem.map((item) {
+                return [
+                  item.name?.toString() ?? 'N/A',
+                  item.quantityCount?.toString() ?? '0',
+                ];
+              }).toList(),
+            ),
+            
+            pw.SizedBox(height: 32),
+              pw.Container(
+                padding: pw.EdgeInsets.all(12),
+                decoration: pw.BoxDecoration(
+                  color: PdfColors.grey200,
+                  borderRadius: pw.BorderRadius.circular(4),
+                ),
+                child: pw.Text(
+                  'Please ensure all items are packed and checked.',
+                  style: pw.TextStyle(
+                    fontSize: 14, 
+                    fontStyle: pw.FontStyle.italic,
+                    color: PdfColors.black,
+                  ),
+                ),
+              ),
+              
+              // Notes section if available
+              if (getDetailsData?.comments != null && 
+                  getDetailsData!.comments.toString().trim().isNotEmpty &&
+                  getDetailsData!.comments.toString() != 'null')
+                ...[
+                  pw.SizedBox(height: 20),
+                  pw.Divider(color: PdfColors.black),
+                  pw.Text(
+                    'Notes:',
+                    style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold, 
+                      fontSize: 14,
+                      color: PdfColors.black,
+                    ),
+                  ),
+                  pw.SizedBox(height: 8),
+                  pw.Text(
+                    getDetailsData!.comments.toString(),
+                    style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
+                  ),
+                ],
+          ];
         },
       ),
     );

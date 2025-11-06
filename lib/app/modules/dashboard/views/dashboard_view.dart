@@ -415,12 +415,17 @@ class _OrderCard extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            AppText(
-                              'Order #${order.payment?.orderNumber ?? 'N/A'}',
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.blackColor,
+                            Expanded(
+                              child: AppText(
+                                order.customer?.name ?? 'Unknown Customer',
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.blackColor,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
+                            SizedBox(width: 0.5.h),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
@@ -438,7 +443,7 @@ class _OrderCard extends StatelessWidget {
                         ),
                         SizedBox(height: 0.5.h),
                         AppText(
-                          order.customer?.name ?? 'Unknown Customer',
+                          'Order #${order.payment?.orderNumber ?? 'N/A'}',
                           fontSize: 12.sp,
                           color: Colors.grey[600]!,
                         ),

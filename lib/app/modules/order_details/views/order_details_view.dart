@@ -2,7 +2,6 @@ import 'package:printing/printing.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 import 'package:true_leaf_inventory_app/app/widgets/app_button.dart';
-import 'package:true_leaf_inventory_app/app/widgets/custom_image.dart';
 import '../controllers/order_details_controller.dart';
 
 class OrderDetailsView extends GetView<OrderDetailsController> {
@@ -416,14 +415,15 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                     width: 100,
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(15),
-                                      child: CustomImageView(
-                                        imagePath: controller.orderItem[index]
+                                      child: OptimizedNetworkImage(
+                                        imageUrl: controller.orderItem[index]
                                                     .imageUrl !=
                                                 null
                                             ? "${Constants.imageBaseUrl}${controller.orderItem[index].imageUrl}"
                                             : AppImages.dummy,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
+                                        fit: BoxFit.contain,
+                                        width: 100,
+                                        height: 100,
                                       ),
                                     ),
                                   ),
@@ -438,6 +438,18 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                               .toString(),
                                           fontSize: 15.sp,
                                         ),
+                                        if (controller.orderItem[index].descriptionInvoice != null &&
+                                            controller.orderItem[index].descriptionInvoice!.isNotEmpty)
+                                          Padding(
+                                            padding: EdgeInsets.only(top: 0.5.h),
+                                            child: AppText(
+                                              controller.orderItem[index].descriptionInvoice.toString(),
+                                              fontSize: 11.sp,
+                                              color: Colors.grey[600],
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
                                         GestureDetector(
                                           onTap: () {
                                             controller.sellingPriceText.text =
@@ -745,189 +757,6 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                         SizedBox(height: 1.h),
                                         Row(
                                           children: [
-                                            ...List.generate(
-                                              2,
-                                              (subIndex) => Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 2.h),
-                                                child: GestureDetector(
-                                                  onTap: () async {
-                                                    var amountTax;
-                                                    var amount;
-                                                    if (Get.find<
-                                                                HomeController>()
-                                                            .isOrderDetails
-                                                            .value &&
-                                                        Get.find<
-                                                                HomeController>()
-                                                            .isOrderEdit
-                                                            .value) {
-                                                      controller
-                                                          .orderItem[index]
-                                                          .isBox = subIndex;
-                                                      controller
-                                                              .orderItem[index]
-                                                              .isUnitSelected =
-                                                          subIndex;
-
-                                                      /// working on it
-                                                      // if (await controller.orderItem[index].isBox == 1) {
-                                                      //   amountTax = (((double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
-                                                      //       double.parse(controller.orderItem[index].salePrice!.toString())) *
-                                                      //       double.parse(controller.orderItem[index].tax.toString())) /
-                                                      //       100;
-                                                      //   amount = (double.parse(controller.orderItem[index].boxSize.toString()) * double.parse(controller.orderItem[index].quantityCount!.toString())) *
-                                                      //       double.parse(controller.orderItem[index].salePrice!.toString());
-                                                      //   controller.orderItem[index].amountWithoutTax = amount.toString();
-                                                      //   controller.orderItem[index].amountOnlyTax = amountTax.toString();
-                                                      //   controller.orderItem[index].finalAmount = (amount + amountTax).toString();
-                                                      // } else {
-                                                      amountTax = ((double.parse(controller
-                                                                      .orderItem[
-                                                                          index]
-                                                                      .quantityCount
-                                                                      .toString()) *
-                                                                  double.parse(controller
-                                                                      .orderItem[
-                                                                          index]
-                                                                      .salePrice
-                                                                      .toString())) *
-                                                              double.parse(controller
-                                                                  .orderItem[
-                                                                      index]
-                                                                  .tax
-                                                                  .toString())) /
-                                                          100;
-                                                      amount = (double.parse(
-                                                              controller
-                                                                  .orderItem[
-                                                                      index]
-                                                                  .quantityCount!
-                                                                  .toString())) *
-                                                          double.parse(
-                                                              controller
-                                                                  .orderItem[
-                                                                      index]
-                                                                  .salePrice
-                                                                  .toString());
-                                                      controller
-                                                              .orderItem[index]
-                                                              .amountWithoutTax =
-                                                          amount.toString();
-                                                      controller
-                                                              .orderItem[index]
-                                                              .amountOnlyTax =
-                                                          amountTax.toString();
-                                                      controller
-                                                              .orderItem[index]
-                                                              .finalAmount =
-                                                          (amount + amountTax)
-                                                              .toString();
-                                                      // }
-                                                      controller.update();
-
-                                                      controller.getDetailsData!
-                                                              .orderTotalWithoutTax =
-                                                          (controller.orderItem.fold<
-                                                                  double>(
-                                                              0,
-                                                              (sum, item) =>
-                                                                  sum +
-                                                                  double.parse(item
-                                                                      .amountWithoutTax
-                                                                      .toString()))).toString();
-                                                      controller.getDetailsData!
-                                                          .orderTax = (controller
-                                                              .orderItem
-                                                              .fold<double>(
-                                                                  0,
-                                                                  (sum, item) =>
-                                                                      sum +
-                                                                      double.parse(item
-                                                                          .amountOnlyTax
-                                                                          .toString())))
-                                                          .toString();
-                                                      controller.getDetailsData!
-                                                          .orderTotal = (double
-                                                                  .parse(controller
-                                                                      .getDetailsData!
-                                                                      .orderTotalWithoutTax) +
-                                                              double.parse(controller
-                                                                  .getDetailsData!
-                                                                  .orderTax))
-                                                          .toString();
-
-                                                      controller.update();
-                                                    }
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      Container(
-                                                        height: 15,
-                                                        width: 15,
-                                                        padding:
-                                                            EdgeInsets.all(1.5),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: (controller.orderItem[index].isBox ==
-                                                                          0 &&
-                                                                      subIndex ==
-                                                                          0) ||
-                                                                  (controller.orderItem[index].isBox ==
-                                                                          1 &&
-                                                                      subIndex ==
-                                                                          1)
-                                                              ? AppColors
-                                                                  .tableColor
-                                                              : Color(
-                                                                  0XFF44474d),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(50),
-                                                        ),
-                                                        child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: (controller.orderItem[index].isBox ==
-                                                                            0 &&
-                                                                        subIndex ==
-                                                                            0) ||
-                                                                    (controller.orderItem[index].isBox ==
-                                                                            1 &&
-                                                                        subIndex ==
-                                                                            1)
-                                                                ? AppColors
-                                                                    .tableColor
-                                                                : AppColors
-                                                                    .whiteColor,
-                                                            border: Border.all(
-                                                              color: AppColors
-                                                                  .whiteColor,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        50),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      SizedBox(width: 10),
-                                                      AppText(
-                                                        subIndex == 0
-                                                            ? "Unit"
-                                                            : "Box",
-                                                        fontSize: 12.sp,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 1.h),
-                                        Row(
-                                          children: [
                                             GestureDetector(
                                               onTap: () async {
                                                 var amountTax;
@@ -938,19 +767,19 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                                     Get.find<HomeController>()
                                                         .isOrderEdit
                                                         .value) {
-                                                  if (int.parse(controller
+                                                  if (double.parse(controller
                                                           .orderItem[index]
                                                           .quantityCount
                                                           .toString()) >
-                                                      0) {
+                                                      0.5) {
                                                     controller.orderItem[index]
                                                             .quantityCount =
-                                                        (int.parse(controller
+                                                        (double.parse(controller
                                                                     .orderItem[
                                                                         index]
                                                                     .quantityCount
                                                                     .toString()) -
-                                                                1)
+                                                                0.5)
                                                             .toString();
                                                   }
 
@@ -1071,35 +900,49 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                                 }
                                               },
                                               child: Container(
-                                                padding: EdgeInsets.all(5),
+                                                padding: EdgeInsets.all(8),
                                                 decoration: BoxDecoration(
-                                                  color: Color(0xffe0e2ea),
-                                                  shape: BoxShape.circle,
+                                                  color: AppColors.primaryColor.withValues(alpha: 0.1),
+                                                  border: Border.all(
+                                                    color: AppColors.primaryColor.withValues(alpha: 0.5),
+                                                    width: 1.5,
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(8),
                                                 ),
                                                 child: Icon(
                                                   Icons.remove,
-                                                  size: 15,
-                                                  color: AppColors.tableColor,
+                                                  size: 20,
+                                                  color: AppColors.primaryColor,
                                                 ),
                                               ),
                                             ),
-                                            SizedBox(width: 1.h),
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 1.h,
-                                                  vertical: 1.5.h),
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                    color: Color(0xffe9e7ea),
-                                                  )),
-                                              child: AppText(controller
-                                                  .orderItem[index]
-                                                  .quantityCount
-                                                  .toString()),
+                                            SizedBox(width: 0.5.h),
+                                            Expanded(
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 6,
+                                                    vertical: 4),
+                                                decoration: BoxDecoration(
+                                                    color: AppColors.primaryColor.withValues(alpha: 0.1),
+                                                    border: Border.all(
+                                                      color: AppColors.primaryColor.withValues(alpha: 0.5),
+                                                      width: 1.5,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(6)),
+                                                child: Center(
+                                                  child: AppText(controller
+                                                      .orderItem[index]
+                                                      .quantityCount
+                                                      .toString(),
+                                                      fontSize: 13.sp,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: AppColors.primaryColor,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                            SizedBox(width: 1.h),
+                                            SizedBox(width: 0.5.h),
                                             GestureDetector(
                                               onTap: () async {
                                                 var amountTax;
@@ -1112,12 +955,12 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                                         .value) {
                                                   controller.orderItem[index]
                                                           .quantityCount =
-                                                      await (int.parse(controller
+                                                      await (double.parse(controller
                                                                   .orderItem[
                                                                       index]
                                                                   .quantityCount
                                                                   .toString()) +
-                                                              1)
+                                                              0.5)
                                                           .toString();
 
                                                   amountTax = ((double.parse(controller
@@ -1226,15 +1069,19 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                               },
                                               child: Container(
                                                 padding:
-                                                    const EdgeInsets.all(5),
-                                                decoration: const BoxDecoration(
-                                                  color: Color(0xffe0e2ea),
-                                                  shape: BoxShape.circle,
+                                                    const EdgeInsets.all(8),
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.primaryColor.withValues(alpha: 0.1),
+                                                  border: Border.all(
+                                                    color: AppColors.primaryColor.withValues(alpha: 0.5),
+                                                    width: 1.5,
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(8),
                                                 ),
                                                 child: const Icon(
                                                   Icons.add,
-                                                  size: 15,
-                                                  color: AppColors.tableColor,
+                                                  size: 20,
+                                                  color: AppColors.primaryColor,
                                                 ),
                                               ),
                                             ),
@@ -1257,34 +1104,13 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                                     ),
                                                   )
                                                 : Container(),
-                                          ],
-                                        ),
-                                        SizedBox(height: 1.h),
-                                        CustomTextFormField(
-                                          hintText:
-                                              "Enter your description here",
-                                          label: "Description",
-                                          readOnly: Get.find<HomeController>()
-                                                      .isOrderDetails
-                                                      .value &&
-                                                  Get.find<HomeController>()
-                                                      .isOrderEdit
-                                                      .value
-                                              ? false
-                                              : true,
-                                          controller: controller
-                                              .orderItem[index].comment,
-                                          onChanged: (value) {
-                                            print(value);
-                                            print(controller.orderItem[index]
-                                                .comment!.text);
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
                             ),
                           ),
                         ),
@@ -1307,14 +1133,15 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                     width: 100,
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(15),
-                                      child: CustomImageView(
-                                        imagePath: controller.orderItem[index]
+                                      child: OptimizedNetworkImage(
+                                        imageUrl: controller.orderItem[index]
                                                     .imageUrl !=
                                                 null
                                             ? "${Constants.imageBaseUrl}${controller.orderItem[index].imageUrl}"
                                             : AppImages.dummy,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
+                                        fit: BoxFit.contain,
+                                        width: 100,
+                                        height: 100,
                                       ),
                                     ),
                                   ),
@@ -1399,6 +1226,37 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                   ],
                                 ),
                                 SizedBox(height: 5.h),
+                                // Display Order Notes if available
+                                if (controller.getDetailsData?.comments != null && 
+                                    controller.getDetailsData!.comments.toString().isNotEmpty &&
+                                    controller.getDetailsData!.comments.toString() != 'null')
+                                  ...[
+                                    Divider(),
+                                    AppText(
+                                      "Order Notes",
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14.sp,
+                                      color: AppColors.primaryColor,
+                                    ),
+                                    SizedBox(height: 1.h),
+                                    Container(
+                                      padding: EdgeInsets.all(12),
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.greyColor.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: AppColors.greyColor.withValues(alpha: 0.3),
+                                        ),
+                                      ),
+                                      child: AppText(
+                                        controller.getDetailsData!.comments.toString(),
+                                        fontSize: 13.sp,
+                                        color: Color(0XFF44474d),
+                                      ),
+                                    ),
+                                    SizedBox(height: 5.h),
+                                  ],
                                 Get.find<HomeController>()
                                             .isOrderDetails
                                             .value &&
@@ -1570,6 +1428,20 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                       validator: (value) =>
                                           Validators.requiredEmail(value),
                                     ),
+                                    // Display Order Notes (read-only)
+                                    if (controller.getDetailsData?.comments != null && 
+                                        controller.getDetailsData!.comments.toString().isNotEmpty &&
+                                        controller.getDetailsData!.comments.toString() != 'null')
+                                      ...[
+                                        SizedBox(height: 2.h),
+                                        CustomTextFormField(
+                                          hintText: "No order notes",
+                                          label: "Order Notes",
+                                          initialValue: controller.getDetailsData!.comments.toString(),
+                                          readOnly: true,
+                                          maxLines: 3,
+                                        ),
+                                      ],
                                     SizedBox(height: 5.h),
                                     Row(
                                       children: [
@@ -1620,6 +1492,14 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                 isIcon: true,
                                 icon: Icons.picture_as_pdf,
                                 onTap: () async {
+                                  // Ensure data is loaded before generating PDF
+                                  if (controller.getDetailsData == null || controller.orderItem.isEmpty) {
+                                    print('⏳ Data not loaded yet, refreshing order details...');
+                                    await controller.orderDetails();
+                                    // Wait a bit for the UI to update
+                                    await Future.delayed(Duration(milliseconds: 500));
+                                  }
+                                  
                                   final pdfData =
                                       await controller.generateInvoicePdf();
                                   await Printing.sharePdf(
@@ -1634,6 +1514,14 @@ class OrderDetailsView extends GetView<OrderDetailsController> {
                                 isIcon: true,
                                 icon: Icons.local_shipping,
                                 onTap: () async {
+                                  // Ensure data is loaded before generating PDF
+                                  if (controller.getDetailsData == null || controller.orderItem.isEmpty) {
+                                    print('⏳ Data not loaded yet, refreshing order details...');
+                                    await controller.orderDetails();
+                                    // Wait a bit for the UI to update
+                                    await Future.delayed(Duration(milliseconds: 500));
+                                  }
+                                  
                                   final pdfData = await controller.generatePackagingSlipPdf();
                                   await Printing.sharePdf(bytes: pdfData, filename: 'packaging_slip.pdf');
                                 },

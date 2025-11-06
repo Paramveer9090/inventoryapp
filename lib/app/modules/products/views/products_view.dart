@@ -16,6 +16,7 @@ class ProductsView extends GetView<ProductsController> {
                 id: controller.id.value,
                 categoryName: controller.categoryType.value,
                 subCategoryName: controller.subCategoryType.value,
+                description: controller.descriptionText.value,
               )
             : GestureDetector(
                 onTap: () {
@@ -341,9 +342,17 @@ class ProductsView extends GetView<ProductsController> {
                 controller.productDetails.value = true;
                 Get.find<HomeController>().update();
                 controller.update();
-                controller.id.value = product.id.toString();
-                controller.categoryType.value = product.categoryType ?? '';
-                controller.subCategoryType.value = product.subCategoryType ?? '';
+        controller.id.value = product.id.toString();
+        controller.categoryType.value = product.categoryType ?? '';
+        controller.subCategoryType.value = product.subCategoryType ?? '';
+        controller.descriptionText.value =
+          (product.descriptionInvoice?.toString().trim().isNotEmpty == true)
+            ? product.descriptionInvoice!.toString().trim()
+            : (product.description?.toString().trim().isNotEmpty == true)
+              ? product.description!.toString().trim()
+              : (product.descriptionWebsite?.toString().trim().isNotEmpty == true)
+                ? product.descriptionWebsite!.toString().trim()
+                : '';
               }
             },
             child: Column(
@@ -361,28 +370,12 @@ class ProductsView extends GetView<ProductsController> {
                       // Product Image
                       Center(
                         child: product.imageUrl != null
-                            ? ClipRRect(
+                            ? OptimizedNetworkImage(
+                                imageUrl: product.imageUrl!,
+                                height: 100,
+                                width: double.infinity,
+                                fit: BoxFit.contain, // Changed from cover to contain to show full image
                                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                                child: Image.network(
-                                  '${Constants.imageBaseUrl}${product.imageUrl}',
-                                  height: 100,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      height: 100,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.greyLightColor,
-                                        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                                      ),
-                                      child: Icon(
-                                        Icons.inventory_2_outlined,
-                                        size: 40,
-                                        color: AppColors.greyColor,
-                                      ),
-                                    );
-                                  },
-                                ),
                               )
                             : Container(
                                 height: 100,
@@ -455,6 +448,22 @@ class ProductsView extends GetView<ProductsController> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: 4),
+                      
+                      // Invoice Description
+                      if (product.descriptionInvoice != null && 
+                          product.descriptionInvoice!.toString().trim().isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 2),
+                          child: Text(
+                            product.descriptionInvoice!.toString(),
+                            style: TextStyle(
+                              fontSize: 9.sp,
+                              color: Colors.grey[600],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       
                       // Category
                       Text(
@@ -565,9 +574,17 @@ class ProductsView extends GetView<ProductsController> {
             controller.productDetails.value = true;
             Get.find<HomeController>().update();
             controller.update();
-            controller.id.value = product.id.toString();
-            controller.categoryType.value = product.categoryType ?? '';
-            controller.subCategoryType.value = product.subCategoryType ?? '';
+      controller.id.value = product.id.toString();
+      controller.categoryType.value = product.categoryType ?? '';
+      controller.subCategoryType.value = product.subCategoryType ?? '';
+      controller.descriptionText.value =
+        (product.descriptionInvoice?.toString().trim().isNotEmpty == true)
+          ? product.descriptionInvoice!.toString().trim()
+          : (product.description?.toString().trim().isNotEmpty == true)
+            ? product.description!.toString().trim()
+            : (product.descriptionWebsite?.toString().trim().isNotEmpty == true)
+              ? product.descriptionWebsite!.toString().trim()
+              : '';
           }
         },
         child: Obx(() {
@@ -612,21 +629,12 @@ class ProductsView extends GetView<ProductsController> {
                     color: AppColors.greyLightColor,
                   ),
                   child: product.imageUrl != null
-                      ? ClipRRect(
+                      ? OptimizedNetworkImage(
+                          imageUrl: product.imageUrl!,
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.contain, // Changed from cover to contain to show full image
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            '${Constants.imageBaseUrl}${product.imageUrl}',
-                            width: 60,
-                            height: 60,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(
-                                Icons.inventory_2_outlined,
-                                size: 30,
-                                color: AppColors.greyColor,
-                              );
-                            },
-                          ),
                         )
                       : Icon(
                           Icons.inventory_2_outlined,
@@ -653,6 +661,20 @@ class ProductsView extends GetView<ProductsController> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: 4),
+                      if (product.descriptionInvoice != null && 
+                          product.descriptionInvoice!.toString().trim().isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 2),
+                          child: Text(
+                            product.descriptionInvoice!.toString(),
+                            style: TextStyle(
+                              fontSize: 9.sp,
+                              color: Colors.grey[600],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       Text(
                         '${product.categoryType ?? 'No Category'} • ${product.subCategoryType ?? 'No Sub-Category'}',
                         style: TextStyle(
@@ -706,9 +728,17 @@ class ProductsView extends GetView<ProductsController> {
                           controller.productDetails.value = true;
                           Get.find<HomeController>().update();
                           controller.update();
-                          controller.id.value = product.id.toString();
-                          controller.categoryType.value = product.categoryType ?? '';
-                          controller.subCategoryType.value = product.subCategoryType ?? '';
+              controller.id.value = product.id.toString();
+              controller.categoryType.value = product.categoryType ?? '';
+              controller.subCategoryType.value = product.subCategoryType ?? '';
+              controller.descriptionText.value =
+                (product.descriptionInvoice?.toString().trim().isNotEmpty == true)
+                  ? product.descriptionInvoice!.toString().trim()
+                  : (product.description?.toString().trim().isNotEmpty == true)
+                    ? product.description!.toString().trim()
+                    : (product.descriptionWebsite?.toString().trim().isNotEmpty == true)
+                      ? product.descriptionWebsite!.toString().trim()
+                      : '';
                         },
                         icon: Icon(
                           Icons.visibility,

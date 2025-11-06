@@ -475,14 +475,14 @@ class MyOrdersView extends GetView<MyOrdersController> {
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     AppText(
-                                                      "Order #$orderIdText",
+                                                      customerName,
                                                       fontSize: 16.sp,
                                                       fontWeight: FontWeight.bold,
                                                       color: AppColors.primaryColor,
                                                     ),
                                                     SizedBox(height: 0.5.h),
                                                     AppText(
-                                                      customerName,
+                                                      "Order #$orderIdText",
                                                       fontSize: 14.sp,
                                                       fontWeight: FontWeight.w600,
                                                       color: Colors.grey.shade700,

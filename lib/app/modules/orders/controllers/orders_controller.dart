@@ -13,6 +13,8 @@ class OrdersController extends GetxController {
   List<GetDataListResponseData> categoryList = <GetDataListResponseData>[];
   List<GetDataListResponseData> productList = <GetDataListResponseData>[];
   List<GetDataListResponseData> tempProductList = <GetDataListResponseData>[];
+  List<GetDataListResponseData> tempCategoryList = <GetDataListResponseData>[];
+  List<GetDataListResponseData> currentSubCategoryProducts = <GetDataListResponseData>[]; // Products for current subcategory only
   TextEditingController quantityText = TextEditingController();
   TextEditingController sellingPriceText = TextEditingController();
   LoginSignUpData? loginData;
@@ -106,6 +108,7 @@ class OrdersController extends GetxController {
 
     if (model.data!.isNotEmpty) {
       categoryList = model.data!;
+      tempCategoryList = model.data!;
 
       noData.value = "";
       update();
@@ -164,7 +167,7 @@ class OrdersController extends GetxController {
           tempProductList[i].subCategoryId != null &&
           type == "subCategory") {
         noData.value = "";
-        print(tempProductList[i].stock);
+        // print(tempProductList[i].stock); // Debug print removed
         
         if (tempProductList[i].stock != 0) {
           
@@ -190,6 +193,7 @@ class OrdersController extends GetxController {
               isBox: tempProductList[i].isBox,
               isUnitSelected: 1,
               tax: tempProductList[i].taxDetail!.tax,
+              descriptionInvoice: tempProductList[i].descriptionInvoice,
               taxDetail: Tax(
                 tax: tempProductList[i].taxDetail!.tax,
               ),
@@ -205,7 +209,7 @@ class OrdersController extends GetxController {
           tempProductList[i].categoryId != null &&
           type == "category") {
         noData.value = "";
-        print(tempProductList[i].stock);
+        // print(tempProductList[i].stock); // Debug print removed
         
         if (tempProductList[i].stock != 0) {
           productList.add(
@@ -230,6 +234,7 @@ class OrdersController extends GetxController {
               isUnitSelected: 1,
               productImage: tempProductList[i].productImage,
               tax: tempProductList[i].taxDetail!.tax,
+              descriptionInvoice: tempProductList[i].descriptionInvoice,
               taxDetail: Tax(
                 tax: tempProductList[i].taxDetail!.tax,
               ),
@@ -243,6 +248,9 @@ class OrdersController extends GetxController {
     if (productList.isEmpty) {
       noData.value = "No Data Found";
     }
+    
+    // Backup the current subcategory's products for search
+    currentSubCategoryProducts = List.from(productList);
     
     print(productList.length);
   }
@@ -729,8 +737,28 @@ class OrdersController extends GetxController {
         quantityList.add(productList[i].quantityCount);
         taxIdList.add(productList[i].taxId);
         isBoxList.add(productList[i].isUnitSelected);
-        categoryList.add(categoryId);
-        subCategoryList.add(subCategoryId);
+        
+        // Use product's category ID, with fallback to controller value
+        var prodCatId = productList[i].categoryId;
+        if (prodCatId == null || prodCatId.toString().isEmpty) {
+          categoryList.add(categoryId.value.isNotEmpty ? int.tryParse(categoryId.value) : null);
+        } else {
+          categoryList.add(prodCatId);
+        }
+        
+        // Handle subcategory: use product's subcategory if available and not empty
+        var productSubCatId = productList[i].subCategoryId;
+        if (productSubCatId == null || productSubCatId.toString().isEmpty || productSubCatId.toString() == "null") {
+          // If subCategoryId from controller is also empty, use null
+          if (subCategoryId.value.isEmpty || subCategoryId.value == "null") {
+            subCategoryList.add(null);
+          } else {
+            var subCatInt = int.tryParse(subCategoryId.value);
+            subCategoryList.add(subCatInt);
+          }
+        } else {
+          subCategoryList.add(productSubCatId);
+        }
       }
     }
 
@@ -738,6 +766,12 @@ class OrdersController extends GetxController {
       try {
         String rawData =
             '{"customer_id": ${customerId},"sales_manager_id": ${loginData!.id},"category_id": ${categoryList},"sub_category_id": ${subCategoryList},"product_id": ${productIdList},"price": ${priceList},"quantity": ${quantityList},"tax_id": ${taxIdList},"is_box": ${isBoxList}}';
+
+        print("📦 Cart API Request Data:");
+        print("Customer ID: $customerId");
+        print("Products count: ${productIdList.length}");
+        print("Sub Categories: $subCategoryList");
+        print("Raw Data: $rawData");
 
         final data = await APIFunction().apiCall(
           apiName: Constants.cart,
@@ -766,11 +800,12 @@ class OrdersController extends GetxController {
               context: Get.context!, message: "Successfully added to cart");
           update();
         } else {
-          
+          print("⚠️ Cart API returned null data");
         }
-      } on Exception {
+      } catch (e) {
+        print("❌ Cart API Error: $e");
         utils.showSnackBar(
-            context: Get.context!, message: "Oops! Something went wrong");
+            context: Get.context!, message: "Failed to add to cart: ${e.toString()}");
       }
     } else {
       utils.showSnackBar(
@@ -792,5 +827,35 @@ class OrdersController extends GetxController {
     final stock = double.tryParse(stockStr) ?? 0;
 
     product.isWrongData = (qty <= 0 || qty > stock);
+  }
+
+  /// Search sub-categories
+  void searchSubCategories({required String text}) {
+    if (text.isEmpty) {
+      // Restore original list when search is cleared
+      categoryList = tempCategoryList;
+    } else {
+      // Filter categories based on search text
+      categoryList = tempCategoryList
+          .where((category) =>
+              category.name!.toLowerCase().contains(text.toLowerCase()))
+          .toList();
+    }
+    update();
+  }
+
+  /// Search products
+  void searchProducts({required String text}) {
+    if (text.isEmpty) {
+      // Restore original list when search is cleared
+      productList = List.from(currentSubCategoryProducts);
+    } else {
+      // Filter products based on search text
+      productList = currentSubCategoryProducts
+          .where((product) =>
+              product.name!.toLowerCase().contains(text.toLowerCase()))
+          .toList();
+    }
+    update();
   }
 }
