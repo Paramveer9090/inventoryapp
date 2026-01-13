@@ -27,15 +27,15 @@ class DashboardView extends GetView<DashboardController> {
                   // Header
                   _buildHeader(controller),
                   SizedBox(height: 3.h),
-                  
+
                   // Stats Cards
                   _buildStatsSection(controller),
                   SizedBox(height: 3.h),
-                  
+
                   // Recent Orders Section
                   _buildRecentOrdersSection(controller),
                   SizedBox(height: 2.h),
-                  
+
                   // Quick Action
                   _buildQuickActionSection(),
                   SizedBox(height: 2.h),
@@ -50,10 +50,10 @@ class DashboardView extends GetView<DashboardController> {
 
   Widget _buildHeader(DashboardController controller) {
     final userName = controller.loginData?.name ?? 'User';
-    final userRole = controller.loginData?.roles?.isNotEmpty == true 
-        ? controller.loginData!.roles!.first.title 
+    final userRole = controller.loginData?.roles?.isNotEmpty == true
+        ? controller.loginData!.roles!.first.title
         : 'User';
-    
+
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -62,7 +62,10 @@ class DashboardView extends GetView<DashboardController> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           gradient: LinearGradient(
-            colors: [AppColors.primaryColor, AppColors.primaryColor.withValues(alpha: 0.8)],
+            colors: [
+              AppColors.primaryColor,
+              AppColors.primaryColor.withValues(alpha: 0.8)
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -163,7 +166,8 @@ class DashboardView extends GetView<DashboardController> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.history, size: 20, color: AppColors.primaryColor),
+                    Icon(Icons.history,
+                        size: 20, color: AppColors.primaryColor),
                     SizedBox(width: 1.h),
                     AppText(
                       'Recent Orders',
@@ -174,7 +178,8 @@ class DashboardView extends GetView<DashboardController> {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppColors.primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -232,7 +237,7 @@ class DashboardView extends GetView<DashboardController> {
         DateTime dueDate = DateTime.parse(order.dueDate.toString());
         String statusText;
         Color statusColor;
-        
+
         if (order.payment!.paymentStatus == "1") {
           statusText = "Closed";
           statusColor = AppColors.lightGreen;
@@ -293,6 +298,7 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 }
+
 class _ModernStatsCard extends StatelessWidget {
   final String title;
   final String count;
@@ -333,7 +339,8 @@ class _ModernStatsCard extends StatelessWidget {
                   ),
                   child: Icon(icon, color: color, size: 20),
                 ),
-                Icon(Icons.trending_up, color: color.withValues(alpha: 0.7), size: 16),
+                Icon(Icons.trending_up,
+                    color: color.withValues(alpha: 0.7), size: 16),
               ],
             ),
             SizedBox(height: 1.5.h),
@@ -383,7 +390,8 @@ class _OrderCard extends StatelessWidget {
           // Set the global orderId for OrderDetailsController
           orderId = order.id.toString();
           // Also initialize OrderDetailsController with the correct ID
-          var orderDetailsController = Get.put(OrderDetailsController(id: order.id.toString()));
+          var orderDetailsController =
+              Get.put(OrderDetailsController(id: order.id.toString()));
           // Force refresh to ensure data is loaded
           orderDetailsController.refreshOrderDetails();
           // Don't change the selected tab when opening order details from dashboard
@@ -427,7 +435,8 @@ class _OrderCard extends StatelessWidget {
                             ),
                             SizedBox(width: 0.5.h),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
                                 color: statusColor.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
@@ -458,7 +467,8 @@ class _OrderCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.calendar_today, size: 14, color: Colors.grey[500]),
+                      Icon(Icons.calendar_today,
+                          size: 14, color: Colors.grey[500]),
                       SizedBox(width: 0.5.h),
                       AppText(
                         order.orderDate?.split(" ").first ?? 'N/A',

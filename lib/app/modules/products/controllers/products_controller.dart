@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
@@ -18,7 +19,8 @@ class ProductsController extends GetxController {
   var categoryType = "".obs;
   var subCategoryType = "".obs;
   var id = "".obs;
-  var descriptionText = "".obs; // holds description_invoice/description fallback for routing to details
+  var descriptionText = ""
+      .obs; // holds description_invoice/description fallback for routing to details
 
   // Selection and UI state
   var selectedProducts = <GetDataListResponseData>[].obs;
@@ -32,7 +34,11 @@ class ProductsController extends GetxController {
   var isLoadingMore = false.obs;
   var hasMoreItems = true.obs;
   List<GetDataListResponseData> allProductsList = []; // Store all products
-  List<GetDataListResponseData> paginatedProductList = <GetDataListResponseData>[].obs; // Currently displayed products
+  List<GetDataListResponseData> paginatedProductList =
+      <GetDataListResponseData>[].obs; // Currently displayed products
+
+  // Debouncing for search
+  Timer? _debounce;
 
   @override
   void onInit() {
@@ -42,44 +48,48 @@ class ProductsController extends GetxController {
   }
 
   // Pagination Methods
+  /// Debounced search - only runs after user stops typing
+  void onSearchChanged(String value) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      search(text: value);
+    });
+  }
+
   void loadMoreProducts() {
     if (!hasMoreItems.value || isLoadingMore.value) return;
-    
+
     isLoadingMore.value = true;
-    print('📄 Loading more products - Page: ${currentPage.value + 1}');
-    
+
     int startIndex = currentPage.value * itemsPerPage;
     int endIndex = (startIndex + itemsPerPage).clamp(0, productList.length);
-    
+
     if (startIndex < productList.length) {
-      List<GetDataListResponseData> newItems = productList.sublist(startIndex, endIndex);
+      List<GetDataListResponseData> newItems =
+          productList.sublist(startIndex, endIndex);
       paginatedProductList.addAll(newItems);
       currentPage.value++;
-      
-      print('📄 Added ${newItems.length} products. Total displayed: ${paginatedProductList.length}');
-      
+
       // Check if we have more items
       hasMoreItems.value = endIndex < productList.length;
     } else {
       hasMoreItems.value = false;
     }
-    
+
     isLoadingMore.value = false;
     update();
   }
 
   void resetPagination() {
-    print('📄 Resetting pagination');
     currentPage.value = 1;
     hasMoreItems.value = true;
     paginatedProductList.clear();
-    
+
     // Load first page
     if (productList.isNotEmpty) {
       int endIndex = itemsPerPage.clamp(0, productList.length);
       paginatedProductList.addAll(productList.sublist(0, endIndex));
       hasMoreItems.value = endIndex < productList.length;
-      print('📄 Initial load: ${paginatedProductList.length} products');
     }
     update();
   }
@@ -88,64 +98,74 @@ class ProductsController extends GetxController {
   search({required String text}) async {
     // Trim whitespace from search text
     final searchText = text.trim();
-    
+
     if (searchText.isEmpty) {
-      productList = filterList; // filterList already contains only products with stock
+      productList =
+          filterList; // filterList already contains only products with stock
       noData.value = "";
     } else {
       // Convert search text to lowercase once for efficiency
       final searchLower = searchText.toLowerCase();
-      
+
       // Use where() instead of loop for better performance
       List<GetDataListResponseData> tempList = filterList.where((product) {
         // Search in product name
-        final nameMatch = product.name?.toLowerCase().contains(searchLower) ?? false;
-        
+        final nameMatch =
+            product.name?.toLowerCase().contains(searchLower) ?? false;
+
         // Search in category type
-        final categoryMatch = product.categoryType?.toLowerCase().contains(searchLower) ?? false;
-        
+        final categoryMatch =
+            product.categoryType?.toLowerCase().contains(searchLower) ?? false;
+
         // Search in sub-category type
-        final subCategoryMatch = product.subCategoryType?.toLowerCase().contains(searchLower) ?? false;
-        
+        final subCategoryMatch =
+            product.subCategoryType?.toLowerCase().contains(searchLower) ??
+                false;
+
         // Search in product ID (for quick lookup by ID)
         final idMatch = product.id?.toString().contains(searchText) ?? false;
-        
+
         // Search in description if available
-        final descriptionMatch = product.description?.toLowerCase().contains(searchLower) ?? false;
-        
+        final descriptionMatch =
+            product.description?.toLowerCase().contains(searchLower) ?? false;
+
         // Return true if any field matches
-        return nameMatch || categoryMatch || subCategoryMatch || idMatch || descriptionMatch;
+        return nameMatch ||
+            categoryMatch ||
+            subCategoryMatch ||
+            idMatch ||
+            descriptionMatch;
       }).toList();
-      
+
       // Sort results by relevance: exact matches first, then starts-with, then contains
       tempList.sort((a, b) {
         final aName = a.name?.toLowerCase() ?? '';
         final bName = b.name?.toLowerCase() ?? '';
-        
+
         // Exact name matches come first (highest priority)
         if (aName == searchLower && bName != searchLower) return -1;
         if (bName == searchLower && aName != searchLower) return 1;
-        
+
         // Then matches that start with the search text
         final aStartsWith = aName.startsWith(searchLower);
         final bStartsWith = bName.startsWith(searchLower);
         if (aStartsWith && !bStartsWith) return -1;
         if (bStartsWith && !aStartsWith) return 1;
-        
+
         // Otherwise maintain original order
         return 0;
       });
-      
+
       // Set noData message only after checking all items
       if (tempList.isEmpty) {
         noData.value = "No result found";
       } else {
         noData.value = "";
       }
-      
+
       productList = tempList;
     }
-    
+
     // Reset pagination after search
     resetPagination();
     update();
@@ -168,7 +188,10 @@ class ProductsController extends GetxController {
       List<GetDataListResponseData> productsWithStock = model.data!
           .where((product) => product.stock != null && product.stock! > 0)
           .toList();
-      
+
+      // Map category names to products ONCE here instead of in UI
+      _mapCategoryNamesToProducts(productsWithStock);
+
       productList = productsWithStock;
       filterList = productsWithStock;
       allProductsList = productsWithStock; // Store all products with stock
@@ -176,6 +199,31 @@ class ProductsController extends GetxController {
       // Initialize pagination
       resetPagination();
       update();
+    }
+  }
+
+  /// Map category and subcategory names to products
+  /// This is done ONCE when data is fetched, not repeatedly in UI
+  /// Uses Map for O(n) performance instead of nested loops O(n*m)
+  void _mapCategoryNamesToProducts(List<GetDataListResponseData> products) {
+    if (categoryList.isEmpty) return;
+
+    // Create a fast lookup map: categoryId -> categoryName
+    Map<int, String> categoryMap = {};
+    for (var cat in categoryList) {
+      if (cat.id != null) {
+        categoryMap[cat.id!] = cat.name ?? '';
+      }
+    }
+
+    // Update all products at once using the map
+    for (var product in products) {
+      if (product.categoryId != null) {
+        product.categoryType = categoryMap[product.categoryId] ?? '';
+      }
+      if (product.subCategoryId != null) {
+        product.subCategoryType = categoryMap[product.subCategoryId] ?? '';
+      }
     }
   }
 
@@ -194,54 +242,36 @@ class ProductsController extends GetxController {
     if (model.data!.isNotEmpty) {
       categoryList = model.data!;
       update();
-    } else {
-      print("In else part");
     }
   }
 
   // Selection Methods
   void toggleProductSelection(GetDataListResponseData product) {
-    print('🔧 toggleProductSelection called for: ${product.name}');
-    print('🔧 Product ID: ${product.id}');
-    print('🔧 Selected products before: ${selectedProducts.length}');
-    print('🔧 Is product currently selected: ${selectedProducts.contains(product)}');
-    
     if (selectedProducts.contains(product)) {
-      print('🔧 REMOVING product from selection');
       selectedProducts.remove(product);
-      print('🔧 Remove result - Selected products after: ${selectedProducts.length}');
     } else {
-      print('🔧 ADDING product to selection');
       selectedProducts.add(product);
-      print('🔧 Add result - Selected products after: ${selectedProducts.length}');
     }
-    
-    print('🔧 Final selection state - Contains product: ${selectedProducts.contains(product)}');
     updateSelectAllState();
   }
 
   void toggleSelectAll() {
     if (selectAll.value) {
-      // Deselect all currently displayed products
-      for (var product in paginatedProductList) {
-        selectedProducts.remove(product);
-      }
+      // Deselect everything
+      selectedProducts.clear();
       selectAll.value = false;
     } else {
-      // Select all currently displayed products
-      for (var product in paginatedProductList) {
-        if (!selectedProducts.contains(product)) {
-          selectedProducts.add(product);
-        }
-      }
+      // Select ALL matching products from filterList (not just visible ones)
+      selectedProducts.assignAll(filterList);
       selectAll.value = true;
     }
   }
 
   void updateSelectAllState() {
     // Check if all currently displayed products are selected
-    selectAll.value = paginatedProductList.isNotEmpty && 
-                     paginatedProductList.every((product) => selectedProducts.contains(product));
+    selectAll.value = paginatedProductList.isNotEmpty &&
+        paginatedProductList
+            .every((product) => selectedProducts.contains(product));
   }
 
   void clearSelection() {
@@ -292,7 +322,8 @@ class ProductsController extends GetxController {
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
                 logoBytes != null
-                    ? pw.Image(pw.MemoryImage(logoBytes), width: 60, height: 60, fit: pw.BoxFit.contain)
+                    ? pw.Image(pw.MemoryImage(logoBytes),
+                        width: 60, height: 60, fit: pw.BoxFit.contain)
                     : pw.Container(),
                 pw.Text(
                   'Selected Products Export',
@@ -325,7 +356,7 @@ class ProductsController extends GetxController {
             style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
           ),
           pw.SizedBox(height: 20),
-          
+
           // Table format
           pw.Table(
             border: pw.TableBorder.all(color: PdfColors.grey400),
@@ -376,45 +407,50 @@ class ProductsController extends GetxController {
                   ),
                 ],
               ),
-              
+
               // Data rows - limit to first 100 products to avoid too many pages
-              ...selectedProducts.take(100).map((product) => pw.TableRow(
-                children: [
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(6),
-                    child: pw.Text(
-                      product.id?.toString() ?? 'N/A',
-                      textAlign: pw.TextAlign.center,
-                      style: const pw.TextStyle(fontSize: 10),
-                    ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(6),
-                    child: pw.Text(
-                      product.name ?? 'No Name',
-                      style: const pw.TextStyle(fontSize: 10),
-                    ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(6),
-                    child: pw.Text(
-                      product.descriptionInvoice ?? product.description ?? 'No description',
-                      style: const pw.TextStyle(fontSize: 9),
-                    ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(6),
-                    child: pw.Text(
-                      '${product.sellingPrice ?? 0}',
-                      textAlign: pw.TextAlign.center,
-                      style: const pw.TextStyle(fontSize: 10),
-                    ),
-                  ),
-                ],
-              )).toList(),
+              ...selectedProducts
+                  .take(100)
+                  .map((product) => pw.TableRow(
+                        children: [
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(6),
+                            child: pw.Text(
+                              product.id?.toString() ?? 'N/A',
+                              textAlign: pw.TextAlign.center,
+                              style: const pw.TextStyle(fontSize: 10),
+                            ),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(6),
+                            child: pw.Text(
+                              product.name ?? 'No Name',
+                              style: const pw.TextStyle(fontSize: 10),
+                            ),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(6),
+                            child: pw.Text(
+                              product.descriptionInvoice ??
+                                  product.description ??
+                                  'No description',
+                              style: const pw.TextStyle(fontSize: 9),
+                            ),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(6),
+                            child: pw.Text(
+                              '${product.sellingPrice ?? 0}',
+                              textAlign: pw.TextAlign.center,
+                              style: const pw.TextStyle(fontSize: 10),
+                            ),
+                          ),
+                        ],
+                      ))
+                  .toList(),
             ],
           ),
-          
+
           if (selectedProducts.length > 100)
             pw.Padding(
               padding: const pw.EdgeInsets.only(top: 20),
@@ -449,13 +485,14 @@ class ProductsController extends GetxController {
 
     try {
       final pdfBytes = await generateSelectedProductsPdf();
-      
+
       // On mobile, use share instead of file picker
       await Printing.sharePdf(
         bytes: pdfBytes,
-        filename: 'selected_products_${DateTime.now().millisecondsSinceEpoch}.pdf',
+        filename:
+            'selected_products_${DateTime.now().millisecondsSinceEpoch}.pdf',
       );
-      
+
       Get.snackbar(
         'Success',
         'PDF export initiated! Choose where to save or share.',
@@ -491,7 +528,8 @@ class ProductsController extends GetxController {
       final pdfBytes = await generateSelectedProductsPdf();
       await Printing.sharePdf(
         bytes: pdfBytes,
-        filename: 'selected_products_${DateTime.now().millisecondsSinceEpoch}.pdf',
+        filename:
+            'selected_products_${DateTime.now().millisecondsSinceEpoch}.pdf',
       );
     } catch (e) {
       // Handle PDF sharing error silently

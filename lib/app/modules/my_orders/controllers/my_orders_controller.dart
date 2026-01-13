@@ -1,3 +1,4 @@
+import 'dart:async';
 import '../../../widgets/all_import.dart';
 
 class MyOrdersController extends GetxController {
@@ -15,6 +16,9 @@ class MyOrdersController extends GetxController {
 
   // Add customerMap to the controller
   Map<int, Customers> customerMap = {};
+
+  // Debouncing for search
+  Timer? _debounce;
 
   @override
   void onInit() {
@@ -47,6 +51,14 @@ class MyOrdersController extends GetxController {
     update();
   }
 
+  /// Debounced search - only runs after user stops typing
+  void onSearchChanged(String value) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      search(text: value);
+    });
+  }
+
   /// Search
   search({required String text}) async {
     if (text.trim().isEmpty) {
@@ -54,14 +66,18 @@ class MyOrdersController extends GetxController {
       noData.value = "";
     } else {
       List<Orders> tempList = [];
-      
+
       for (int i = 0; i < filterList.length; i++) {
         if (filterList[i].id.toString().contains(text.toLowerCase()) ||
-            filterList[i].orderTotal.toString().toLowerCase().contains(text.toLowerCase())) {
+            filterList[i]
+                .orderTotal
+                .toString()
+                .toLowerCase()
+                .contains(text.toLowerCase())) {
           tempList.add(filterList[i]);
         }
       }
-      
+
       if (tempList.isNotEmpty) {
         myOrderList = tempList;
         noData.value = "";
@@ -70,7 +86,7 @@ class MyOrdersController extends GetxController {
         noData.value = "No result found";
       }
     }
-    
+
     update();
   }
 
@@ -109,32 +125,21 @@ class MyOrdersController extends GetxController {
 
   customerSearch({var id}) async {
     List<Orders> tempList = [];
-    
-    
-    
-    
-    
+
     for (int i = 0; i < filterList.length; i++) {
-      
-      
       // Try both customerId field and customer.id field
       bool matches = false;
       if (filterList[i].customerId?.toString() == id.toString()) {
         matches = true;
-        
       } else if (filterList[i].customer?.id?.toString() == id.toString()) {
         matches = true;
-        
       }
-      
+
       if (matches) {
         tempList.add(filterList[i]);
       }
     }
-    
-    
-    
-    
+
     if (tempList.isNotEmpty) {
       myOrderList = tempList;
       noData.value = "";
@@ -142,19 +147,14 @@ class MyOrdersController extends GetxController {
       myOrderList = [];
       noData.value = "No result found";
     }
-    
+
     update();
   }
 
   void statusFilter(String status) {
-    
-    
-
     myOrderList = filterList.where((order) {
       String orderStatus = order.status?.toString() ?? '';
       String paymentStatus = order.payment?.paymentStatus?.toString() ?? '';
-
-      
 
       // Enhanced status filtering based on backend logic
       bool matches = false;
@@ -186,14 +186,14 @@ class MyOrdersController extends GetxController {
           }
           break;
         case 'unpaid':
-          matches = paymentStatus != '1' && orderStatus != '1'; // Not paid and not delivered
+          matches = paymentStatus != '1' &&
+              orderStatus != '1'; // Not paid and not delivered
           break;
       }
 
       return matches;
     }).toList();
 
-    
     update();
   }
 
@@ -235,18 +235,17 @@ class MyOrdersController extends GetxController {
 
   void clearAllFilters() {
     // Reset all filter states
-    isPaidSelected.value = false;      // Now represents "Pending" filter
-    isUnPaidSelected.value = false;    // Now represents "Delivered" filter  
-    isOverDueSelected.value = false;   // Now represents "Ready" filter
+    isPaidSelected.value = false; // Now represents "Pending" filter
+    isUnPaidSelected.value = false; // Now represents "Delivered" filter
+    isOverDueSelected.value = false; // Now represents "Ready" filter
     customer_id.value = "";
     fromDateString.value = "";
     toDateString.value = "";
-    
+
     // Reset order list to show all orders
     myOrderList = filterList;
     noData.value = "";
-    
-    
+
     update();
   }
 

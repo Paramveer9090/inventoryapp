@@ -19,7 +19,7 @@ class CartController extends GetxController {
   var productId = "".obs;
   var customerId = "".obs;
   var noData = "".obs;
-  
+
   // Delivery Agent Selection
   List<LoginSignUpData> deliveryAgents = [];
   var selectedDeliveryAgent = Rxn<LoginSignUpData>();
@@ -39,7 +39,7 @@ class CartController extends GetxController {
     if (data != null) {
       loginData = LoginSignUpData.fromJson(data);
       // Check if current user is a delivery agent
-      if (loginData?.roles?.isNotEmpty == true && 
+      if (loginData?.roles?.isNotEmpty == true &&
           loginData!.roles![0].title == "Delivery Agent") {
         showDeliveryAgentSelector.value = false;
       } else {
@@ -53,7 +53,7 @@ class CartController extends GetxController {
   loadDeliveryAgents() async {
     try {
       isLoadingAgents.value = true;
-      
+
       final data = await APIFunction().apiCall(
         apiName: Constants.users,
         context: Get.context!,
@@ -65,27 +65,24 @@ class CartController extends GetxController {
       if (data != null && data['data'] != null) {
         List<dynamic> users = data['data'];
         deliveryAgents.clear();
-        
+
         for (var user in users) {
           try {
             LoginSignUpData userData = LoginSignUpData.fromJson(user);
             // Filter only delivery agents
-            if (userData.roles?.isNotEmpty == true && 
+            if (userData.roles?.isNotEmpty == true &&
                 userData.roles![0].title == "Delivery Agent") {
               deliveryAgents.add(userData);
             }
           } catch (e) {
-            print('Error parsing user data: $e');
+            // Error parsing user data
           }
         }
-        
-        print('Found ${deliveryAgents.length} delivery agents');
       }
-      
+
       isLoadingAgents.value = false;
       update();
     } catch (e) {
-      print('Error loading delivery agents: $e');
       isLoadingAgents.value = false;
       update();
     }
@@ -117,17 +114,29 @@ class CartController extends GetxController {
       //   orderItemList[i].amountOnlyTax = amountTax.toString();
       //   orderItemList[i].finalAmount = (amount + amountTax).toString();
       // } else {
-      amountTax = ((double.parse(orderItemList[i].quantity.toString()) * double.parse(orderItemList[i].price.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
-      amount = (double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price.toString());
+      amountTax = ((double.parse(orderItemList[i].quantity.toString()) *
+                  double.parse(orderItemList[i].price.toString())) *
+              double.parse(orderItemList[i].tax.toString())) /
+          100;
+      amount = (double.parse(orderItemList[i].quantity!.toString())) *
+          double.parse(orderItemList[i].price.toString());
       orderItemList[i].amountWithoutTax = amount.toStringAsFixed(2);
       orderItemList[i].amountOnlyTax = amountTax.toStringAsFixed(2);
       orderItemList[i].finalAmount = (amount + amountTax).toStringAsFixed(2);
       // }
     }
 
-    orderTotal.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toStringAsFixed(2);
-    orderTax.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toStringAsFixed(2);
-    orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toStringAsFixed(2);
+    orderTotal.value = (orderItemList.fold<double>(
+            0,
+            (sum, item) =>
+                sum + double.parse(item.amountWithoutTax.toString())))
+        .toStringAsFixed(2);
+    orderTax.value = (orderItemList.fold<double>(0,
+            (sum, item) => sum + double.parse(item.amountOnlyTax.toString())))
+        .toStringAsFixed(2);
+    orderFinalTotal.value =
+        (double.parse(orderTotal.value) + double.parse(orderTax.value))
+            .toStringAsFixed(2);
 
     cartLength = (int.parse(cartLength) - 1).toString();
     update();
@@ -193,25 +202,32 @@ class CartController extends GetxController {
         //   orderItemList[i].amountOnlyTax = amountTax.toString();
         //   orderItemList[i].finalAmount = (amount + amountTax).toString();
         // } else {
-        amountTax = ((double.parse(orderItemList[i].quantity.toString()) * double.parse(orderItemList[i].price.toString())) * double.parse(orderItemList[i].tax.toString())) / 100;
-        amount = (double.parse(orderItemList[i].quantity!.toString())) * double.parse(orderItemList[i].price.toString());
+        amountTax = ((double.parse(orderItemList[i].quantity.toString()) *
+                    double.parse(orderItemList[i].price.toString())) *
+                double.parse(orderItemList[i].tax.toString())) /
+            100;
+        amount = (double.parse(orderItemList[i].quantity!.toString())) *
+            double.parse(orderItemList[i].price.toString());
         orderItemList[i].amountWithoutTax = amount.toStringAsFixed(2);
         orderItemList[i].amountOnlyTax = amountTax.toStringAsFixed(2);
         orderItemList[i].finalAmount = (amount + amountTax).toStringAsFixed(2);
         // }
       }
 
-      orderTotal.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()))).toStringAsFixed(2);
-      orderTax.value = (orderItemList.fold<double>(0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()))).toStringAsFixed(2);
-      orderFinalTotal.value = (double.parse(orderTotal.value) + double.parse(orderTax.value)).toStringAsFixed(2);
-      print("orderTotalvalueorderTotalvalueorderTotalvalue");
-      print(orderTotal.value);
-      print(orderTax.value);
-      print(orderFinalTotal.value);
+      orderTotal.value = (orderItemList.fold<double>(
+              0,
+              (sum, item) =>
+                  sum + double.parse(item.amountWithoutTax.toString())))
+          .toStringAsFixed(2);
+      orderTax.value = (orderItemList.fold<double>(0,
+              (sum, item) => sum + double.parse(item.amountOnlyTax.toString())))
+          .toStringAsFixed(2);
+      orderFinalTotal.value =
+          (double.parse(orderTotal.value) + double.parse(orderTax.value))
+              .toStringAsFixed(2);
       update();
     } else {
       noData.value = "No products in the cart.";
-      print("In else part");
       update();
     }
   }
@@ -243,8 +259,9 @@ class CartController extends GetxController {
     if (categoryList.isNotEmpty) {
       try {
         // Include delivery agent ID in order data
-        String deliveryAgentId = selectedDeliveryAgent.value?.id?.toString() ?? "null";
-        
+        String deliveryAgentId =
+            selectedDeliveryAgent.value?.id?.toString() ?? "null";
+
         String rawData =
             '{"sales_manager_id": ${loginData!.id},"customer_id": "${getDetailsData!.customerId}","delivery_agent_id": ${deliveryAgentId},"item_category": ${categoryList},"item_subcategory": ${subCategoryList},"item_name": ${productList},"package_val": ${packageList},"item_quantity": ${quantityList},"item_sale_priec": ${salesPriceList},"item_tax_id": ${taxList},"is_box": ${isBoxList},"order_total_without_tax": ${orderTotal.value},"order_tax": ${orderTax.value},"discount_type": ${0},"extra_discount": "${0}","order_total": "${orderFinalTotal.value}","comment":  ${jsonEncode(commentList)},"comments": ${jsonEncode(orderNotesController.text)},"delivery_note": "${getDetailsData!.deliveryNote}","customer_sign": "${getDetailsData!.customerSign}","status": "1","order_date":"${DateTime.now().toString().split(".").first}"}';
 
@@ -262,11 +279,14 @@ class CartController extends GetxController {
           isCongratulations.value = true;
           deleteCartListAPI();
           update();
-        } else {
-          print("In else part");
         }
-      } on Exception {
-        utils.showSnackBar(context: Get.context!, message: "The name has already been taken.");
+      } catch (e) {
+        // Show actual error message instead of generic one
+        String errorMsg = "Failed to place order. Please try again.";
+        if (e.toString().contains('taken')) {
+          errorMsg = "The name has already been taken.";
+        }
+        utils.showSnackBar(context: Get.context!, message: errorMsg);
       }
     }
   }
