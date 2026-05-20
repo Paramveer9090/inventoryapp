@@ -30,6 +30,14 @@ class APIFunction {
         data: rawData,
       );
       return response;
+    } else if (type == "patch") {
+      // PATCH with FormData (for file uploads)
+      print("params -------->>> ${params!.fields}");
+      var response = await HttpUtil(token!, isLoading, context).patch(
+        apiName,
+        data: params,
+      );
+      return response;
     } else if (type == "expense" || type == "users") {
       log("rawData -------->>> ${rawData}");
       var response = await HttpUtil(token!, isLoading, context).postt(

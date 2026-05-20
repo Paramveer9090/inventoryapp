@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/add_product/bindings/add_product_binding.dart';
+import '../modules/add_product/views/add_product_view.dart';
 import '../modules/cart/bindings/cart_binding.dart';
 import '../modules/cart/views/cart_view.dart';
 import '../modules/change_password/bindings/change_password_binding.dart';
@@ -100,6 +102,11 @@ class AppPages {
       name: _Paths.CART,
       page: () => const CartView(),
       binding: CartBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_PRODUCT,
+      page: () => const AddProductView(),
+      binding: AddProductBinding(),
     ),
     GetPage(
       name: _Paths.ORDER_DETAILS,

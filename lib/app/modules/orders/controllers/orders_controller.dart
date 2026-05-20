@@ -232,6 +232,9 @@ class OrdersController extends GetxController {
       }
     }
 
+    // Sort products alphabetically by name
+    productList.sort((a, b) => (a.name ?? '').toLowerCase().compareTo((b.name ?? '').toLowerCase()));
+
     if (productList.isEmpty) {
       noData.value = "No products found";
     }

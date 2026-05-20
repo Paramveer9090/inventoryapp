@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/modules/cart/controllers/cart_controller.dart';
+import 'package:true_leaf_inventory_app/app/utils/responsive_helper.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 import 'package:true_leaf_inventory_app/app/widgets/app_button.dart';
 
@@ -115,7 +116,7 @@ class CartItemCard extends StatelessWidget {
                                   content: StatefulBuilder(builder: (dialogContext, dialogSetState) {
                                     return SingleChildScrollView(
                                       child: SizedBox(
-                                        width: 200,
+                                        width: ResponsiveHelper.getDialogWidth(context),
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,7 +256,7 @@ class CartItemCard extends StatelessWidget {
                                   title: "Add Quantity",
                                   content: StatefulBuilder(builder: (context, setState) {
                                     return SizedBox(
-                                      width: 200,
+                                      width: ResponsiveHelper.getDialogWidth(context),
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         crossAxisAlignment: CrossAxisAlignment.start,

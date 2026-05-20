@@ -30,9 +30,10 @@ class ProductGridSection extends StatelessWidget {
         return Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            Padding(
-              padding:
-                  EdgeInsets.only(bottom: controller.isAddToCartButton.value ? 70 : 0),
+            Obx(() => Padding(
+              padding: EdgeInsets.only(
+                bottom: controller.isAddToCartButton.value ? 85 : 0.0,
+              ),
               child: DynamicHeightGridView(
                 itemCount: controller.productList.length,
                 physics: const BouncingScrollPhysics(),
@@ -106,7 +107,7 @@ class ProductGridSection extends StatelessWidget {
                                       content: StatefulBuilder(
                                           builder: (context, setState) {
                                         return SizedBox(
-                                          width: 200,
+                                          width: ResponsiveHelper.getDialogWidth(context),
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
                                             crossAxisAlignment:
@@ -313,7 +314,7 @@ class ProductGridSection extends StatelessWidget {
                                           builder: (dialogContext, dialogSetState) {
                                         return SingleChildScrollView(
                                           child: SizedBox(
-                                            width: 200,
+                                            width: ResponsiveHelper.getDialogWidth(context),
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
                                               crossAxisAlignment:
@@ -580,18 +581,25 @@ class ProductGridSection extends StatelessWidget {
                   );
                 },
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 15),
-              child: SizedBox(
-                height: 50,
-                child: Get.find<HomeController>().isOrderEdit.value &&
-                        controller.isAddToCartButton.value
-                    ? AppButton(
-                        title: "Add Product",
-                        isIcon: true,
-                        icon: Icons.add,
-                        onTap: () async {
+            )),
+            Obx(() => controller.isAddToCartButton.value
+                ? Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: ResponsiveHelper.getAdaptivePadding(context),
+                          vertical: 10,
+                        ),
+                        child: Get.find<HomeController>().isOrderEdit.value &&
+                                controller.isAddToCartButton.value
+                            ? AppButton(
+                                title: "Add Product",
+                                isIcon: true,
+                                icon: Icons.add,
+                                onTap: () async {
                           try {
                             final homeController = Get.find<HomeController>();
 
@@ -632,35 +640,35 @@ class ProductGridSection extends StatelessWidget {
                           }
                         },
                       )
-                    : controller.isAddToCartButton.value
-                        ? AppButton(
-                            title: "Add to cart",
-                            onTap: () async {
-                              try {
-                                final isWrong = controller.productList
-                                    .any((p) => p.isWrongData == true);
-                                controller.update();
+                            : AppButton(
+                                title: "Add to cart",
+                                onTap: () async {
+                                  try {
+                                    final isWrong = controller.productList
+                                        .any((p) => p.isWrongData == true);
+                                    controller.update();
 
-                                if (!isWrong) {
-                                  await controller.addToCartAPI();
-                                } else {
-                                  utils.showSnackBar(
-                                    context: context,
-                                    message: "Please fix quantity errors first",
-                                  );
-                                }
-                              } catch (e) {
-                                utils.showSnackBar(
-                                  context: context,
-                                  message:
-                                      "Failed to add to cart: ${e.toString()}",
-                                );
-                              }
-                            },
-                          )
-                        : const SizedBox.shrink(),
-              ),
-            ),
+                                    if (!isWrong) {
+                                      await controller.addToCartAPI();
+                                    } else {
+                                      utils.showSnackBar(
+                                        context: context,
+                                        message: "Please fix quantity errors first",
+                                      );
+                                    }
+                                  } catch (e) {
+                                    utils.showSnackBar(
+                                      context: context,
+                                      message:
+                                          "Failed to add to cart: ${e.toString()}",
+                                    );
+                                  }
+                                },
+                              ),
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink()),
           ],
         );
       },

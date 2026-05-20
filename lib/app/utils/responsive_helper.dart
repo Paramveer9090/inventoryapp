@@ -138,4 +138,17 @@ class ResponsiveHelper {
       BuildContext context, double tabletSize, double phoneSize) {
     return isTablet(context) ? tabletSize : phoneSize;
   }
+
+  /// Get adaptive dialog width for responsive dialogs
+  /// Returns wider dialogs on tablets for better UX
+  static double getDialogWidth(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 900) {
+      return 400; // Large tablets - wider dialogs
+    } else if (width > 600) {
+      return 320; // Small tablets - medium dialogs
+    } else {
+      return 280; // Phones - compact dialogs
+    }
+  }
 }

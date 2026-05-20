@@ -58,137 +58,163 @@ class ProductsView extends GetView<ProductsController> {
                             SizedBox(height: 1.h),
 
                             // Action Bar
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // Selection Controls or Pagination Info
-                                Expanded(
-                                  child: Obx(() => controller
-                                          .isSelectionMode.value
-                                      ? Row(
-                                          children: [
-                                            Checkbox(
-                                              value: controller.selectAll.value,
-                                              onChanged: (value) {
-                                                controller.toggleSelectAll();
-                                              },
-                                              activeColor:
-                                                  AppColors.primaryColor,
-                                            ),
-                                            Text(
-                                              'Select All',
-                                              style: TextStyle(
-                                                fontSize: ResponsiveHelper
-                                                    .getResponsiveFontSize(
-                                                        context, 11.sp, 14.sp),
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            SizedBox(width: 2.w),
-                                            Text(
-                                              '(${controller.selectedProducts.length} selected)',
-                                              style: TextStyle(
-                                                fontSize: ResponsiveHelper
-                                                    .getResponsiveFontSize(
-                                                        context, 10.sp, 12.sp),
-                                                color: AppColors.greyColor,
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      : Text(
-                                          'Showing ${controller.paginatedProductList.length} of ${controller.productList.length} products',
-                                          style: TextStyle(
-                                            fontSize: ResponsiveHelper
-                                                .getResponsiveFontSize(
-                                                    context, 10.sp, 12.sp),
-                                            color: AppColors.greyColor,
-                                          ),
-                                        )),
-                                ),
-
-                                // Action Buttons
-                                Row(
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                return Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    // Selection Mode Toggle
-                                    Obx(() => IconButton(
-                                          onPressed: () {
-                                            controller.toggleSelectionMode();
-                                          },
-                                          icon: Icon(
-                                            controller.isSelectionMode.value
-                                                ? Icons.close
-                                                : Icons.checklist,
-                                            color:
+                                    Expanded(
+                                      child: Obx(
+                                        () => controller.isSelectionMode.value
+                                            ? Row(
+                                                mainAxisSize: MainAxisSize.max,
+                                                children: [
+                                                  Checkbox(
+                                                    value: controller
+                                                        .selectAll.value,
+                                                    onChanged: (value) {
+                                                      controller
+                                                          .toggleSelectAll();
+                                                    },
+                                                    activeColor:
+                                                        AppColors.primaryColor,
+                                                  ),
+                                                  Flexible(
+                                                    child: Text(
+                                                      'Select All',
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontSize: ResponsiveHelper
+                                                            .getResponsiveFontSize(
+                                                                context,
+                                                                11.sp,
+                                                                14.sp),
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 2.w),
+                                                  Flexible(
+                                                    child: Text(
+                                                      '(${controller.selectedProducts.length} selected)',
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontSize: ResponsiveHelper
+                                                            .getResponsiveFontSize(
+                                                                context,
+                                                                10.sp,
+                                                                12.sp),
+                                                        color: AppColors
+                                                            .greyColor,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            : Text(
+                                                'Showing ${controller.paginatedProductList.length} of ${controller.productList.length} products',
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontSize: ResponsiveHelper
+                                                      .getResponsiveFontSize(
+                                                          context, 10.sp,
+                                                          12.sp),
+                                                  color: AppColors.greyColor,
+                                                ),
+                                              ),
+                                      ),
+                                    ),
+
+                                    const SizedBox(width: 8),
+
+                                    Obx(
+                                      () => FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        alignment: Alignment.centerRight,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            IconButton(
+                                              onPressed: () {
+                                                controller.toggleSelectionMode();
+                                              },
+                                              icon: Icon(
                                                 controller.isSelectionMode.value
+                                                    ? Icons.close
+                                                    : Icons.checklist,
+                                                color: controller
+                                                        .isSelectionMode.value
                                                     ? Colors.red
                                                     : AppColors.primaryColor,
-                                          ),
-                                          tooltip:
-                                              controller.isSelectionMode.value
+                                              ),
+                                              tooltip: controller
+                                                      .isSelectionMode.value
                                                   ? 'Exit Selection'
                                                   : 'Select Mode',
-                                        )),
-
-                                    // View Toggle
-                                    Obx(() => IconButton(
-                                          onPressed: () {
-                                            controller.toggleViewMode();
-                                          },
-                                          icon: Icon(
-                                            controller.isGridView.value
-                                                ? Icons.view_list
-                                                : Icons.grid_view,
-                                            color: AppColors.primaryColor,
-                                          ),
-                                          tooltip: controller.isGridView.value
-                                              ? 'List View'
-                                              : 'Grid View',
-                                        )),
-
-                                    // Export PDF (only show in selection mode)
-                                    Obx(() => controller.isSelectionMode.value
-                                        ? IconButton(
-                                            onPressed: controller
-                                                    .selectedProducts.isNotEmpty
-                                                ? () {
-                                                    controller
-                                                        .exportSelectedProductsPdf();
-                                                  }
-                                                : null,
-                                            icon: Icon(
-                                              Icons.picture_as_pdf,
-                                              color: controller.selectedProducts
-                                                      .isNotEmpty
-                                                  ? AppColors.primaryColor
-                                                  : AppColors.greyColor,
                                             ),
-                                            tooltip: 'Export PDF',
-                                          )
-                                        : SizedBox.shrink()),
-
-                                    // Share PDF (only show in selection mode)
-                                    Obx(() => controller.isSelectionMode.value
-                                        ? IconButton(
-                                            onPressed: controller
-                                                    .selectedProducts.isNotEmpty
-                                                ? () {
-                                                    controller.sharePdf();
-                                                  }
-                                                : null,
-                                            icon: Icon(
-                                              Icons.share,
-                                              color: controller.selectedProducts
-                                                      .isNotEmpty
-                                                  ? AppColors.primaryColor
-                                                  : AppColors.greyColor,
+                                            IconButton(
+                                              onPressed: () {
+                                                controller.toggleViewMode();
+                                              },
+                                              icon: Icon(
+                                                controller.isGridView.value
+                                                    ? Icons.view_list
+                                                    : Icons.grid_view,
+                                                color: AppColors.primaryColor,
+                                              ),
+                                              tooltip: controller.isGridView.value
+                                                  ? 'List View'
+                                                  : 'Grid View',
                                             ),
-                                            tooltip: 'Share PDF',
-                                          )
-                                        : SizedBox.shrink()),
+                                            if (controller.isSelectionMode.value)
+                                              IconButton(
+                                                onPressed: controller
+                                                        .selectedProducts
+                                                        .isNotEmpty
+                                                    ? () {
+                                                        controller
+                                                            .exportSelectedProductsPdf();
+                                                      }
+                                                    : null,
+                                                icon: Icon(
+                                                  Icons.picture_as_pdf,
+                                                  color: controller
+                                                          .selectedProducts
+                                                          .isNotEmpty
+                                                      ? AppColors.primaryColor
+                                                      : AppColors.greyColor,
+                                                ),
+                                                tooltip: 'Export PDF',
+                                              ),
+                                            if (controller.isSelectionMode.value)
+                                              IconButton(
+                                                onPressed: controller
+                                                        .selectedProducts
+                                                        .isNotEmpty
+                                                    ? () {
+                                                        controller.sharePdf();
+                                                      }
+                                                    : null,
+                                                icon: Icon(
+                                                  Icons.share,
+                                                  color: controller
+                                                          .selectedProducts
+                                                          .isNotEmpty
+                                                      ? AppColors.primaryColor
+                                                      : AppColors.greyColor,
+                                                ),
+                                                tooltip: 'Share PDF',
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                   ],
-                                ),
-                              ],
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -222,6 +248,23 @@ class ProductsView extends GetView<ProductsController> {
                       ),
                     ],
                   ),
+                  // Add Product Floating Action Button
+                  floatingActionButton: Obx(() => !controller.isSelectionMode.value
+                      ? FloatingActionButton.extended(
+                          onPressed: () {
+                            Get.toNamed(Routes.ADD_PRODUCT);
+                          },
+                          backgroundColor: AppColors.primaryColor,
+                          icon: Icon(Icons.add, color: AppColors.whiteColor),
+                          label: Text(
+                            "Add Product",
+                            style: TextStyle(
+                              color: AppColors.whiteColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        )
+                      : SizedBox.shrink()),
                 ),
               );
       },

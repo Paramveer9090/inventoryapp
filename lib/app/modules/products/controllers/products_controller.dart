@@ -40,6 +40,12 @@ class ProductsController extends GetxController {
   // Debouncing for search
   Timer? _debounce;
 
+  int _compareByName(GetDataListResponseData a, GetDataListResponseData b) {
+    final aName = (a.name ?? '').trim().toLowerCase();
+    final bName = (b.name ?? '').trim().toLowerCase();
+    return aName.compareTo(bName);
+  }
+
   @override
   void onInit() {
     getProductAPI();
@@ -152,8 +158,8 @@ class ProductsController extends GetxController {
         if (aStartsWith && !bStartsWith) return -1;
         if (bStartsWith && !aStartsWith) return 1;
 
-        // Otherwise maintain original order
-        return 0;
+        // Tie-breaker: alphabetical by product name
+        return aName.compareTo(bName);
       });
 
       // Set noData message only after checking all items
@@ -191,6 +197,9 @@ class ProductsController extends GetxController {
 
       // Map category names to products ONCE here instead of in UI
       _mapCategoryNamesToProducts(productsWithStock);
+
+      // Keep base product collections alphabetically sorted by name
+      productsWithStock.sort(_compareByName);
 
       productList = productsWithStock;
       filterList = productsWithStock;
@@ -261,8 +270,8 @@ class ProductsController extends GetxController {
       selectedProducts.clear();
       selectAll.value = false;
     } else {
-      // Select ALL matching products from filterList (not just visible ones)
-      selectedProducts.assignAll(filterList);
+      // Select every loaded product, not just the currently visible page.
+      selectedProducts.assignAll(allProductsList);
       selectAll.value = true;
     }
   }
@@ -376,7 +385,7 @@ class ProductsController extends GetxController {
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
                     child: pw.Text(
-                      'ID',
+                      'S.No',
                       style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                       textAlign: pw.TextAlign.center,
                     ),
@@ -408,15 +417,13 @@ class ProductsController extends GetxController {
                 ],
               ),
 
-              // Data rows - limit to first 100 products to avoid too many pages
-              ...selectedProducts
-                  .take(100)
-                  .map((product) => pw.TableRow(
+              // Data rows (use sequential serial numbers starting at 1)
+              ...selectedProducts.asMap().entries.map((entry) => pw.TableRow(
                         children: [
                           pw.Padding(
                             padding: const pw.EdgeInsets.all(6),
                             child: pw.Text(
-                              product.id?.toString() ?? 'N/A',
+                              '${entry.key + 1}',
                               textAlign: pw.TextAlign.center,
                               style: const pw.TextStyle(fontSize: 10),
                             ),
@@ -424,15 +431,15 @@ class ProductsController extends GetxController {
                           pw.Padding(
                             padding: const pw.EdgeInsets.all(6),
                             child: pw.Text(
-                              product.name ?? 'No Name',
+                              entry.value.name ?? 'No Name',
                               style: const pw.TextStyle(fontSize: 10),
                             ),
                           ),
                           pw.Padding(
                             padding: const pw.EdgeInsets.all(6),
                             child: pw.Text(
-                              product.descriptionInvoice ??
-                                  product.description ??
+                              entry.value.descriptionInvoice ??
+                                  entry.value.description ??
                                   'No description',
                               style: const pw.TextStyle(fontSize: 9),
                             ),
@@ -440,30 +447,16 @@ class ProductsController extends GetxController {
                           pw.Padding(
                             padding: const pw.EdgeInsets.all(6),
                             child: pw.Text(
-                              '${product.sellingPrice ?? 0}',
+                              '${entry.value.sellingPrice ?? 0}',
                               textAlign: pw.TextAlign.center,
                               style: const pw.TextStyle(fontSize: 10),
                             ),
                           ),
                         ],
-                      ))
-                  .toList(),
+                      )).toList(),
             ],
           ),
 
-          if (selectedProducts.length > 100)
-            pw.Padding(
-              padding: const pw.EdgeInsets.only(top: 20),
-              child: pw.Text(
-                'Note: Only first 100 products are shown in this export to prevent performance issues.',
-                style: pw.TextStyle(
-                  fontSize: 10,
-                  fontStyle: pw.FontStyle.italic,
-                  color: PdfColors.grey600,
-                ),
-                textAlign: pw.TextAlign.center,
-              ),
-            ),
         ],
       ),
     );

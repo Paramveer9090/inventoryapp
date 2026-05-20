@@ -20,7 +20,8 @@ class HttpUtil {
         'Accept': "application/json",
         'Authorization': 'Bearer $token',
       },
-      contentType: 'application/json',
+      // Don't set contentType here - let Dio auto-detect based on data type
+      // This allows multipart/form-data for file uploads and application/json for JSON
       responseType: ResponseType.json,
     );
 
@@ -28,12 +29,7 @@ class HttpUtil {
     CookieJar cookieJar = CookieJar();
     dio.interceptors.add(CookieManager(cookieJar));
 
-    dio.interceptors.add(LogInterceptor(
-      request: true,
-      requestBody: true,
-      responseBody: true,
-    ));
-
+    // Add loading and error interceptor first
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
         if (isLoading!) {
@@ -55,6 +51,30 @@ class HttpUtil {
         onError(createErrorEntity(e), context);
 
         return handler.next(e); //continue
+      },
+    ));
+
+    // Add log interceptor second
+    dio.interceptors.add(LogInterceptor(
+      request: true,
+      requestBody: true,
+      responseBody: true,
+    ));
+
+    // CRITICAL: Add FormData handler LAST to ensure it runs after everything else
+    dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        // Force multipart/form-data for FormData
+        if (options.data is FormData) {
+          // Remove any existing content-type
+          options.headers.remove('content-type');
+          options.headers.remove('Content-Type');
+          // Don't set contentType in options - let FormData handle it internally
+          options.contentType = null;
+          // Ensure Dio default request transformer is used for FormData
+          options.extra['_useFormDataTransformer'] = true;
+        }
+        return handler.next(options);
       },
     ));
   }
@@ -172,7 +192,25 @@ class HttpUtil {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    Options requestOptions = options ?? Options();
+    // For FormData, create clean Options without contentType
+    Options requestOptions;
+    if (data != null && data is FormData) {
+      // Create completely clean options for FormData
+      requestOptions = Options(
+        headers: options?.headers,
+        method: options?.method,
+        sendTimeout: options?.sendTimeout,
+        receiveTimeout: options?.receiveTimeout,
+        extra: options?.extra,
+        followRedirects: options?.followRedirects,
+        validateStatus: options?.validateStatus,
+        receiveDataWhenStatusError: options?.receiveDataWhenStatusError,
+        // Explicitly NO contentType - let Dio handle multipart
+      );
+    } else {
+      requestOptions = options ?? Options();
+    }
+    
     var response = await dio.post(
       path,
       data: data,
@@ -191,6 +229,7 @@ class HttpUtil {
     Options? options,
   }) async {
     Options requestOptions = options ?? Options();
+    requestOptions.contentType = 'application/json'; // Explicit for JSON data
     var response = await dio.post(
       path,
       data: data,
@@ -209,6 +248,7 @@ class HttpUtil {
     Options? options,
   }) async {
     Options requestOptions = options ?? Options();
+    requestOptions.contentType = 'application/json'; // Explicit for JSON data
 
     var response = await dio.put(
       path,
@@ -227,7 +267,22 @@ class HttpUtil {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    Options requestOptions = options ?? Options();
+    // For FormData, create clean Options without contentType
+    Options requestOptions;
+    if (data != null && data is FormData) {
+      requestOptions = Options(
+        headers: options?.headers,
+        method: options?.method,
+        sendTimeout: options?.sendTimeout,
+        receiveTimeout: options?.receiveTimeout,
+        extra: options?.extra,
+        followRedirects: options?.followRedirects,
+        validateStatus: options?.validateStatus,
+        receiveDataWhenStatusError: options?.receiveDataWhenStatusError,
+      );
+    } else {
+      requestOptions = options ?? Options();
+    }
     var response = await dio.delete(
       path,
       data: data,
@@ -245,7 +300,22 @@ class HttpUtil {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    Options requestOptions = options ?? Options();
+    // For FormData, create clean Options without contentType
+    Options requestOptions;
+    if (data != null && data is FormData) {
+      requestOptions = Options(
+        headers: options?.headers,
+        method: options?.method,
+        sendTimeout: options?.sendTimeout,
+        receiveTimeout: options?.receiveTimeout,
+        extra: options?.extra,
+        followRedirects: options?.followRedirects,
+        validateStatus: options?.validateStatus,
+        receiveDataWhenStatusError: options?.receiveDataWhenStatusError,
+      );
+    } else {
+      requestOptions = options ?? Options();
+    }
 
     var response = await dio.patch(
       path,
@@ -264,7 +334,22 @@ class HttpUtil {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    Options requestOptions = options ?? Options();
+    // For FormData, create clean Options without contentType
+    Options requestOptions;
+    if (data != null && data is FormData) {
+      requestOptions = Options(
+        headers: options?.headers,
+        method: options?.method,
+        sendTimeout: options?.sendTimeout,
+        receiveTimeout: options?.receiveTimeout,
+        extra: options?.extra,
+        followRedirects: options?.followRedirects,
+        validateStatus: options?.validateStatus,
+        receiveDataWhenStatusError: options?.receiveDataWhenStatusError,
+      );
+    } else {
+      requestOptions = options ?? Options();
+    }
 
     var response = await dio.post(
       path,
