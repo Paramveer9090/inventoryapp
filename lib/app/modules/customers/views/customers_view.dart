@@ -101,6 +101,17 @@ class _CustomersListViewState extends State<_CustomersListView> {
               ),
             ],
           ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {
+              Get.toNamed(Routes.ADD_CUSTOMER);
+            },
+            backgroundColor: AppColors.primaryColor,
+            icon: Icon(Icons.add, color: AppColors.whiteColor),
+            label: Text(
+              AppStrings.addCustomer,
+              style: TextStyle(color: AppColors.whiteColor),
+            ),
+          ),
         );
       },
     );

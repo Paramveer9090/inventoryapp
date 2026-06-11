@@ -105,19 +105,38 @@ class AddProductController extends GetxController {
 
   /// Get Taxes
   getTaxesAPI() async {
-    final data = await APIFunction().apiCall(
-      apiName: Constants.taxes,
-      context: Get.context!,
-      token: accessToken,
-      type: "get",
-      isLoading: false,
-    );
+    try {
+      final data = await APIFunction().apiCall(
+        apiName: Constants.taxes,
+        context: Get.context!,
+        token: accessToken,
+        type: "get",
+        isLoading: false,
+      );
 
-    GetDataListResponseModel model = GetDataListResponseModel.fromJson(data);
+      GetDataListResponseModel model = GetDataListResponseModel.fromJson(data);
 
-    if (model.data!.isNotEmpty) {
-      taxList = model.data!;
+      if (model.data!.isNotEmpty) {
+        taxList = model.data!;
+      } else {
+        taxList.clear();
+      }
       update();
+    } on DioError catch (e) {
+      taxList.clear();
+      update();
+      _debugLog("Taxes API unavailable", data: {
+        "status_code": e.response?.statusCode,
+        "response_data": e.response?.data,
+        "request_path": e.requestOptions.path,
+      });
+    } catch (e) {
+      taxList.clear();
+      update();
+      _debugLog("Unexpected error loading taxes", data: {
+        "error_type": e.runtimeType.toString(),
+        "error": e.toString(),
+      });
     }
   }
 

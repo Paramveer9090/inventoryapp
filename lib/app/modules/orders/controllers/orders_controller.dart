@@ -200,6 +200,9 @@ class OrdersController extends GetxController {
 
       for (var tempProduct in matchedProducts) {
         if (tempProduct.stock != 0) {
+          final taxValue = tempProduct.taxDetail?.tax ??
+              (tempProduct.tax is int ? tempProduct.tax as int : 0);
+
           productList.add(
             GetDataListResponseData(
               id: tempProduct.id,
@@ -221,11 +224,9 @@ class OrdersController extends GetxController {
               quantityCount: "0",
               isBox: tempProduct.isBox,
               isUnitSelected: 1,
-              tax: tempProduct.taxDetail!.tax,
+              tax: taxValue,
               descriptionInvoice: tempProduct.descriptionInvoice,
-              taxDetail: Tax(
-                tax: tempProduct.taxDetail!.tax,
-              ),
+              taxDetail: tempProduct.taxDetail ?? Tax(tax: taxValue),
             ),
           );
         }
