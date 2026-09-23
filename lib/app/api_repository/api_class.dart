@@ -1,4 +1,10 @@
-import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/material.dart';
+
+import '../utils/app_constant.dart';
+import 'loading.dart';
 
 class HttpUtil {
   factory HttpUtil(String token, bool isLoading, BuildContext context) => _instance(token, isLoading, context);
@@ -194,7 +200,7 @@ class HttpUtil {
   }) async {
     // For FormData, create clean Options without contentType
     Options requestOptions;
-    if (data != null && data is FormData) {
+    if (data != null) {
       // Create completely clean options for FormData
       requestOptions = Options(
         headers: options?.headers,
@@ -269,7 +275,7 @@ class HttpUtil {
   }) async {
     // For FormData, create clean Options without contentType
     Options requestOptions;
-    if (data != null && data is FormData) {
+    if (data != null) {
       requestOptions = Options(
         headers: options?.headers,
         method: options?.method,
@@ -302,7 +308,7 @@ class HttpUtil {
   }) async {
     // For FormData, create clean Options without contentType
     Options requestOptions;
-    if (data != null && data is FormData) {
+    if (data != null) {
       requestOptions = Options(
         headers: options?.headers,
         method: options?.method,
@@ -336,7 +342,7 @@ class HttpUtil {
   }) async {
     // For FormData, create clean Options without contentType
     Options requestOptions;
-    if (data != null && data is FormData) {
+    if (data != null) {
       requestOptions = Options(
         headers: options?.headers,
         method: options?.method,

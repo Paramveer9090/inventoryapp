@@ -635,8 +635,10 @@ class ProductGridSection extends StatelessWidget {
 
                             await controller.addToCartAPI();
                           } catch (e) {
-                            Get.snackbar(
-                                "Error", "Failed to add product: $e");
+                            utils.showSnackBar(
+                              context: context,
+                              message: "Failed to add product: $e",
+                            );
                           }
                         },
                       )

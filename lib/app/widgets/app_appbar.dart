@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:sizer/sizer.dart';
 
-import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
+import 'app_text.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool? isBack;

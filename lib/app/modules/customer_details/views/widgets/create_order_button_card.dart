@@ -23,10 +23,8 @@ class CreateOrderButtonCard extends StatelessWidget {
             final home = Get.find<HomeController>();
             home.isCustomerDetails.value = false;
             home.isSelected.value = 5;
-            home.isCustomerId.value = id;
-            if (home.isCustomerId.value.isNotEmpty) {
-              home.addOrder.value = true;
-            }
+            home.isCustomerId.value = "";
+            home.addOrder.value = true;
             home.update();
           },
         ),

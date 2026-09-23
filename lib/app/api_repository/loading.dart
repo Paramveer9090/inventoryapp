@@ -1,4 +1,7 @@
-import '../widgets/all_import.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+
+import '../utils/app_colors.dart';
 
 class Loading {
   Loading() {

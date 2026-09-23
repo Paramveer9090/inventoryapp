@@ -1,5 +1,9 @@
 import '../modules/orders/controllers/orders_controller.dart';
-import 'all_import.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:sizer/sizer.dart';
+
+import 'app_text.dart';
 
 class BreadcrumbBar extends StatelessWidget {
   final OrdersController controller;

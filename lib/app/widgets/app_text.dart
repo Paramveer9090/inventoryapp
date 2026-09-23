@@ -1,4 +1,6 @@
-import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
+import 'package:flutter/material.dart';
+
+import '../utils/app_colors.dart';
 
 class AppText extends StatelessWidget {
   final String text;

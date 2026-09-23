@@ -18,20 +18,20 @@ class CartCongratulationsSection extends StatelessWidget {
           ),
           SizedBox(height: 5.h),
           AppText(
-            "Congratulations!",
+            "Invoice sent",
             fontSize: 23.sp,
             color: const Color(0xff38A171),
           ),
           SizedBox(height: 5.h),
           AppText(
-            "Your order has been placed successfully.",
+            "Your invoice was created and sent successfully.",
             fontSize: 15.sp,
             textAlign: TextAlign.center,
             color: const Color(0XFF44474d),
           ),
           SizedBox(height: 2.h),
           AppButton(
-            title: "Go back to dashboard",
+            title: "Back to dashboard",
             isIcon: true,
             icon: Icons.arrow_back_ios_new,
             onTap: () {

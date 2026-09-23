@@ -1,11 +1,18 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
+
+enum ProductSortMode {
+  name,
+  category,
+}
 
 class ProductsController extends GetxController {
   List<GetDataListResponseData> productList = <GetDataListResponseData>[];
@@ -25,6 +32,7 @@ class ProductsController extends GetxController {
   // Selection and UI state
   var selectedProducts = <GetDataListResponseData>[].obs;
   var isGridView = true.obs;
+  var productSortMode = ProductSortMode.name.obs;
   var selectAll = false.obs;
   var isSelectionMode = false.obs;
 
@@ -37,6 +45,15 @@ class ProductsController extends GetxController {
   List<GetDataListResponseData> paginatedProductList =
       <GetDataListResponseData>[].obs; // Currently displayed products
 
+  // Scroll and search state
+  final ScrollController productsScrollController = ScrollController();
+  double _lastScrollOffset = 0.0;
+  String searchQuery = '';
+
+  // Local image cache state
+  final Map<String, String> _downloadedImagePaths = {};
+  var isDownloadingProductImages = false.obs;
+
   // Debouncing for search
   Timer? _debounce;
 
@@ -46,16 +63,139 @@ class ProductsController extends GetxController {
     return aName.compareTo(bName);
   }
 
+  int _compareByCategory(GetDataListResponseData a, GetDataListResponseData b) {
+    final aCategoryOrder = _categoryOrderFor(a.categoryId);
+    final bCategoryOrder = _categoryOrderFor(b.categoryId);
+    if (aCategoryOrder != bCategoryOrder) {
+      return aCategoryOrder.compareTo(bCategoryOrder);
+    }
+
+    final aCategoryName = _categoryNameFor(a.categoryId);
+    final bCategoryName = _categoryNameFor(b.categoryId);
+    if (aCategoryName != bCategoryName) {
+      return aCategoryName.compareTo(bCategoryName);
+    }
+
+    final aSubCategoryOrder = _categoryOrderFor(a.subCategoryId);
+    final bSubCategoryOrder = _categoryOrderFor(b.subCategoryId);
+    if (aSubCategoryOrder != bSubCategoryOrder) {
+      return aSubCategoryOrder.compareTo(bSubCategoryOrder);
+    }
+
+    final aSubCategoryName = _categoryNameFor(a.subCategoryId);
+    final bSubCategoryName = _categoryNameFor(b.subCategoryId);
+    if (aSubCategoryName != bSubCategoryName) {
+      return aSubCategoryName.compareTo(bSubCategoryName);
+    }
+
+    return _compareByName(a, b);
+  }
+
+  int _categoryOrderFor(dynamic categoryId) {
+    final parsedId = categoryId is int ? categoryId : int.tryParse('$categoryId');
+    if (parsedId == null) return 0x7fffffff;
+
+    for (final category in categoryList) {
+      if (category.id == parsedId) {
+        return category.categoryOrder ?? 0x7fffffff;
+      }
+    }
+
+    return 0x7fffffff;
+  }
+
+  String _categoryNameFor(dynamic categoryId) {
+    final parsedId = categoryId is int ? categoryId : int.tryParse('$categoryId');
+    if (parsedId == null) return '';
+
+    for (final category in categoryList) {
+      if (category.id == parsedId) {
+        return (category.name ?? '').trim().toLowerCase();
+      }
+    }
+
+    return '';
+  }
+
+  List<GetDataListResponseData> _sortProducts(
+    Iterable<GetDataListResponseData> products,
+  ) {
+    final sortedProducts = List<GetDataListResponseData>.from(products);
+
+    sortedProducts.sort((a, b) {
+      if (productSortMode.value == ProductSortMode.category) {
+        return _compareByCategory(a, b);
+      }
+
+      return _compareByName(a, b);
+    });
+
+    return sortedProducts;
+  }
+
+  void _refreshDisplayedProducts() {
+    final hasSearchText = searchQuery.trim().isNotEmpty;
+    if (hasSearchText) {
+      search(text: searchQuery);
+      return;
+    }
+
+    final sortedProducts = _sortProducts(filterList);
+    productList = List<GetDataListResponseData>.from(sortedProducts);
+    filterList = List<GetDataListResponseData>.from(sortedProducts);
+    allProductsList = List<GetDataListResponseData>.from(sortedProducts);
+    resetPagination();
+  }
+
   @override
   void onInit() {
+    productsScrollController.addListener(_handleScrollChange);
     getProductAPI();
     getCategoriesAPI();
     super.onInit();
   }
 
+  @override
+  void onClose() {
+    productsScrollController.removeListener(_handleScrollChange);
+    productsScrollController.dispose();
+    _debounce?.cancel();
+    super.onClose();
+  }
+
+  void _handleScrollChange() {
+    if (productsScrollController.hasClients) {
+      _lastScrollOffset = productsScrollController.offset;
+    }
+  }
+
+  void saveScrollPosition() {
+    if (productsScrollController.hasClients) {
+      _lastScrollOffset = productsScrollController.offset;
+    }
+  }
+
+  void restoreScrollPosition() {
+    if (!productsScrollController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (productsScrollController.hasClients) {
+          productsScrollController.jumpTo(_lastScrollOffset);
+        }
+      });
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (productsScrollController.hasClients) {
+        productsScrollController.jumpTo(_lastScrollOffset);
+      }
+    });
+  }
+
   // Pagination Methods
   /// Debounced search - only runs after user stops typing
   void onSearchChanged(String value) {
+    searchQuery = value;
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
       search(text: value);
@@ -106,8 +246,7 @@ class ProductsController extends GetxController {
     final searchText = text.trim();
 
     if (searchText.isEmpty) {
-      productList =
-          filterList; // filterList already contains only products with stock
+      productList = _sortProducts(filterList);
       noData.value = "";
     } else {
       // Convert search text to lowercase once for efficiency
@@ -169,12 +308,74 @@ class ProductsController extends GetxController {
         noData.value = "";
       }
 
-      productList = tempList;
+      productList = _sortProducts(tempList);
     }
 
     // Reset pagination after search
     resetPagination();
     update();
+  }
+
+  Future<String?> getLocalProductImagePath(String? imageUrl) async {
+    if (imageUrl == null || imageUrl.isEmpty) return null;
+
+    final cacheKey = imageUrl.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+    if (_downloadedImagePaths.containsKey(cacheKey)) {
+      final file = File(_downloadedImagePaths[cacheKey]!);
+      if (await file.exists()) return file.path;
+    }
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/product_images/$cacheKey');
+    if (await file.exists()) {
+      _downloadedImagePaths[cacheKey] = file.path;
+      return file.path;
+    }
+
+    return null;
+  }
+
+  Future<void> downloadAllProductImages() async {
+    if (isDownloadingProductImages.value) return;
+
+    isDownloadingProductImages.value = true;
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final saveDir = Directory('${dir.path}/product_images');
+      if (!await saveDir.exists()) {
+        await saveDir.create(recursive: true);
+      }
+
+      final imageUrls = productList
+          .map((product) => product.imageUrl)
+          .whereType<String>()
+          .where((url) => url.isNotEmpty)
+          .toSet()
+          .toList();
+
+      for (final imageUrl in imageUrls) {
+        final cacheKey = imageUrl.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+        final file = File('${saveDir.path}/$cacheKey');
+        if (await file.exists()) {
+          _downloadedImagePaths[cacheKey] = file.path;
+          continue;
+        }
+
+        final fullUrl = imageUrl.startsWith('http') ? imageUrl : '${Constants.imageBaseUrl}$imageUrl';
+        final response = await Dio().download(fullUrl, file.path);
+        if (response.statusCode == 200) {
+          _downloadedImagePaths[cacheKey] = file.path;
+        }
+      }
+
+      EasyLoading.showSuccess('Product images downloaded');
+    } catch (e) {
+      EasyLoading.showError('Failed to download product images');
+    } finally {
+      isDownloadingProductImages.value = false;
+      update();
+    }
   }
 
   /// Get Products (filtered to show only products with stock > 0)
@@ -199,11 +400,11 @@ class ProductsController extends GetxController {
       _mapCategoryNamesToProducts(productsWithStock);
 
       // Keep base product collections alphabetically sorted by name
-      productsWithStock.sort(_compareByName);
+      productsWithStock = _sortProducts(productsWithStock);
 
-      productList = productsWithStock;
-      filterList = productsWithStock;
-      allProductsList = productsWithStock; // Store all products with stock
+      productList = List<GetDataListResponseData>.from(productsWithStock);
+      filterList = List<GetDataListResponseData>.from(productsWithStock);
+      allProductsList = List<GetDataListResponseData>.from(productsWithStock); // Store all products with stock
 
       // Initialize pagination
       resetPagination();
@@ -250,6 +451,7 @@ class ProductsController extends GetxController {
 
     if (model.data!.isNotEmpty) {
       categoryList = model.data!;
+      _refreshDisplayedProducts();
       update();
     }
   }
@@ -290,6 +492,14 @@ class ProductsController extends GetxController {
 
   void toggleViewMode() {
     isGridView.value = !isGridView.value;
+  }
+
+  void setProductSortMode(ProductSortMode mode) {
+    if (productSortMode.value == mode) return;
+
+    productSortMode.value = mode;
+    _refreshDisplayedProducts();
+    update();
   }
 
   void toggleSelectionMode() {

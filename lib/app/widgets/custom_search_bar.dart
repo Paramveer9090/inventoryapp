@@ -1,4 +1,7 @@
-import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
+import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
+
+import '../utils/app_colors.dart';
 
 class CustomSearchBar extends StatelessWidget {
   final String hint;

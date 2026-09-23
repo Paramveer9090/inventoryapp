@@ -72,9 +72,14 @@ class Utils {
   /// <<< To show snackBar massage  --------- >>>
   void showSnackBar({required BuildContext context, required String message, int? statusCode}) {
     //AppColors appColors = AppColors();
+    final snackMessage = message.replaceAll(RegExp(r'\s+'), ' ').trim();
+    final displayMessage = snackMessage.length > 240
+        ? '${snackMessage.substring(0, 240)}...'
+        : snackMessage;
+
     Get.snackbar(
       "",
-      message,
+      displayMessage,
       snackPosition: SnackPosition.TOP,
       backgroundColor: /*statusCode == 1 ?*/ AppColors.secondPrimaryColor /*: Color(0xFFD55959)*/,
       titleText: const SizedBox(),

@@ -13,7 +13,7 @@ class HomeView extends GetView<HomeController> {
       builder: (controller) {
         final isSalesManager = controller.loginData?.roles?[0].title == "Sales Manager";
 
-        if (accessToken != null && isSalesManager) {
+        if (accessToken != null && isSalesManager && !Get.isRegistered<ProductsController>()) {
           Get.put(ProductsController());
         }
 

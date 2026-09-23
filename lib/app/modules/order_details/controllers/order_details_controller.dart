@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
+import 'package:true_leaf_inventory_app/app/utils/price_calculator.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -26,7 +27,42 @@ class OrderDetailsController extends GetxController {
   LoginSignUpData? loginData;
   var signImage = "".obs;
   var isWrongData = false.obs;
-  
+
+  void recalculateItem(int index) {
+    final item = orderItem[index];
+    final breakdown = PriceCalculator.calculate(
+      quantity: item.quantityCount,
+      price: item.salePrice,
+      tax: item.tax,
+      boxSize: item.boxSize,
+      isBox: item.isBox,
+    );
+    item.amountWithoutTax = breakdown.amountWithoutTax.toStringAsFixed(2);
+    item.amountOnlyTax = breakdown.amountOnlyTax.toStringAsFixed(2);
+    item.finalAmount = breakdown.finalAmount.toStringAsFixed(2);
+  }
+
+  void recalculateOrderTotals() {
+    for (var index = 0; index < orderItem.length; index++) {
+      recalculateItem(index);
+    }
+    final totalWithoutTax = orderItem.fold<double>(
+      0,
+      (sum, item) =>
+          sum +
+          (double.tryParse(item.amountWithoutTax?.toString() ?? '0') ?? 0),
+    );
+    final totalTax = orderItem.fold<double>(
+      0,
+      (sum, item) =>
+          sum + (double.tryParse(item.amountOnlyTax?.toString() ?? '0') ?? 0),
+    );
+    getDetailsData?.orderTotalWithoutTax = totalWithoutTax.toStringAsFixed(2);
+    getDetailsData?.orderTax = totalTax.toStringAsFixed(2);
+    getDetailsData?.orderTotal =
+        (totalWithoutTax + totalTax).toStringAsFixed(2);
+  }
+
   // Delivery Agent Management
   List<LoginSignUpData> deliveryAgents = [];
   var selectedDeliveryAgent = Rxn<LoginSignUpData>();
@@ -61,7 +97,7 @@ class OrderDetailsController extends GetxController {
     if (data != null) {
       loginData = LoginSignUpData.fromJson(data);
       // Check if current user is a delivery agent - they shouldn't be able to change driver
-      if (loginData?.roles?.isNotEmpty == true && 
+      if (loginData?.roles?.isNotEmpty == true &&
           loginData!.roles![0].title == "Delivery Agent") {
         showDeliveryAgentSelector.value = false;
       } else {
@@ -75,7 +111,7 @@ class OrderDetailsController extends GetxController {
   loadDeliveryAgents() async {
     try {
       isLoadingAgents.value = true;
-      
+
       final data = await APIFunction().apiCall(
         apiName: Constants.users,
         context: Get.context!,
@@ -87,12 +123,12 @@ class OrderDetailsController extends GetxController {
       if (data != null && data['data'] != null) {
         List<dynamic> users = data['data'];
         deliveryAgents.clear();
-        
+
         for (var user in users) {
           try {
             LoginSignUpData userData = LoginSignUpData.fromJson(user);
             // Filter only delivery agents
-            if (userData.roles?.isNotEmpty == true && 
+            if (userData.roles?.isNotEmpty == true &&
                 userData.roles![0].title == "Delivery Agent") {
               deliveryAgents.add(userData);
             }
@@ -100,20 +136,20 @@ class OrderDetailsController extends GetxController {
             // Silently handle parsing errors
           }
         }
-        
+
         // Set currently assigned delivery agent
         if (getDetailsData?.deliveryAgentId != null) {
           // Convert both to string for comparison to handle type mismatches
-          String orderDeliveryAgentId = getDetailsData!.deliveryAgentId.toString();
+          String orderDeliveryAgentId =
+              getDetailsData!.deliveryAgentId.toString();
           selectedDeliveryAgent.value = deliveryAgents.firstWhereOrNull(
             (agent) => agent.id.toString() == orderDeliveryAgentId,
           );
-          
         } else {
           selectedDeliveryAgent.value = null;
         }
       }
-      
+
       isLoadingAgents.value = false;
       update();
     } catch (e) {
@@ -142,8 +178,9 @@ class OrderDetailsController extends GetxController {
         return;
       }
 
-      String deliveryAgentId = selectedDeliveryAgent.value?.id?.toString() ?? "null";
-      
+      String deliveryAgentId =
+          selectedDeliveryAgent.value?.id?.toString() ?? "null";
+
       // Validate that delivery agent ID is a positive integer
       int? deliveryAgentIdInt;
       if (deliveryAgentId != "null") {
@@ -159,7 +196,7 @@ class OrderDetailsController extends GetxController {
           return;
         }
       }
-      
+
       // Prepare order items data
       List categoryList = [];
       List subCategoryList = [];
@@ -185,7 +222,8 @@ class OrderDetailsController extends GetxController {
       final requestData = {
         "sales_manager_id": getDetailsData!.salesManagerId?.toString() ?? "",
         "customer_id": getDetailsData!.customerId ?? 0,
-        "delivery_agent_id": deliveryAgentIdInt?.toString() ?? "", // Always include, use empty string if null
+        "delivery_agent_id": deliveryAgentIdInt?.toString() ??
+            "", // Always include, use empty string if null
         "item_category": categoryList,
         "item_subcategory": subCategoryList,
         "item_name": productAPIList,
@@ -203,7 +241,8 @@ class OrderDetailsController extends GetxController {
         "delivery_note": getDetailsData!.deliveryNote?.toString() ?? "null",
         "customer_sign": getDetailsData!.customerSign?.toString() ?? "null",
         "status": "1",
-        "order_date": getDetailsData!.orderDate?.split(".").first ?? DateTime.now().toString().split(" ").first
+        "order_date": getDetailsData!.orderDate?.split(".").first ??
+            DateTime.now().toString().split(" ").first
       };
 
       String rawData = jsonEncode(requestData);
@@ -215,51 +254,56 @@ class OrderDetailsController extends GetxController {
         rawData: rawData,
       );
 
-        if (data != null) {
-          print("API Update Response received");
-          
-          // Check if the response contains the updated delivery_agent_id
-          if (data is Map && data.containsKey('data')) {
-            var orderData = data['data'];
-            print("Updated order delivery_agent_id: ${orderData['delivery_agent_id']}");
-            print("Response order ID: ${orderData['id']}");
-            print("Response status: ${orderData['status']}");
-            
-            // Check if the delivery agent was actually updated
-            var responseDeliveryAgentId = orderData['delivery_agent_id'];
-            var responseIdAsInt = responseDeliveryAgentId is String ? int.tryParse(responseDeliveryAgentId) : responseDeliveryAgentId;
-            
-            if (responseIdAsInt == deliveryAgentIdInt) {
-              print("SUCCESS: Delivery agent was updated correctly! ID: $deliveryAgentIdInt");
-              
-              // Show success message only if the update was actually successful
-              Get.snackbar(
-                "Success",
-                "Delivery driver assigned successfully to ${selectedDeliveryAgent.value?.name}",
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: Colors.green,
-                colorText: Colors.white,
-              );
-            } else {
-              print("ISSUE: Delivery agent was not updated. Expected: $deliveryAgentIdInt, Got: $responseIdAsInt (original: $responseDeliveryAgentId)");
-              
-              Get.snackbar(
-                "Warning", 
-                "Delivery driver assignment may not have been successful",
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: Colors.orange,
-                colorText: Colors.white,
-              );
-            }
+      if (data != null) {
+        print("API Update Response received");
+
+        // Check if the response contains the updated delivery_agent_id
+        if (data is Map && data.containsKey('data')) {
+          var orderData = data['data'];
+          print(
+              "Updated order delivery_agent_id: ${orderData['delivery_agent_id']}");
+          print("Response order ID: ${orderData['id']}");
+          print("Response status: ${orderData['status']}");
+
+          // Check if the delivery agent was actually updated
+          var responseDeliveryAgentId = orderData['delivery_agent_id'];
+          var responseIdAsInt = responseDeliveryAgentId is String
+              ? int.tryParse(responseDeliveryAgentId)
+              : responseDeliveryAgentId;
+
+          if (responseIdAsInt == deliveryAgentIdInt) {
+            print(
+                "SUCCESS: Delivery agent was updated correctly! ID: $deliveryAgentIdInt");
+
+            // Show success message only if the update was actually successful
+            Get.snackbar(
+              "Success",
+              "Delivery driver assigned successfully to ${selectedDeliveryAgent.value?.name}",
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.green,
+              colorText: Colors.white,
+            );
           } else {
-            print("API response does not contain 'data' field: $data");
-          }        // Refresh order details to get updated data
+            print(
+                "ISSUE: Delivery agent was not updated. Expected: $deliveryAgentIdInt, Got: $responseIdAsInt (original: $responseDeliveryAgentId)");
+
+            Get.snackbar(
+              "Warning",
+              "Delivery driver assignment may not have been successful",
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.orange,
+              colorText: Colors.white,
+            );
+          }
+        } else {
+          print("API response does not contain 'data' field: $data");
+        } // Refresh order details to get updated data
         try {
           orderDetails();
         } catch (refreshError) {
           print("Error refreshing order details: $refreshError");
         }
-        
+
         // Remove the generic success message since we now have specific ones above
         // Get.snackbar(
         //   "Success",
@@ -300,7 +344,8 @@ class OrderDetailsController extends GetxController {
       // Try to get from MyOrdersController if available
       try {
         var myOrdersController = Get.find<MyOrdersController>();
-        if (myOrdersController.id.value.isNotEmpty && myOrdersController.id.value != "0") {
+        if (myOrdersController.id.value.isNotEmpty &&
+            myOrdersController.id.value != "0") {
           id = myOrdersController.id.value;
           print("Using ID from MyOrdersController: $id");
         } else {
@@ -343,7 +388,7 @@ class OrderDetailsController extends GetxController {
     if (model.order != null) {
       getDetailsData = model.order!;
       orderItem = model.order!.orderItem!;
-      
+
       // Debug: Print customer and order info
       print('Order ID: ${getDetailsData?.id}');
       print('Customer ID: ${getDetailsData?.customerId}');
@@ -351,34 +396,23 @@ class OrderDetailsController extends GetxController {
       if (getDetailsData?.customer != null) {
         print('Customer name: ${getDetailsData?.customer?.name}');
       }
-      print('Current delivery_agent_id from API: ${getDetailsData?.deliveryAgentId}');
-      print('delivery_agent_id type: ${getDetailsData?.deliveryAgentId.runtimeType}');
-      
+      print(
+          'Current delivery_agent_id from API: ${getDetailsData?.deliveryAgentId}');
+      print(
+          'delivery_agent_id type: ${getDetailsData?.deliveryAgentId.runtimeType}');
+
       encodeData(imageUrl: model.order?.customerSign?.split(",").last);
 
       // Load delivery agents after order details are loaded
       loadDeliveryAgents();
-      
+
       // Initialize comments field with order notes
-      if (getDetailsData?.comments != null && getDetailsData!.comments.toString().isNotEmpty) {
+      if (getDetailsData?.comments != null &&
+          getDetailsData!.comments.toString().isNotEmpty) {
         comments.text = getDetailsData!.comments.toString();
       }
 
-      /// count
-
-      var amountTax;
-      var amount;
-      for (int i = 0; i < orderItem.length; i++) {
-        amountTax = ((double.parse(orderItem[i].quantityCount.toString()) *
-                    double.parse(orderItem[i].salePrice.toString())) *
-                double.parse(orderItem[i].tax.toString())) /
-            100;
-        amount = (double.parse(orderItem[i].quantityCount!.toString())) *
-            double.parse(orderItem[i].salePrice.toString());
-        orderItem[i].amountWithoutTax = amount.toString();
-        orderItem[i].amountOnlyTax = amountTax.toString();
-        orderItem[i].finalAmount = (amount + amountTax).toString();
-      }
+      recalculateOrderTotals();
 
       update();
     } else {
@@ -391,10 +425,10 @@ class OrderDetailsController extends GetxController {
   encodeData({imageUrl}) {
     if (imageUrl != null && imageUrl.toString().isNotEmpty) {
       String _imgString = imageUrl.toString();
-      
+
       // Check if the string is a valid Base64 string
       // Base64 strings should be multiples of 4 in length and contain only valid Base64 characters
-      if (_imgString.length % 4 == 0 && 
+      if (_imgString.length % 4 == 0 &&
           RegExp(r'^[A-Za-z0-9+/]*={0,2}$').hasMatch(_imgString) &&
           _imgString.length > 4) {
         try {
@@ -430,15 +464,15 @@ class OrderDetailsController extends GetxController {
 
       // If you need a dart:io File object:
       final file = File(picked.path);
-      
+
       // Validate file exists and get file info
       if (await file.exists()) {
         final fileSize = await file.length();
         final fileName = file.path.split('/').last;
-        
+
         print('Selected file: $fileName');
         print('File size: ${(fileSize / 1024).toStringAsFixed(2)} KB');
-        
+
         // Optional: Check file size limit (e.g., 10MB)
         const maxFileSize = 10 * 1024 * 1024; // 10MB in bytes
         if (fileSize > maxFileSize) {
@@ -568,36 +602,8 @@ class OrderDetailsController extends GetxController {
   /// delete product
 
   deleteProduct({index}) {
-    var amountTax;
-    var amount;
-
-    for (int i = 0; i < orderItem.length; i++) {
-      amountTax = ((double.parse(orderItem[i].quantityCount.toString()) *
-                  double.parse(orderItem[i].salePrice.toString())) *
-              double.parse(orderItem[i].tax.toString())) /
-          100;
-      amount = (double.parse(orderItem[i].quantityCount!.toString())) *
-          double.parse(orderItem[i].salePrice.toString());
-      orderItem[i].amountWithoutTax = amount.toString();
-      orderItem[i].amountOnlyTax = amountTax.toString();
-      orderItem[i].finalAmount = (amount + amountTax).toString();
-    }
-    var orderTotalWithoutTax;
-    orderTotalWithoutTax = orderItem.fold<double>(
-        0, (sum, item) => sum + double.parse(item.amountWithoutTax.toString()));
-    getDetailsData!.orderTotalWithoutTax =
-        orderTotalWithoutTax - double.parse(orderItem[index].amountWithoutTax);
-    var orderTax;
-    orderTax = orderItem.fold<double>(
-        0, (sum, item) => sum + double.parse(item.amountOnlyTax.toString()));
-    getDetailsData!.orderTax =
-        orderTax - double.parse(orderItem[index].amountOnlyTax);
-
-    getDetailsData!.orderTotal =
-        double.parse(getDetailsData!.orderTotalWithoutTax.toString()) +
-            double.parse(getDetailsData!.orderTax.toString());
-
     orderItem.removeAt(index);
+    recalculateOrderTotals();
     update();
   }
 
@@ -609,7 +615,7 @@ class OrderDetailsController extends GetxController {
     print('👤 Customer: ${getDetailsData?.customer?.name}');
     print('📊 getDetailsData is null: ${getDetailsData == null}');
     print('📊 orderItem is empty: ${orderItem.isEmpty}');
-    
+
     // Check if data is loaded
     if (getDetailsData == null) {
       print('❌ ERROR: getDetailsData is null! Cannot generate PDF.');
@@ -622,13 +628,13 @@ class OrderDetailsController extends GetxController {
       );
       throw Exception('Order data not loaded');
     }
-    
+
     if (orderItem.isEmpty) {
       print('⚠️ WARNING: Order has no items!');
     }
-    
+
     final pdf = pw.Document();
-    
+
     // Load logo, fallback to placeholder if not found
     pw.MemoryImage? logo;
     try {
@@ -650,23 +656,27 @@ class OrderDetailsController extends GetxController {
             pw.Container(
               padding: pw.EdgeInsets.only(bottom: 20),
               decoration: pw.BoxDecoration(
-                border: pw.Border(bottom: pw.BorderSide(color: PdfColors.black, width: 2)),
+                border: pw.Border(
+                    bottom: pw.BorderSide(color: PdfColors.black, width: 2)),
               ),
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
                   if (logo != null)
-                    pw.Image(logo, width: 80, height: 80, fit: pw.BoxFit.contain)
+                    pw.Image(logo,
+                        width: 80, height: 80, fit: pw.BoxFit.contain)
                   else
-                    pw.Container(width: 80, height: 80, color: PdfColors.grey200),
+                    pw.Container(
+                        width: 80, height: 80, color: PdfColors.grey200),
                   pw.Expanded(
                     child: pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.end,
                       children: [
                         pw.Text(
-                          getDetailsData?.customer?.name?.toString() ?? 'Customer',
+                          getDetailsData?.customer?.name?.toString() ??
+                              'Customer',
                           style: pw.TextStyle(
-                            fontSize: 22, 
+                            fontSize: 22,
                             fontWeight: pw.FontWeight.bold,
                             color: PdfColors.black,
                           ),
@@ -677,7 +687,7 @@ class OrderDetailsController extends GetxController {
                         pw.Text(
                           'Order #${getDetailsData?.id?.toString() ?? "N/A"}',
                           style: pw.TextStyle(
-                            fontSize: 16, 
+                            fontSize: 16,
                             color: PdfColors.black,
                           ),
                         ),
@@ -688,71 +698,75 @@ class OrderDetailsController extends GetxController {
               ),
             ),
             pw.SizedBox(height: 16),
-              
-              // Invoice details
-              pw.Text(
-                'Invoice Date: ${DateFormat('dd MMM yyyy').format(DateTime.now())}',
-                style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
+
+            // Invoice details
+            pw.Text(
+              'Invoice Date: ${DateFormat('dd MMM yyyy').format(DateTime.now())}',
+              style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
+            ),
+            pw.SizedBox(height: 8),
+            pw.Text(
+              'Company: ${getDetailsData?.customer?.companyName ?? "N/A"}',
+              style: pw.TextStyle(fontSize: 11, color: PdfColors.black),
+            ),
+            pw.Text(
+              'Contact: ${getDetailsData?.customer?.contactName ?? "N/A"}',
+              style: pw.TextStyle(fontSize: 11, color: PdfColors.black),
+            ),
+
+            pw.SizedBox(height: 16),
+            pw.Divider(thickness: 2, color: PdfColors.black),
+            pw.SizedBox(height: 8),
+
+            // Order items title
+            pw.Text(
+              'Order Items:',
+              style: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                fontSize: 14,
+                color: PdfColors.black,
               ),
-              pw.SizedBox(height: 8),
-              pw.Text(
-                'Company: ${getDetailsData?.customer?.companyName ?? "N/A"}',
-                style: pw.TextStyle(fontSize: 11, color: PdfColors.black),
+            ),
+            pw.SizedBox(height: 8),
+
+            // Items table
+            pw.TableHelper.fromTextArray(
+              border: pw.TableBorder.all(color: PdfColors.black, width: 1),
+              headerStyle: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                fontSize: 10,
+                color: PdfColors.black,
               ),
-              pw.Text(
-                'Contact: ${getDetailsData?.customer?.contactName ?? "N/A"}',
-                style: pw.TextStyle(fontSize: 11, color: PdfColors.black),
+              cellStyle: pw.TextStyle(
+                fontSize: 10,
+                color: PdfColors.black,
               ),
-              
-              pw.SizedBox(height: 16),
-              pw.Divider(thickness: 2, color: PdfColors.black),
-              pw.SizedBox(height: 8),
-              
-              // Order items title
-              pw.Text(
-                'Order Items:',
-                style: pw.TextStyle(
-                  fontWeight: pw.FontWeight.bold, 
-                  fontSize: 14,
-                  color: PdfColors.black,
-                ),
-              ),
-              pw.SizedBox(height: 8),
-              
-              // Items table
-              pw.TableHelper.fromTextArray(
-                border: pw.TableBorder.all(color: PdfColors.black, width: 1),
-                headerStyle: pw.TextStyle(
-                  fontWeight: pw.FontWeight.bold, 
-                  fontSize: 10,
-                  color: PdfColors.black,
-                ),
-                cellStyle: pw.TextStyle(
-                  fontSize: 10,
-                  color: PdfColors.black,
-                ),
-                headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-                cellHeight: 30,
-                cellAlignments: {
-                  0: pw.Alignment.centerLeft,
-                  1: pw.Alignment.center,
-                  2: pw.Alignment.centerRight,
-                  3: pw.Alignment.center,
-                  4: pw.Alignment.centerRight,
-                },
-                headers: ['Product', 'Qty', 'Price', 'Tax', 'Total'],
-                data: orderItem.isEmpty 
-                  ? [['No items in this order', '', '', '', '']]
+              headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
+              cellHeight: 30,
+              cellAlignments: {
+                0: pw.Alignment.centerLeft,
+                1: pw.Alignment.center,
+                2: pw.Alignment.centerRight,
+                3: pw.Alignment.center,
+                4: pw.Alignment.centerRight,
+              },
+              headers: ['Product', 'Qty', 'Price', 'Tax', 'Total'],
+              data: orderItem.isEmpty
+                  ? [
+                      ['No items in this order', '', '', '', '']
+                    ]
                   : orderItem.map((item) {
-                      print('📄 Adding item: ${item.name} - Qty: ${item.quantityCount}');
-                      
+                      print(
+                          '📄 Adding item: ${item.name} - Qty: ${item.quantityCount}');
+
                       // Format prices to 2 decimal places
                       String formatPrice(dynamic price) {
                         if (price == null) return '0.00';
-                        double priceValue = double.tryParse(price.toString()) ?? 0.0;
+                        double priceValue =
+                            double.tryParse(price.toString()) ?? 0.0;
                         return priceValue.toStringAsFixed(2);
                       }
-                      
+
                       return [
                         item.name?.toString() ?? 'N/A',
                         item.quantityCount?.toString() ?? '0',
@@ -761,70 +775,69 @@ class OrderDetailsController extends GetxController {
                         '\$${formatPrice(item.finalAmount)}',
                       ];
                     }).toList(),
-              ),
-              
-              pw.SizedBox(height: 16),
-              pw.Divider(thickness: 2),
-              pw.SizedBox(height: 8),
-              
-              // Totals section
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.end,
-                children: [
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.end,
-                    children: [
-                      pw.Text(
-                        'Subtotal: \$${(double.tryParse(getDetailsData?.orderTotalWithoutTax?.toString() ?? "0") ?? 0.0).toStringAsFixed(2)}',
-                        style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
-                      ),
-                      pw.SizedBox(height: 4),
-                      pw.Text(
-                        'Taxes & charges: \$${(double.tryParse(getDetailsData?.orderTax?.toString() ?? "0") ?? 0.0).toStringAsFixed(2)}',
-                        style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
-                      ),
-                      pw.SizedBox(height: 8),
-                      pw.Container(
-                        padding: pw.EdgeInsets.all(8),
-                        decoration: pw.BoxDecoration(
-                          color: PdfColors.grey300,
-                          borderRadius: pw.BorderRadius.circular(4),
-                        ),
-                        child: pw.Text(
-                          'Grand Total: \$${(double.tryParse(getDetailsData?.orderTotal?.toString() ?? "0") ?? 0.0).toStringAsFixed(2)}',
-                          style: pw.TextStyle(
-                            fontWeight: pw.FontWeight.bold, 
-                            fontSize: 14,
-                            color: PdfColors.black,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              
-              // Notes section if available
-              if (getDetailsData?.comments != null && 
-                  getDetailsData!.comments.toString().trim().isNotEmpty &&
-                  getDetailsData!.comments.toString() != 'null')
-                ...[
-                  pw.SizedBox(height: 20),
-                  pw.Divider(color: PdfColors.black),
-                  pw.Text(
-                    'Notes:',
-                    style: pw.TextStyle(
-                      fontWeight: pw.FontWeight.bold, 
-                      fontSize: 14,
-                      color: PdfColors.black,
+            ),
+
+            pw.SizedBox(height: 16),
+            pw.Divider(thickness: 2),
+            pw.SizedBox(height: 8),
+
+            // Totals section
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.end,
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  children: [
+                    pw.Text(
+                      'Subtotal: \$${(double.tryParse(getDetailsData?.orderTotalWithoutTax?.toString() ?? "0") ?? 0.0).toStringAsFixed(2)}',
+                      style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
                     ),
-                  ),
-                  pw.SizedBox(height: 8),
-                  pw.Text(
-                    getDetailsData!.comments.toString(),
-                    style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
-                  ),
-                ],
+                    pw.SizedBox(height: 4),
+                    pw.Text(
+                      'Taxes & charges: \$${(double.tryParse(getDetailsData?.orderTax?.toString() ?? "0") ?? 0.0).toStringAsFixed(2)}',
+                      style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
+                    ),
+                    pw.SizedBox(height: 8),
+                    pw.Container(
+                      padding: pw.EdgeInsets.all(8),
+                      decoration: pw.BoxDecoration(
+                        color: PdfColors.grey300,
+                        borderRadius: pw.BorderRadius.circular(4),
+                      ),
+                      child: pw.Text(
+                        'Grand Total: \$${(double.tryParse(getDetailsData?.orderTotal?.toString() ?? "0") ?? 0.0).toStringAsFixed(2)}',
+                        style: pw.TextStyle(
+                          fontWeight: pw.FontWeight.bold,
+                          fontSize: 14,
+                          color: PdfColors.black,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            // Notes section if available
+            if (getDetailsData?.comments != null &&
+                getDetailsData!.comments.toString().trim().isNotEmpty &&
+                getDetailsData!.comments.toString() != 'null') ...[
+              pw.SizedBox(height: 20),
+              pw.Divider(color: PdfColors.black),
+              pw.Text(
+                'Notes:',
+                style: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold,
+                  fontSize: 14,
+                  color: PdfColors.black,
+                ),
+              ),
+              pw.SizedBox(height: 8),
+              pw.Text(
+                getDetailsData!.comments.toString(),
+                style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
+              ),
+            ],
           ];
         },
       ),
@@ -833,10 +846,10 @@ class OrderDetailsController extends GetxController {
     print('✅ Invoice PDF generated successfully');
     return pdf.save();
   }
-  
+
   Future<Uint8List> generatePackagingSlipPdf() async {
     final pdf = pw.Document();
-    
+
     // Load logo, fallback to placeholder if not found
     pw.MemoryImage? logo;
     try {
@@ -857,23 +870,27 @@ class OrderDetailsController extends GetxController {
             pw.Container(
               padding: pw.EdgeInsets.only(bottom: 20),
               decoration: pw.BoxDecoration(
-                border: pw.Border(bottom: pw.BorderSide(color: PdfColors.black, width: 2)),
+                border: pw.Border(
+                    bottom: pw.BorderSide(color: PdfColors.black, width: 2)),
               ),
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
                   if (logo != null)
-                    pw.Image(logo, width: 80, height: 80, fit: pw.BoxFit.contain)
+                    pw.Image(logo,
+                        width: 80, height: 80, fit: pw.BoxFit.contain)
                   else
-                    pw.Container(width: 80, height: 80, color: PdfColors.grey200),
+                    pw.Container(
+                        width: 80, height: 80, color: PdfColors.grey200),
                   pw.Expanded(
                     child: pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.end,
                       children: [
                         pw.Text(
-                          getDetailsData?.customer?.name?.toString() ?? 'Customer',
+                          getDetailsData?.customer?.name?.toString() ??
+                              'Customer',
                           style: pw.TextStyle(
-                            fontSize: 22, 
+                            fontSize: 22,
                             fontWeight: pw.FontWeight.bold,
                             color: PdfColors.black,
                           ),
@@ -884,7 +901,7 @@ class OrderDetailsController extends GetxController {
                         pw.Text(
                           'Order #${getDetailsData?.id?.toString() ?? "N/A"}',
                           style: pw.TextStyle(
-                            fontSize: 16, 
+                            fontSize: 16,
                             color: PdfColors.black,
                           ),
                         ),
@@ -895,8 +912,7 @@ class OrderDetailsController extends GetxController {
               ),
             ),
             pw.SizedBox(height: 16),
-              
-            
+
             // Packaging slip details
             pw.Text(
               'Packaging Date: ${DateFormat('dd MMM yyyy').format(DateTime.now())}',
@@ -911,27 +927,27 @@ class OrderDetailsController extends GetxController {
               'Order Date: ${getDetailsData?.orderDate ?? "N/A"}',
               style: pw.TextStyle(fontSize: 11, color: PdfColors.black),
             ),
-            
+
             pw.SizedBox(height: 16),
             pw.Divider(thickness: 2, color: PdfColors.black),
             pw.SizedBox(height: 8),
-            
+
             // Items to pack title
             pw.Text(
               'Items to Pack:',
               style: pw.TextStyle(
-                fontWeight: pw.FontWeight.bold, 
+                fontWeight: pw.FontWeight.bold,
                 fontSize: 14,
                 color: PdfColors.black,
               ),
             ),
             pw.SizedBox(height: 8),
-            
+
             // Items table
             pw.TableHelper.fromTextArray(
               border: pw.TableBorder.all(color: PdfColors.black, width: 1),
               headerStyle: pw.TextStyle(
-                fontWeight: pw.FontWeight.bold, 
+                fontWeight: pw.FontWeight.bold,
                 fontSize: 12,
                 color: PdfColors.black,
               ),
@@ -953,45 +969,44 @@ class OrderDetailsController extends GetxController {
                 ];
               }).toList(),
             ),
-            
+
             pw.SizedBox(height: 32),
-              pw.Container(
-                padding: pw.EdgeInsets.all(12),
-                decoration: pw.BoxDecoration(
-                  color: PdfColors.grey200,
-                  borderRadius: pw.BorderRadius.circular(4),
-                ),
-                child: pw.Text(
-                  'Please ensure all items are packed and checked.',
-                  style: pw.TextStyle(
-                    fontSize: 14, 
-                    fontStyle: pw.FontStyle.italic,
-                    color: PdfColors.black,
-                  ),
+            pw.Container(
+              padding: pw.EdgeInsets.all(12),
+              decoration: pw.BoxDecoration(
+                color: PdfColors.grey200,
+                borderRadius: pw.BorderRadius.circular(4),
+              ),
+              child: pw.Text(
+                'Please ensure all items are packed and checked.',
+                style: pw.TextStyle(
+                  fontSize: 14,
+                  fontStyle: pw.FontStyle.italic,
+                  color: PdfColors.black,
                 ),
               ),
-              
-              // Notes section if available
-              if (getDetailsData?.comments != null && 
-                  getDetailsData!.comments.toString().trim().isNotEmpty &&
-                  getDetailsData!.comments.toString() != 'null')
-                ...[
-                  pw.SizedBox(height: 20),
-                  pw.Divider(color: PdfColors.black),
-                  pw.Text(
-                    'Notes:',
-                    style: pw.TextStyle(
-                      fontWeight: pw.FontWeight.bold, 
-                      fontSize: 14,
-                      color: PdfColors.black,
-                    ),
-                  ),
-                  pw.SizedBox(height: 8),
-                  pw.Text(
-                    getDetailsData!.comments.toString(),
-                    style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
-                  ),
-                ],
+            ),
+
+            // Notes section if available
+            if (getDetailsData?.comments != null &&
+                getDetailsData!.comments.toString().trim().isNotEmpty &&
+                getDetailsData!.comments.toString() != 'null') ...[
+              pw.SizedBox(height: 20),
+              pw.Divider(color: PdfColors.black),
+              pw.Text(
+                'Notes:',
+                style: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold,
+                  fontSize: 14,
+                  color: PdfColors.black,
+                ),
+              ),
+              pw.SizedBox(height: 8),
+              pw.Text(
+                getDetailsData!.comments.toString(),
+                style: pw.TextStyle(fontSize: 12, color: PdfColors.black),
+              ),
+            ],
           ];
         },
       ),
