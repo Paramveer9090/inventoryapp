@@ -702,6 +702,30 @@ class OrdersController extends GetxController {
       return;
     }
 
+    final requestedCustomerId = customerId?.toString().trim() ?? "";
+    final storedCustomerId = homeController.isCustomerId.value.trim();
+    final resolvedCustomerId = requestedCustomerId.isNotEmpty
+        ? requestedCustomerId
+        : storedCustomerId;
+
+    if (resolvedCustomerId.isEmpty) {
+      utils.showSnackBar(
+        context: Get.context!,
+        message: "Customer information is not available",
+      );
+      return;
+    }
+
+    if (loginData?.id == null) {
+      utils.showSnackBar(
+        context: Get.context!,
+        message: "Sales manager information is not available",
+      );
+      return;
+    }
+
+    customerId = resolvedCustomerId;
+
     // Original logic for creating new orders
 
     List productIdList = [];
@@ -750,8 +774,18 @@ class OrdersController extends GetxController {
 
     if (productIdList.isNotEmpty) {
       try {
-        String rawData =
-            '{"customer_id": ${customerId},"sales_manager_id": ${loginData!.id},"category_id": ${categoryList},"sub_category_id": ${subCategoryList},"product_id": ${productIdList},"price": ${priceList},"quantity": ${quantityList},"tax_id": ${taxIdList},"is_box": ${isBoxList}}';
+        final requestData = {
+          "customer_id": int.tryParse(resolvedCustomerId) ?? resolvedCustomerId,
+          "sales_manager_id": loginData!.id,
+          "category_id": categoryList,
+          "sub_category_id": subCategoryList,
+          "product_id": productIdList,
+          "price": priceList,
+          "quantity": quantityList,
+          "tax_id": taxIdList,
+          "is_box": isBoxList,
+        };
+        final rawData = jsonEncode(requestData);
 
         print("📦 Cart API Request Data:");
         print("Customer ID: $customerId");
