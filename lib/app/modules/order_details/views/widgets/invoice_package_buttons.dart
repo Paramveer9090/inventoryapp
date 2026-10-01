@@ -6,7 +6,8 @@ import 'package:true_leaf_inventory_app/app/widgets/app_button.dart';
 class InvoicePackageButtons extends StatelessWidget {
   final OrderDetailsController controller;
 
-  const InvoicePackageButtons({Key? key, required this.controller}) : super(key: key);
+  const InvoicePackageButtons({Key? key, required this.controller})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +21,16 @@ class InvoicePackageButtons extends StatelessWidget {
               isIcon: true,
               icon: Icons.picture_as_pdf,
               onTap: () async {
-                if (controller.getDetailsData == null || controller.orderItem.isEmpty) {
+                if (controller.getDetailsData == null ||
+                    controller.orderItem.isEmpty) {
                   await controller.orderDetails();
                   await Future.delayed(const Duration(milliseconds: 500));
                 }
                 final pdfData = await controller.generateInvoicePdf();
-                await Printing.sharePdf(bytes: pdfData, filename: 'invoice.pdf');
+                await Printing.sharePdf(
+                  bytes: pdfData,
+                  filename: controller.documentFileName('Invoice'),
+                );
               },
             ),
           ),
@@ -36,12 +41,16 @@ class InvoicePackageButtons extends StatelessWidget {
               isIcon: true,
               icon: Icons.local_shipping,
               onTap: () async {
-                if (controller.getDetailsData == null || controller.orderItem.isEmpty) {
+                if (controller.getDetailsData == null ||
+                    controller.orderItem.isEmpty) {
                   await controller.orderDetails();
                   await Future.delayed(const Duration(milliseconds: 500));
                 }
                 final pdfData = await controller.generatePackagingSlipPdf();
-                await Printing.sharePdf(bytes: pdfData, filename: 'packaging_slip.pdf');
+                await Printing.sharePdf(
+                  bytes: pdfData,
+                  filename: controller.documentFileName('Packing Slip'),
+                );
               },
             ),
           ),

@@ -412,8 +412,6 @@ class OrderDetailsController extends GetxController {
         comments.text = getDetailsData!.comments.toString();
       }
 
-      recalculateOrderTotals();
-
       update();
     } else {
       update();
@@ -607,6 +605,19 @@ class OrderDetailsController extends GetxController {
     update();
   }
 
+  String documentFileName(String documentType) {
+    final customerName =
+        getDetailsData?.customer?.name?.trim().isNotEmpty == true
+            ? getDetailsData!.customer!.name!.trim()
+            : 'Customer';
+    final orderNumber = getDetailsData?.id?.toString() ??
+        getDetailsData?.orderId?.toString() ??
+        'Unknown';
+    final fileName = '$customerName - Order $orderNumber - $documentType.pdf';
+
+    return fileName.replaceAll(RegExp(r'[<>:"/\\|?*\x00-\x1F]'), '_');
+  }
+
   Future<Uint8List> generateInvoicePdf() async {
     print('🔍 Generating invoice PDF...');
     print('� Order ID: ${getDetailsData?.id}');
@@ -749,11 +760,19 @@ class OrderDetailsController extends GetxController {
                 2: pw.Alignment.centerRight,
                 3: pw.Alignment.center,
                 4: pw.Alignment.centerRight,
+                5: pw.Alignment.centerRight,
               },
-              headers: ['Product', 'Qty', 'Price', 'Tax', 'Total'],
+              headers: [
+                'Product',
+                'Qty',
+                'Price',
+                'Tax %',
+                'Tax Amount',
+                'Total'
+              ],
               data: orderItem.isEmpty
                   ? [
-                      ['No items in this order', '', '', '', '']
+                      ['No items in this order', '', '', '', '', '']
                     ]
                   : orderItem.map((item) {
                       print(
@@ -772,6 +791,7 @@ class OrderDetailsController extends GetxController {
                         item.quantityCount?.toString() ?? '0',
                         '\$${formatPrice(item.salePrice)}',
                         '${item.tax?.toString() ?? "0"}%',
+                        '\$${formatPrice(item.amountOnlyTax)}',
                         '\$${formatPrice(item.finalAmount)}',
                       ];
                     }).toList(),

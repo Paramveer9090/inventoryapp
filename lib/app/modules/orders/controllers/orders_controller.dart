@@ -1,5 +1,6 @@
 import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
+import 'package:true_leaf_inventory_app/app/utils/price_calculator.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 // Add this for jsonEncode
 
@@ -234,7 +235,8 @@ class OrdersController extends GetxController {
     }
 
     // Sort products alphabetically by name
-    productList.sort((a, b) => (a.name ?? '').toLowerCase().compareTo((b.name ?? '').toLowerCase()));
+    productList.sort((a, b) =>
+        (a.name ?? '').toLowerCase().compareTo((b.name ?? '').toLowerCase()));
 
     if (productList.isEmpty) {
       noData.value = "No products found";
@@ -569,17 +571,18 @@ class OrdersController extends GetxController {
 
           // Calculate amounts with error handling
           try {
-            final quantity =
-                double.tryParse(item.quantityCount?.toString() ?? "0") ?? 0;
-            final price = double.tryParse(salePrice?.toString() ?? "0") ?? 0;
-            final taxRate = double.tryParse(item.tax?.toString() ?? "0") ?? 0;
+            final breakdown = PriceCalculator.calculate(
+              quantity: item.quantityCount,
+              price: salePrice,
+              tax: item.tax,
+              boxSize: item.boxSize,
+              isBox: item.isBox,
+            );
 
-            final amount = quantity * price;
-            final amountTax = (amount * taxRate) / 100;
-
-            item.amountWithoutTax = amount.toString();
-            item.amountOnlyTax = amountTax.toString();
-            item.finalAmount = (amount + amountTax).toString();
+            item.amountWithoutTax =
+                breakdown.amountWithoutTax.toStringAsFixed(2);
+            item.amountOnlyTax = breakdown.amountOnlyTax.toStringAsFixed(2);
+            item.finalAmount = breakdown.finalAmount.toStringAsFixed(2);
           } catch (e) {
             item.amountWithoutTax = "0";
             item.amountOnlyTax = "0";
@@ -704,9 +707,8 @@ class OrdersController extends GetxController {
 
     final requestedCustomerId = customerId?.toString().trim() ?? "";
     final storedCustomerId = homeController.isCustomerId.value.trim();
-    final resolvedCustomerId = requestedCustomerId.isNotEmpty
-        ? requestedCustomerId
-        : storedCustomerId;
+    final resolvedCustomerId =
+        requestedCustomerId.isNotEmpty ? requestedCustomerId : storedCustomerId;
 
     if (resolvedCustomerId.isEmpty) {
       utils.showSnackBar(

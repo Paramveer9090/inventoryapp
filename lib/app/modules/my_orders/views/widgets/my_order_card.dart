@@ -183,8 +183,8 @@ class MyOrderCard extends StatelessWidget {
                   SizedBox(width: 0.5.w),
                   AppText(
                     "Date: $dateText",
-                    fontSize:
-                        ResponsiveHelper.getResponsiveFontSize(context, 12.sp, 13.sp),
+                    fontSize: ResponsiveHelper.getResponsiveFontSize(
+                        context, 12.sp, 13.sp),
                     color: Colors.grey.shade600,
                   ),
                 ],
@@ -200,8 +200,8 @@ class MyOrderCard extends StatelessWidget {
                   SizedBox(width: 0.5.w),
                   AppText(
                     "Amount: $amountText",
-                    fontSize:
-                        ResponsiveHelper.getResponsiveFontSize(context, 12.sp, 13.sp),
+                    fontSize: ResponsiveHelper.getResponsiveFontSize(
+                        context, 12.sp, 13.sp),
                     fontWeight: FontWeight.w600,
                     color: AppColors.primaryColor,
                   ),
@@ -228,7 +228,8 @@ class MyOrderCard extends StatelessWidget {
                   ],
                 ),
               ],
-              if (order.status != "1" && order.payment?.paymentStatus != "1") ...[
+              if (order.status != "1" &&
+                  order.payment?.paymentStatus != "1") ...[
                 SizedBox(height: 0.5.h),
                 Row(
                   children: [
@@ -467,7 +468,9 @@ class MyOrderCard extends StatelessWidget {
       final pdfData = await orderDetailsController.generateInvoicePdf();
       Get.back();
       await Printing.sharePdf(
-          bytes: pdfData, filename: 'invoice_order_$orderId.pdf');
+        bytes: pdfData,
+        filename: orderDetailsController.documentFileName('Invoice'),
+      );
 
       Get.snackbar(
         "Success",

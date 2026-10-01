@@ -21,10 +21,7 @@ class PriceCalculator {
     final itemQuantity = _number(quantity);
     final unitPrice = _number(price);
     final taxRate = _number(tax);
-    final packageSize = _number(boxSize, fallback: 1);
-    final effectiveQuantity =
-        _isBox(isBox) ? itemQuantity * packageSize : itemQuantity;
-    final amountWithoutTax = _round(effectiveQuantity * unitPrice);
+    final amountWithoutTax = _round(itemQuantity * unitPrice);
     final amountOnlyTax = _round(amountWithoutTax * taxRate / 100);
 
     return PriceBreakdown(
@@ -39,9 +36,6 @@ class PriceCalculator {
         ? value.toDouble()
         : double.tryParse(value?.toString() ?? '') ?? fallback;
   }
-
-  static bool _isBox(dynamic value) =>
-      value == 1 || value == '1' || value == true;
 
   static double _round(double value) => double.parse(value.toStringAsFixed(2));
 }
