@@ -644,6 +644,8 @@ class OrderDetailsController extends GetxController {
       print('⚠️ WARNING: Order has no items!');
     }
 
+    recalculateOrderTotals();
+
     final pdf = pw.Document();
 
     // Load logo, fallback to placeholder if not found
@@ -753,7 +755,15 @@ class OrderDetailsController extends GetxController {
                 color: PdfColors.black,
               ),
               headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-              cellHeight: 30,
+              cellHeight: 28,
+              columnWidths: {
+                0: pw.FlexColumnWidth(4.8),
+                1: pw.FlexColumnWidth(0.9),
+                2: pw.FlexColumnWidth(1.2),
+                3: pw.FlexColumnWidth(0.9),
+                4: pw.FlexColumnWidth(1.6),
+                5: pw.FlexColumnWidth(1.3),
+              },
               cellAlignments: {
                 0: pw.Alignment.centerLeft,
                 1: pw.Alignment.center,
@@ -786,11 +796,23 @@ class OrderDetailsController extends GetxController {
                         return priceValue.toStringAsFixed(2);
                       }
 
+                      String formatQuantity(dynamic quantity) {
+                        final quantityValue =
+                            double.tryParse(quantity?.toString() ?? '') ?? 0;
+                        return quantityValue.toStringAsFixed(2);
+                      }
+
+                      String formatRate(dynamic rate) {
+                        final rateValue =
+                            double.tryParse(rate?.toString() ?? '') ?? 0;
+                        return '${rateValue.toStringAsFixed(0)}%';
+                      }
+
                       return [
                         item.name?.toString() ?? 'N/A',
-                        item.quantityCount?.toString() ?? '0',
+                        formatQuantity(item.quantityCount),
                         '\$${formatPrice(item.salePrice)}',
-                        '${item.tax?.toString() ?? "0"}%',
+                        formatRate(item.tax),
                         '\$${formatPrice(item.amountOnlyTax)}',
                         '\$${formatPrice(item.finalAmount)}',
                       ];
