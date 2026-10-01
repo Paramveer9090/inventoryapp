@@ -29,6 +29,13 @@ jobs:
       - name: Build unsigned IPA
         run: flutter build ipa --release --no-codesign
 
+      - name: Package unsigned IPA
+        run: |
+          mkdir -p build/ios/ipa/Payload
+          cp -R build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/ios/ipa/Payload/
+          cd build/ios/ipa
+          zip -qry true_leaf_inventory_app.ipa Payload
+
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
