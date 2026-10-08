@@ -4,30 +4,33 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:true_leaf_inventory_app/app/models/details_response_model.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
+import 'package:true_leaf_inventory_app/app/modules/product_details/repositories/product_details_repository.dart';
 import '../../../widgets/all_import.dart';
 
 class ProductDetailsController extends GetxController {
-  final id;
+  ProductDetailsController({this.id, ProductDetailsRepository? repository})
+      : _repository = repository ?? ApiProductDetailsRepository();
 
-  ProductDetailsController({this.id});
+  final id;
+  final ProductDetailsRepository _repository;
 
   GetDetailsData? getDetailsData;
   var noData = "".obs;
-  
+
   // Edit mode and category/subcategory lists
   var isEditMode = false.obs;
   List<GetDataListResponseData> categoryList = [];
   List<GetDataListResponseData> subCategoryList = [];
   var selectedCategoryId = "".obs;
   var selectedSubCategoryId = "".obs;
-  
+
   // Image editing
   var selectedImagePath = "".obs;
   var selectedImageName = "".obs;
   var isImageChanged = false.obs;
   XFile? selectedImageFile; // Store XFile object for proper file handling
 
-  @override         
+  @override
   void onInit() {
     productDetails();
     getCategoriesAPI();
@@ -36,21 +39,13 @@ class ProductDetailsController extends GetxController {
 
   /// Product Details
   productDetails() async {
-    final data = await APIFunction().apiCall(
-      apiName: "${Constants.products}/${id}",
-      context: Get.context!,
-      token: accessToken,
-      type: "get",
-      isLoading: false,
-    );
-
-    GetDetailsResponseModel model = GetDetailsResponseModel.fromJson(data);
+    final model = await _repository.fetchProductDetails(id.toString());
 
     if (model.data != null) {
       getDetailsData = model.data!;
       // Set initial selected values
       selectedCategoryId.value = getDetailsData?.categoryId?.toString() ?? "";
-      selectedSubCategoryId.value = getDetailsData?.subCategoryId?.toString() ?? "";
+        selectedSubCategoryId.value = getDetailsData?.subCategoryId?.toString() ?? "";
       noData.value = "";
       update();
     } else {
@@ -61,15 +56,7 @@ class ProductDetailsController extends GetxController {
 
   /// Get Categories
   getCategoriesAPI() async {
-    final data = await APIFunction().apiCall(
-      apiName: "${Constants.categories}/0",
-      context: Get.context!,
-      token: accessToken,
-      type: "get",
-      isLoading: false,
-    );
-
-    GetDataListResponseModel model = GetDataListResponseModel.fromJson(data);
+    final model = await _repository.fetchCategories();
 
     if (model.data!.isNotEmpty) {
       categoryList = model.data!;
@@ -79,15 +66,7 @@ class ProductDetailsController extends GetxController {
 
   /// Get SubCategories for selected category
   getSubCategoriesAPI(String categoryId) async {
-    final data = await APIFunction().apiCall(
-      apiName: "${Constants.categories}/${categoryId}",
-      context: Get.context!,
-      token: accessToken,
-      type: "get",
-      isLoading: false,
-    );
-
-    GetDataListResponseModel model = GetDataListResponseModel.fromJson(data);
+    final model = await _repository.fetchSubCategories(categoryId);
 
     if (model.data!.isNotEmpty) {
       subCategoryList = model.data!;
@@ -110,7 +89,7 @@ class ProductDetailsController extends GetxController {
       await updateProductCategoryOnly();
     }
   }
-  
+
   /// Upload Image to Digital Ocean
   Future<String?> uploadImageAPI() async {
     try {
@@ -118,33 +97,16 @@ class ProductDetailsController extends GetxController {
         throw Exception("No image selected");
       }
 
-      // Read image bytes properly for all platforms
-      final bytes = await selectedImageFile!.readAsBytes();
-      final imageFile = MultipartFile.fromBytes(
-        bytes,
-        filename: selectedImageName.value,
-      );
-
-      FormData formData = FormData.fromMap({
-        "upload_image": imageFile,
-      });
-
       print("Uploading image to Digital Ocean: ${selectedImageName.value}");
-
-      final data = await APIFunction().apiCall(
-        apiName: Constants.uploadImage,
-        context: Get.context!,
-        token: accessToken,
-        params: formData,
-        isLoading: false,
+      final imageUrl = await _repository.uploadProductImage(
+        selectedImageFile!,
+        selectedImageName.value,
       );
 
-      if (data != null && data['data'] != null && data['data']['image_url'] != null) {
-        String imageUrl = data['data']['image_url'];
+      if (imageUrl != null && imageUrl.isNotEmpty) {
         print("Image uploaded successfully: $imageUrl");
         return imageUrl;
       } else {
-        print("Upload response: $data");
         throw Exception("Invalid response from image upload");
       }
     } catch (e) {
@@ -152,22 +114,15 @@ class ProductDetailsController extends GetxController {
       return null;
     }
   }
-  
+
   /// Update product category without image
   Future<void> updateProductCategoryOnly() async {
     final body = {
       "category_id": selectedCategoryId.value,
-      "sub_category_id": selectedSubCategoryId.value.isEmpty ? null : selectedSubCategoryId.value,
+        "sub_category_id": selectedSubCategoryId.value.isEmpty ? null : selectedSubCategoryId.value,
     };
 
-    final data = await APIFunction().apiCall(
-      apiName: "${Constants.products}/${id}",
-      context: Get.context!,
-      token: accessToken,
-      type: "put",
-      rawData: jsonEncode(body),
-      isLoading: true,
-    );
+    final data = await _repository.updateProduct(id.toString(), body);
 
     if (data != null) {
       EasyLoading.showSuccess("Product updated successfully");
@@ -184,44 +139,41 @@ class ProductDetailsController extends GetxController {
       update();
     }
   }
-  
+
   /// Update product with image
   Future<void> updateProductWithImage() async {
     try {
       // Step 1: Upload image first and get the image_url
       EasyLoading.show(status: 'Uploading image...');
       String? uploadedImageUrl = await uploadImageAPI();
-      
+
       if (uploadedImageUrl == null || uploadedImageUrl.isEmpty) {
         throw Exception("Failed to upload image");
       }
-      
+
       print("Image URL received: $uploadedImageUrl");
-      
+
       // Step 2: Update product with category and uploaded image URL
       EasyLoading.show(status: 'Updating product...');
-      
+
       final body = {
         "category_id": selectedCategoryId.value,
         "image_url": uploadedImageUrl, // Use the uploaded image filename
       };
-      
+
       // Add subcategory if selected
       if (selectedSubCategoryId.value.isNotEmpty) {
         body["sub_category_id"] = selectedSubCategoryId.value;
       }
-      
-      final data = await APIFunction().apiCall(
-        apiName: "${Constants.products}/${id}",
-        context: Get.context!,
-        token: accessToken,
-        type: "put",
-        rawData: jsonEncode(body),
+
+      final data = await _repository.updateProduct(
+        id.toString(),
+        body,
         isLoading: false,
       );
 
       EasyLoading.dismiss();
-      
+
       if (data != null) {
         EasyLoading.showSuccess("Product updated with new image!");
         isEditMode.value = false;
@@ -240,12 +192,12 @@ class ProductDetailsController extends GetxController {
     } catch (e) {
       EasyLoading.dismiss();
       print("Error updating product with image: $e");
-      
+
       String errorMessage = "Failed to update product image";
       if (e.toString().contains("Failed to upload image")) {
         errorMessage = "Failed to upload image to server";
       }
-      
+
       EasyLoading.showError(errorMessage);
     }
   }
@@ -289,21 +241,21 @@ class ProductDetailsController extends GetxController {
     selectedSubCategoryId.value = subCategoryId;
     update();
   }
-  
+
   /// Select new image for product (Platform-aware: mobile vs desktop)
   Future<void> selectProductImage() async {
     try {
       XFile? picked;
-      
+
       // Check if running on mobile (Android/iOS)
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
         // Use image_picker for mobile
         final ImagePicker picker = ImagePicker();
-        
+
         // Show options to pick from gallery or camera
         final ImageSource? source = await _showImageSourceDialog();
         if (source == null) return; // User cancelled
-        
+
         picked = await picker.pickImage(
           source: source,
           maxWidth: 1920,
@@ -318,7 +270,7 @@ class ProductDetailsController extends GetxController {
         );
         picked = await openFile(acceptedTypeGroups: [typeGroup]);
       }
-      
+
       if (picked != null) {
         selectedImageFile = picked; // Store the XFile object
         selectedImagePath.value = picked.path;
@@ -331,7 +283,7 @@ class ProductDetailsController extends GetxController {
       EasyLoading.showError("Failed to select image");
     }
   }
-  
+
   /// Show dialog to choose image source (Gallery or Camera) - for mobile only
   Future<ImageSource?> _showImageSourceDialog() async {
     return await Get.dialog<ImageSource>(
@@ -355,7 +307,7 @@ class ProductDetailsController extends GetxController {
       ),
     );
   }
-  
+
   /// Remove selected image
   void removeSelectedImage() {
     selectedImageFile = null;
