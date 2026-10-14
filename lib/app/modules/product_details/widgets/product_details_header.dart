@@ -33,8 +33,7 @@ class ProductDetailsHeader extends StatelessWidget {
         children: [
           IconButton(
             onPressed: () {
-              Get.find<ProductsController>().productDetails.value = false;
-              Get.find<HomeController>().update();
+              Get.find<ProductsController>().closeProductDetails();
             },
             icon: Icon(
               Icons.arrow_back_ios,

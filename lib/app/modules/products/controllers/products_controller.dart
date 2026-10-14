@@ -7,6 +7,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
+import 'package:true_leaf_inventory_app/app/modules/products/repositories/products_repository.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 enum ProductSortMode {
@@ -15,8 +16,15 @@ enum ProductSortMode {
 }
 
 class ProductsController extends GetxController {
+  ProductsController({ProductsRepository? repository})
+      : _repository = repository ?? ApiProductsRepository();
+
+  final ProductsRepository _repository;
+
   List<GetDataListResponseData> productList = <GetDataListResponseData>[];
   List<GetDataListResponseData> categoryList = <GetDataListResponseData>[];
+  List<GetDataListResponseData> allInventoryProducts =
+      <GetDataListResponseData>[];
 
   List<GetDataListResponseData> filterList = [];
   var productDetails = false.obs;
@@ -92,7 +100,8 @@ class ProductsController extends GetxController {
   }
 
   int _categoryOrderFor(dynamic categoryId) {
-    final parsedId = categoryId is int ? categoryId : int.tryParse('$categoryId');
+    final parsedId =
+        categoryId is int ? categoryId : int.tryParse('$categoryId');
     if (parsedId == null) return 0x7fffffff;
 
     for (final category in categoryList) {
@@ -105,7 +114,8 @@ class ProductsController extends GetxController {
   }
 
   String _categoryNameFor(dynamic categoryId) {
-    final parsedId = categoryId is int ? categoryId : int.tryParse('$categoryId');
+    final parsedId =
+        categoryId is int ? categoryId : int.tryParse('$categoryId');
     if (parsedId == null) return '';
 
     for (final category in categoryList) {
@@ -150,9 +160,72 @@ class ProductsController extends GetxController {
   @override
   void onInit() {
     productsScrollController.addListener(_handleScrollChange);
-    getProductAPI();
-    getCategoriesAPI();
+    loadInitialData();
     super.onInit();
+  }
+
+  Future<void> loadInitialData() async {
+    try {
+      final responses = await Future.wait([
+        _repository.fetchProducts(),
+        _repository.fetchCategories(),
+      ]);
+
+      allInventoryProducts = responses[0].data ?? <GetDataListResponseData>[];
+      categoryList = responses[1].data ?? <GetDataListResponseData>[];
+      _mapCategoryNamesToProducts(allInventoryProducts);
+      _refreshProductLists();
+    } catch (_) {
+      allInventoryProducts = <GetDataListResponseData>[];
+      productList = <GetDataListResponseData>[];
+      filterList = <GetDataListResponseData>[];
+      allProductsList = <GetDataListResponseData>[];
+      paginatedProductList.clear();
+      noData.value = 'Unable to load products. Please try again.';
+      update();
+    }
+  }
+
+  void openProductDetails(GetDataListResponseData product) {
+    saveScrollPosition();
+    productDetails.value = true;
+    id.value = product.id.toString();
+    categoryType.value = product.categoryType ?? '';
+    subCategoryType.value = product.subCategoryType ?? '';
+    descriptionText.value = [
+      product.descriptionInvoice,
+      product.description,
+      product.descriptionWebsite,
+    ].map((value) => value?.toString().trim() ?? '').firstWhere(
+          (value) => value.isNotEmpty,
+          orElse: () => '',
+        );
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().update();
+    }
+    update();
+  }
+
+  void closeProductDetails() {
+    productDetails.value = false;
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().update();
+    }
+    update();
+  }
+
+  void _refreshProductLists() {
+    final productsWithStock = allInventoryProducts
+        .where((product) => product.stock != null && product.stock! > 0)
+        .toList();
+    final sortedProducts = _sortProducts(productsWithStock);
+
+    productList = List<GetDataListResponseData>.from(sortedProducts);
+    filterList = List<GetDataListResponseData>.from(sortedProducts);
+    allProductsList = List<GetDataListResponseData>.from(sortedProducts);
+    noData.value = sortedProducts.isEmpty ? 'No products in stock' : '';
+    resetPagination();
+    update();
   }
 
   @override
@@ -362,7 +435,9 @@ class ProductsController extends GetxController {
           continue;
         }
 
-        final fullUrl = imageUrl.startsWith('http') ? imageUrl : '${Constants.imageBaseUrl}$imageUrl';
+        final fullUrl = imageUrl.startsWith('http')
+            ? imageUrl
+            : '${Constants.imageBaseUrl}$imageUrl';
         final response = await Dio().download(fullUrl, file.path);
         if (response.statusCode == 200) {
           _downloadedImagePaths[cacheKey] = file.path;
@@ -378,36 +453,15 @@ class ProductsController extends GetxController {
     }
   }
 
-  /// Get Products (filtered to show only products with stock > 0)
-  getProductAPI({bool isLoading = true}) async {
-    final data = await APIFunction().apiCall(
-      apiName: Constants.products,
-      context: Get.context!,
-      token: accessToken,
-      type: "get",
-      isLoading: isLoading,
-    );
-
-    GetDataListResponseModel model = GetDataListResponseModel.fromJson(data);
-
-    if (model.data!.isNotEmpty) {
-      // Filter out products with zero stock - only show products with stock > 0
-      List<GetDataListResponseData> productsWithStock = model.data!
-          .where((product) => product.stock != null && product.stock! > 0)
-          .toList();
-
-      // Map category names to products ONCE here instead of in UI
-      _mapCategoryNamesToProducts(productsWithStock);
-
-      // Keep base product collections alphabetically sorted by name
-      productsWithStock = _sortProducts(productsWithStock);
-
-      productList = List<GetDataListResponseData>.from(productsWithStock);
-      filterList = List<GetDataListResponseData>.from(productsWithStock);
-      allProductsList = List<GetDataListResponseData>.from(productsWithStock); // Store all products with stock
-
-      // Initialize pagination
-      resetPagination();
+  /// Get Products (the displayed list contains products with stock > 0).
+  Future<void> getProductAPI({bool isLoading = true}) async {
+    try {
+      final model = await _repository.fetchProducts();
+      allInventoryProducts = model.data ?? <GetDataListResponseData>[];
+      _mapCategoryNamesToProducts(allInventoryProducts);
+      _refreshProductLists();
+    } catch (_) {
+      noData.value = 'Unable to load products. Please try again.';
       update();
     }
   }
@@ -438,20 +492,14 @@ class ProductsController extends GetxController {
   }
 
   /// Get Category
-  getCategoriesAPI() async {
-    final data = await APIFunction().apiCall(
-      apiName: "${Constants.categories}/0",
-      context: Get.context!,
-      token: accessToken,
-      type: "get",
-      isLoading: false,
-    );
-
-    GetDataListResponseModel model = GetDataListResponseModel.fromJson(data);
-
-    if (model.data!.isNotEmpty) {
-      categoryList = model.data!;
-      _refreshDisplayedProducts();
+  Future<void> getCategoriesAPI() async {
+    try {
+      final model = await _repository.fetchCategories();
+      categoryList = model.data ?? <GetDataListResponseData>[];
+      _mapCategoryNamesToProducts(allInventoryProducts);
+      _refreshProductLists();
+    } catch (_) {
+      noData.value = 'Unable to load categories. Please try again.';
       update();
     }
   }
@@ -628,7 +676,10 @@ class ProductsController extends GetxController {
               ),
 
               // Data rows (use sequential serial numbers starting at 1)
-              ...selectedProducts.asMap().entries.map((entry) => pw.TableRow(
+              ...selectedProducts
+                  .asMap()
+                  .entries
+                  .map((entry) => pw.TableRow(
                         children: [
                           pw.Padding(
                             padding: const pw.EdgeInsets.all(6),
@@ -663,10 +714,10 @@ class ProductsController extends GetxController {
                             ),
                           ),
                         ],
-                      )).toList(),
+                      ))
+                  .toList(),
             ],
           ),
-
         ],
       ),
     );

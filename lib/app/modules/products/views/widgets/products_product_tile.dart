@@ -1,4 +1,4 @@
-import 'dart:io';
+ import 'dart:io';
 
 import 'package:true_leaf_inventory_app/app/utils/responsive_helper.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
@@ -64,15 +64,18 @@ class ProductsProductTile extends StatelessWidget {
                       Center(
                         child: product.imageUrl != null
                             ? FutureBuilder<String?>(
-                                future: controller.getLocalProductImagePath(product.imageUrl),
+                                future: controller
+                                    .getLocalProductImagePath(product.imageUrl),
                                 builder: (context, snapshot) {
                                   final localPath = snapshot.data;
-                                  if (localPath != null && localPath.isNotEmpty) {
+                                  if (localPath != null &&
+                                      localPath.isNotEmpty) {
                                     final file = File(localPath);
                                     if (file.existsSync()) {
                                       try {
                                         return ClipRRect(
-                                          borderRadius: const BorderRadius.vertical(
+                                          borderRadius:
+                                              const BorderRadius.vertical(
                                             top: Radius.circular(12),
                                           ),
                                           child: Image.file(
@@ -80,13 +83,15 @@ class ProductsProductTile extends StatelessWidget {
                                             height: 110,
                                             width: double.infinity,
                                             fit: BoxFit.contain,
-                                            errorBuilder: (context, error, stackTrace) {
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
                                               return OptimizedNetworkImage(
                                                 imageUrl: product.imageUrl!,
                                                 height: 110,
                                                 width: double.infinity,
                                                 fit: BoxFit.contain,
-                                                borderRadius: const BorderRadius.vertical(
+                                                borderRadius:
+                                                    const BorderRadius.vertical(
                                                   top: Radius.circular(12),
                                                 ),
                                               );
@@ -167,7 +172,8 @@ class ProductsProductTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (controller.productSortMode.value == ProductSortMode.category)
+                      if (controller.productSortMode.value ==
+                          ProductSortMode.category)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 6),
                           child: _buildCategoryBadge(context),
@@ -345,7 +351,8 @@ class ProductsProductTile extends StatelessWidget {
                   ),
                   child: product.imageUrl != null
                       ? FutureBuilder<String?>(
-                          future: controller.getLocalProductImagePath(product.imageUrl),
+                          future: controller
+                              .getLocalProductImagePath(product.imageUrl),
                           builder: (context, snapshot) {
                             final localPath = snapshot.data;
                             if (localPath != null && localPath.isNotEmpty) {
@@ -359,13 +366,15 @@ class ProductsProductTile extends StatelessWidget {
                                       width: 60,
                                       height: 60,
                                       fit: BoxFit.contain,
-                                      errorBuilder: (context, error, stackTrace) {
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
                                         return OptimizedNetworkImage(
                                           imageUrl: product.imageUrl!,
                                           width: 60,
                                           height: 60,
                                           fit: BoxFit.contain,
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         );
                                       },
                                     ),
@@ -396,7 +405,8 @@ class ProductsProductTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (controller.productSortMode.value == ProductSortMode.category)
+                      if (controller.productSortMode.value ==
+                          ProductSortMode.category)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 6),
                           child: _buildCategoryBadge(context),
@@ -524,24 +534,7 @@ class ProductsProductTile extends StatelessWidget {
   }
 
   void _openDetails() {
-    controller.saveScrollPosition();
-    controller.productDetails.value = true;
-    Get.find<HomeController>().update();
-    controller.update();
-    controller.id.value = product.id.toString();
-    controller.categoryType.value = product.categoryType ?? '';
-    controller.subCategoryType.value = product.subCategoryType ?? '';
-    controller.descriptionText.value = (product.descriptionInvoice
-                ?.toString()
-                .trim()
-                .isNotEmpty ==
-            true)
-        ? product.descriptionInvoice!.toString().trim()
-        : (product.description?.toString().trim().isNotEmpty == true)
-            ? product.description!.toString().trim()
-            : (product.descriptionWebsite?.toString().trim().isNotEmpty == true)
-                ? product.descriptionWebsite!.toString().trim()
-                : '';
+    controller.openProductDetails(product);
   }
 
   Widget _buildCategoryBadge(BuildContext context) {
