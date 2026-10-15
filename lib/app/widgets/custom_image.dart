@@ -82,6 +82,16 @@ class CustomImageView extends StatelessWidget {
     }
   }
 
+  /// Decode at display resolution rather than full image size to save memory.
+  int? _decodeSize(double? logicalSize) {
+    if (logicalSize == null || !logicalSize.isFinite || logicalSize <= 0) {
+      return null;
+    }
+    final ratio =
+        WidgetsBinding.instance.platformDispatcher.implicitView?.devicePixelRatio ?? 2.0;
+    return (logicalSize * ratio).round();
+  }
+
   Widget _buildImageView() {
     if (imagePath != null) {
       switch (imagePath!.imageType) {
@@ -124,6 +134,8 @@ class CustomImageView extends StatelessWidget {
             fit: BoxFit.cover,
             imageUrl: imagePath!,
             color: color,
+            memCacheWidth: _decodeSize(width),
+            memCacheHeight: _decodeSize(height),
             placeholder: (context, url) => Container(
               height: 30,
               width: 30,

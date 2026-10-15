@@ -1,6 +1,6 @@
-import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 
 import '../utils/app_constant.dart';
@@ -14,6 +14,9 @@ class HttpUtil {
   late Dio dio;
   CancelToken cancelToken = CancelToken();
   String apiUrl = Constants.baseUrl;
+
+  // Shared so TCP/TLS connections are pooled across calls; token, loader and context stay per call.
+  static final HttpClientAdapter _sharedAdapter = DefaultHttpClientAdapter();
 
   BuildContext? context;
 
@@ -31,9 +34,7 @@ class HttpUtil {
       responseType: ResponseType.json,
     );
 
-    dio = Dio(options);
-    CookieJar cookieJar = CookieJar();
-    dio.interceptors.add(CookieManager(cookieJar));
+    dio = Dio(options)..httpClientAdapter = _sharedAdapter;
 
     // Add loading and error interceptor first
     dio.interceptors.add(InterceptorsWrapper(
@@ -61,11 +62,14 @@ class HttpUtil {
     ));
 
     // Add log interceptor second
-    dio.interceptors.add(LogInterceptor(
-      request: true,
-      requestBody: true,
-      responseBody: true,
-    ));
+    // Full response bodies are huge (whole product list); log them only when debugging by hand.
+    if (kDebugMode) {
+      dio.interceptors.add(LogInterceptor(
+        request: true,
+        requestBody: true,
+        responseBody: false,
+      ));
+    }
 
     // CRITICAL: Add FormData handler LAST to ensure it runs after everything else
     dio.interceptors.add(InterceptorsWrapper(
