@@ -22,6 +22,8 @@ import '../modules/driver_order_detail/bindings/driver_order_detail_binding.dart
 import '../modules/driver_order_detail/views/driver_order_detail_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+import '../modules/inventory/bindings/inventory_binding.dart';
+import '../modules/inventory/views/inventory_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/my_orders/bindings/my_orders_binding.dart';
@@ -134,6 +136,11 @@ class AppPages {
       name: _Paths.DRIVER_ORDER_DETAIL,
       page: () => const DriverOrderDetailView(),
       binding: DriverOrderDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.INVENTORY,
+      page: () => const InventoryView(),
+      binding: InventoryBinding(),
     ),
   ];
 }

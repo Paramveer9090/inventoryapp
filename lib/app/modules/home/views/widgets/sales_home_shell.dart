@@ -429,6 +429,15 @@ class _SalesDrawer extends StatelessWidget {
                           ),
                         );
                       }),
+                      ListTile(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 3.h),
+                        leading: const Icon(Icons.inventory_2_outlined, color: Colors.white),
+                        title: AppText('Inventory', fontSize: 14.sp, color: Colors.white),
+                        onTap: () {
+                          Get.back();
+                          Get.toNamed(Routes.INVENTORY);
+                        },
+                      ),
                     ],
                   ),
                 ),

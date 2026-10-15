@@ -21,6 +21,7 @@ abstract class Routes {
   static const DRIVER_ORDER = _Paths.DRIVER_ORDER;
   static const DRIVER_DASHBOARD = _Paths.DRIVER_DASHBOARD;
   static const DRIVER_ORDER_DETAIL = _Paths.DRIVER_ORDER_DETAIL;
+  static const INVENTORY = _Paths.INVENTORY;
 }
 
 abstract class _Paths {
@@ -43,4 +44,5 @@ abstract class _Paths {
   static const DRIVER_ORDER = '/driver-order';
   static const DRIVER_DASHBOARD = '/driver-dashboard';
   static const DRIVER_ORDER_DETAIL = '/driver-order-detail';
+  static const INVENTORY = '/inventory';
 }

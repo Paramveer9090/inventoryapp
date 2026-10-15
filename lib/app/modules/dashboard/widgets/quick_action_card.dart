@@ -36,6 +36,13 @@ class QuickActionCard extends StatelessWidget {
                 Get.find<HomeController>().update();
               },
             ),
+            SizedBox(height: 1.h),
+            AppButton(
+              title: "Inventory",
+              isIcon: true,
+              icon: Icons.inventory_2_outlined,
+              onTap: () => Get.toNamed(Routes.INVENTORY),
+            ),
           ],
         ),
       ),

@@ -4,6 +4,10 @@ import '../widgets/product_image_card.dart';
 import '../widgets/info_card.dart';
 import '../widgets/info_row.dart';
 import '../widgets/category_section.dart';
+import '../../inventory/widgets/adjust_stock_sheet.dart';
+import '../../inventory/widgets/restock_sheet.dart';
+import '../../inventory/repositories/stock_movement_store.dart';
+import '../../inventory/models/stock_movement.dart';
 
 class ProductDetailsView extends GetView<ProductDetailsController> {
   final String? id;
@@ -93,10 +97,86 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
             InfoRow('Price', '\$${controller.getDetailsData?.sellingPrice?.toString() ?? 'N/A'}', isPrice: true),
             InfoRow('Stock', controller.getDetailsData?.stock?.toString() ?? 'N/A', valueColor: (controller.getDetailsData?.stock ?? 0) > 0 ? Colors.green : Colors.red),
             InfoRow('Box Size', controller.getDetailsData?.boxSize?.toString() ?? 'N/A'),
+            SizedBox(height: 1.h),
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 1.h,
+              children: [
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.add_box_outlined),
+                  label: const Text('Restock'),
+                  onPressed: () async {
+                    final data = controller.getDetailsData;
+                    final productId = data?.id;
+                    if (productId == null) return;
+                    final changed = await showRestockSheet(
+                      productId: productId,
+                      productName: data?.name ?? '',
+                      currentStock: data?.stock ?? 0,
+                    );
+                    if (changed == true) controller.productDetails();
+                  },
+                ),
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.inventory_2_outlined),
+                  label: const Text('Adjust Stock'),
+                  onPressed: () async {
+                    final data = controller.getDetailsData;
+                    final productId = data?.id;
+                    if (productId == null) return;
+                    final changed = await showAdjustStockSheet(
+                      productId: productId,
+                      productName: data?.name ?? '',
+                      currentStock: data?.stock ?? 0,
+                    );
+                    if (changed == true) controller.productDetails();
+                  },
+                ),
+              ],
+            ),
           ],
         ),
 
+        SizedBox(height: 1.h),
+        _buildStockHistory(controller),
+
         SizedBox(height: 3.h),
+      ],
+    );
+  }
+
+  Widget _buildStockHistory(ProductDetailsController controller) {
+    final productId = controller.getDetailsData?.id;
+    final List<StockMovement> movements = productId == null
+        ? <StockMovement>[]
+        : StockMovementStore().readForProduct(productId).take(5).toList();
+
+    return InfoCard(
+      title: 'Stock History',
+      children: [
+        if (movements.isEmpty)
+          const Text('No stock changes recorded yet')
+        else
+          for (final m in movements)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 0.5.h),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${m.reason.label} - ${m.createdAt.toLocal().toString().substring(0, 16)}',
+                    ),
+                  ),
+                  Text(
+                    '${m.delta > 0 ? '+' : ''}${m.delta}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: m.delta > 0 ? Colors.green : Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+            ),
       ],
     );
   }
