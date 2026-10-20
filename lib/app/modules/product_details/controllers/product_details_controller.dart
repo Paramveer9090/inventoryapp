@@ -13,6 +13,8 @@ class ProductDetailsController extends GetxController {
 
   final id;
   final ProductDetailsRepository _repository;
+  final TextEditingController sellingPriceController = TextEditingController();
+  final TextEditingController boxSizeController = TextEditingController();
 
   GetDetailsData? getDetailsData;
   var noData = "".obs;
@@ -43,9 +45,13 @@ class ProductDetailsController extends GetxController {
 
     if (model.data != null) {
       getDetailsData = model.data!;
+      sellingPriceController.text =
+          getDetailsData?.sellingPrice?.toString() ?? "";
+      boxSizeController.text = getDetailsData?.boxSize?.toString() ?? "";
       // Set initial selected values
       selectedCategoryId.value = getDetailsData?.categoryId?.toString() ?? "";
-        selectedSubCategoryId.value = getDetailsData?.subCategoryId?.toString() ?? "";
+      selectedSubCategoryId.value =
+          getDetailsData?.subCategoryId?.toString() ?? "";
       noData.value = "";
       update();
     } else {
@@ -78,6 +84,22 @@ class ProductDetailsController extends GetxController {
   updateProductCategory() async {
     if (selectedCategoryId.value.isEmpty) {
       EasyLoading.showError("Please select a category");
+      return;
+    }
+
+    final sellingPrice = sellingPriceController.text.trim();
+    final parsedSellingPrice = double.tryParse(sellingPrice);
+    if (parsedSellingPrice == null ||
+        !parsedSellingPrice.isFinite ||
+        parsedSellingPrice < 0) {
+      EasyLoading.showError("Please enter a valid price");
+      return;
+    }
+
+    final boxSize = boxSizeController.text.trim();
+    final parsedBoxSize = int.tryParse(boxSize);
+    if (boxSize.isNotEmpty && (parsedBoxSize == null || parsedBoxSize <= 0)) {
+      EasyLoading.showError("Please enter a valid box size");
       return;
     }
 
@@ -119,7 +141,11 @@ class ProductDetailsController extends GetxController {
   Future<void> updateProductCategoryOnly() async {
     final body = {
       "category_id": selectedCategoryId.value,
-        "sub_category_id": selectedSubCategoryId.value.isEmpty ? null : selectedSubCategoryId.value,
+      "sub_category_id": selectedSubCategoryId.value.isEmpty
+          ? null
+          : selectedSubCategoryId.value,
+      "selling_price": sellingPriceController.text.trim(),
+      "box_size": int.tryParse(boxSizeController.text.trim()),
     };
 
     final data = await _repository.updateProduct(id.toString(), body);
@@ -159,6 +185,8 @@ class ProductDetailsController extends GetxController {
       final body = {
         "category_id": selectedCategoryId.value,
         "image_url": uploadedImageUrl, // Use the uploaded image filename
+        "selling_price": sellingPriceController.text.trim(),
+        "box_size": int.tryParse(boxSizeController.text.trim()),
       };
 
       // Add subcategory if selected
@@ -205,6 +233,11 @@ class ProductDetailsController extends GetxController {
   /// Toggle edit mode
   toggleEditMode() {
     isEditMode.value = !isEditMode.value;
+    if (isEditMode.value) {
+      sellingPriceController.text =
+          getDetailsData?.sellingPrice?.toString() ?? "";
+      boxSizeController.text = getDetailsData?.boxSize?.toString() ?? "";
+    }
     if (isEditMode.value && selectedCategoryId.value.isNotEmpty) {
       // Load subcategories for current category
       getSubCategoriesAPI(selectedCategoryId.value);
@@ -215,14 +248,25 @@ class ProductDetailsController extends GetxController {
   /// Cancel edit mode and reset selections
   cancelEdit() {
     isEditMode.value = false;
+    sellingPriceController.text =
+        getDetailsData?.sellingPrice?.toString() ?? "";
+    boxSizeController.text = getDetailsData?.boxSize?.toString() ?? "";
     selectedCategoryId.value = getDetailsData?.categoryId?.toString() ?? "";
-    selectedSubCategoryId.value = getDetailsData?.subCategoryId?.toString() ?? "";
+    selectedSubCategoryId.value =
+        getDetailsData?.subCategoryId?.toString() ?? "";
     selectedImageFile = null;
     selectedImagePath.value = "";
     selectedImageName.value = "";
     isImageChanged.value = false;
     subCategoryList.clear();
     update();
+  }
+
+  @override
+  void onClose() {
+    sellingPriceController.dispose();
+    boxSizeController.dispose();
+    super.onClose();
   }
 
   /// Handle category selection change

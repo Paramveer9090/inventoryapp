@@ -14,7 +14,7 @@ Future<bool?> showRestockSheet({
       productName: productName,
       currentStock: currentStock,
     ),
-    isScrollControlled: true,
+    isScrollControlled: false,
     backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -100,79 +100,70 @@ class _RestockSheetState extends State<_RestockSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        left: 2.h,
-        right: 2.h,
-        top: 2.h,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 2.h,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Receive stock',
-                style:
-                    TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600)),
-            SizedBox(height: 0.5.h),
-            Text('${widget.productName} - current stock ${widget.currentStock}'),
-            SizedBox(height: 2.h),
-            DropdownButtonFormField<String>(
-              value: _supplier,
-              isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: 'Supplier (optional)',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                for (final s in _suppliers)
-                  DropdownMenuItem(value: s, child: Text(s)),
-              ],
-              onChanged: (s) => setState(() => _supplier = s),
+      padding: EdgeInsets.all(2.h),
+      child: ListView(
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        children: [
+          Text('Receive stock',
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600)),
+          SizedBox(height: 0.5.h),
+          Text('${widget.productName} - current stock ${widget.currentStock}'),
+          SizedBox(height: 2.h),
+          DropdownButtonFormField<String>(
+            value: _supplier,
+            isExpanded: true,
+            decoration: const InputDecoration(
+              labelText: 'Supplier (optional)',
+              border: OutlineInputBorder(),
             ),
-            SizedBox(height: 1.5.h),
-            TextField(
-              controller: _quantity,
-              keyboardType: TextInputType.number,
-              onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(
-                labelText: 'Quantity received',
-                border: OutlineInputBorder(),
-              ),
+            items: [
+              for (final s in _suppliers)
+                DropdownMenuItem(value: s, child: Text(s)),
+            ],
+            onChanged: (s) => setState(() => _supplier = s),
+          ),
+          SizedBox(height: 1.5.h),
+          TextField(
+            controller: _quantity,
+            keyboardType: TextInputType.number,
+            onChanged: (_) => setState(() {}),
+            decoration: const InputDecoration(
+              labelText: 'Quantity received',
+              border: OutlineInputBorder(),
             ),
-            SizedBox(height: 1.5.h),
-            TextField(
-              controller: _unitCost,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Unit cost (optional)',
-                border: OutlineInputBorder(),
-              ),
+          ),
+          SizedBox(height: 1.5.h),
+          TextField(
+            controller: _unitCost,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: const InputDecoration(
+              labelText: 'Unit cost (optional)',
+              border: OutlineInputBorder(),
             ),
-            SizedBox(height: 1.5.h),
-            TextField(
-              controller: _reference,
-              decoration: const InputDecoration(
-                labelText: 'Invoice / reference (optional)',
-                border: OutlineInputBorder(),
-              ),
+          ),
+          SizedBox(height: 1.5.h),
+          TextField(
+            controller: _reference,
+            decoration: const InputDecoration(
+              labelText: 'Invoice / reference (optional)',
+              border: OutlineInputBorder(),
             ),
-            SizedBox(height: 1.5.h),
-            Text(
-              'New stock: ${widget.currentStock + _qty}',
-              style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          SizedBox(height: 1.5.h),
+          Text(
+            'New stock: ${widget.currentStock + _qty}',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          SizedBox(height: 2.h),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _saving ? null : _save,
+              child: Text(_saving ? 'Saving...' : 'Receive'),
             ),
-            SizedBox(height: 2.h),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _saving ? null : _save,
-                child: Text(_saving ? 'Saving...' : 'Receive'),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

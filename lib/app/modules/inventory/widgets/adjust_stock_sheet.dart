@@ -14,7 +14,7 @@ Future<bool?> showAdjustStockSheet({
       productName: productName,
       currentStock: currentStock,
     ),
-    isScrollControlled: true,
+    isScrollControlled: false,
     backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -98,80 +98,72 @@ class _AdjustStockSheetState extends State<_AdjustStockSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        left: 2.h,
-        right: 2.h,
-        top: 2.h,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 2.h,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Adjust stock',
-                style:
-                    TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600)),
-            SizedBox(height: 0.5.h),
-            Text('${widget.productName} - current stock ${widget.currentStock}'),
-            SizedBox(height: 2.h),
-            SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: true, label: Text('Add')),
-                ButtonSegment(value: false, label: Text('Remove')),
-              ],
-              selected: {_isAdd},
-              onSelectionChanged: (s) => setState(() {
-                _isAdd = s.first;
-                _reason = _reasons.first;
-              }),
+      padding: EdgeInsets.all(2.h),
+      child: ListView(
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        children: [
+          Text('Adjust stock',
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600)),
+          SizedBox(height: 0.5.h),
+          Text('${widget.productName} - current stock ${widget.currentStock}'),
+          SizedBox(height: 2.h),
+          SegmentedButton<bool>(
+            segments: const [
+              ButtonSegment(value: true, label: Text('Add')),
+              ButtonSegment(value: false, label: Text('Remove')),
+            ],
+            selected: {_isAdd},
+            onSelectionChanged: (s) => setState(() {
+              _isAdd = s.first;
+              _reason = _reasons.first;
+            }),
+          ),
+          SizedBox(height: 2.h),
+          TextField(
+            controller: _quantity,
+            keyboardType: TextInputType.number,
+            onChanged: (_) => setState(() {}),
+            decoration: const InputDecoration(
+              labelText: 'Quantity',
+              border: OutlineInputBorder(),
             ),
-            SizedBox(height: 2.h),
-            TextField(
-              controller: _quantity,
-              keyboardType: TextInputType.number,
-              onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(
-                labelText: 'Quantity',
-                border: OutlineInputBorder(),
-              ),
+          ),
+          SizedBox(height: 1.5.h),
+          DropdownButtonFormField<StockMovementReason>(
+            value: _reason,
+            decoration: const InputDecoration(
+              labelText: 'Reason',
+              border: OutlineInputBorder(),
             ),
-            SizedBox(height: 1.5.h),
-            DropdownButtonFormField<StockMovementReason>(
-              value: _reason,
-              decoration: const InputDecoration(
-                labelText: 'Reason',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                for (final r in _reasons)
-                  DropdownMenuItem(value: r, child: Text(r.label)),
-              ],
-              onChanged: (r) => setState(() => _reason = r ?? _reason),
+            items: [
+              for (final r in _reasons)
+                DropdownMenuItem(value: r, child: Text(r.label)),
+            ],
+            onChanged: (r) => setState(() => _reason = r ?? _reason),
+          ),
+          SizedBox(height: 1.5.h),
+          TextField(
+            controller: _note,
+            decoration: const InputDecoration(
+              labelText: 'Note (optional)',
+              border: OutlineInputBorder(),
             ),
-            SizedBox(height: 1.5.h),
-            TextField(
-              controller: _note,
-              decoration: const InputDecoration(
-                labelText: 'Note (optional)',
-                border: OutlineInputBorder(),
-              ),
+          ),
+          SizedBox(height: 1.5.h),
+          Text(
+            'New stock: ${_newStock < 0 ? 'invalid' : _newStock}',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          SizedBox(height: 2.h),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _saving ? null : _save,
+              child: Text(_saving ? 'Saving...' : 'Save'),
             ),
-            SizedBox(height: 1.5.h),
-            Text(
-              'New stock: ${_newStock < 0 ? 'invalid' : _newStock}',
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            SizedBox(height: 2.h),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _saving ? null : _save,
-                child: Text(_saving ? 'Saving...' : 'Save'),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -95,7 +95,7 @@ class ProductDetailsHeader extends StatelessWidget {
                     Icons.edit,
                     color: AppColors.primaryColor,
                   ),
-                  tooltip: 'Edit Category',
+                  tooltip: 'Edit Product Details',
                 )),
         ],
       ),
