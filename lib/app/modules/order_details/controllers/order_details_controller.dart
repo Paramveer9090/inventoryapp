@@ -744,18 +744,23 @@ class OrderDetailsController extends GetxController {
 
             // Items table
             pw.TableHelper.fromTextArray(
-              border: pw.TableBorder.all(color: PdfColors.black, width: 1),
+              border: pw.TableBorder(
+                horizontalInside:
+                    pw.BorderSide(color: PdfColors.grey400, width: 0.5),
+                bottom: pw.BorderSide(color: PdfColors.grey600, width: 1),
+              ),
               headerStyle: pw.TextStyle(
                 fontWeight: pw.FontWeight.bold,
                 fontSize: 10,
-                color: PdfColors.black,
+                color: PdfColors.white,
               ),
               cellStyle: pw.TextStyle(
                 fontSize: 10,
                 color: PdfColors.black,
               ),
-              headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-              cellHeight: 28,
+              headerDecoration: pw.BoxDecoration(color: PdfColors.grey800),
+              oddRowDecoration: pw.BoxDecoration(color: PdfColors.grey100),
+              cellPadding: pw.EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               columnWidths: {
                 0: pw.FlexColumnWidth(4.8),
                 1: pw.FlexColumnWidth(0.9),
@@ -889,8 +894,49 @@ class OrderDetailsController extends GetxController {
     return pdf.save();
   }
 
+  // Order items may not carry description_invoice, so fall back to the nested
+  // product and then to the product record itself.
+  Future<Map<GetDataListResponseData, String>>
+      _loadInvoiceDescriptions() async {
+    final result = <GetDataListResponseData, String>{};
+    final fetched = <String, String?>{};
+
+    for (final item in orderItem) {
+      var text =
+          (item.descriptionInvoice ?? item.product?.descriptionInvoice)?.trim();
+
+      if (text == null || text.isEmpty) {
+        final productId = item.productId ?? item.product?.id;
+        if (productId != null) {
+          final key = productId.toString();
+          if (!fetched.containsKey(key)) {
+            try {
+              final data = await APIFunction().apiCall(
+                apiName: '${Constants.products}/$key',
+                context: Get.context!,
+                token: accessToken,
+                type: 'get',
+                isLoading: false,
+              );
+              final product = data?['data'] ?? data?['product'];
+              fetched[key] = product?['description_invoice']?.toString().trim();
+            } catch (e) {
+              print('Could not load description for product $key: $e');
+              fetched[key] = null;
+            }
+          }
+          text = fetched[key];
+        }
+      }
+
+      if (text != null && text.isNotEmpty) result[item] = text;
+    }
+    return result;
+  }
+
   Future<Uint8List> generatePackagingSlipPdf() async {
     final pdf = pw.Document();
+    final invoiceDescriptions = await _loadInvoiceDescriptions();
 
     // Load logo, fallback to placeholder if not found
     pw.MemoryImage? logo;
@@ -987,26 +1033,39 @@ class OrderDetailsController extends GetxController {
 
             // Items table
             pw.TableHelper.fromTextArray(
-              border: pw.TableBorder.all(color: PdfColors.black, width: 1),
+              border: pw.TableBorder(
+                horizontalInside:
+                    pw.BorderSide(color: PdfColors.grey400, width: 0.5),
+                bottom: pw.BorderSide(color: PdfColors.grey600, width: 1),
+              ),
               headerStyle: pw.TextStyle(
                 fontWeight: pw.FontWeight.bold,
-                fontSize: 12,
-                color: PdfColors.black,
+                fontSize: 10,
+                color: PdfColors.white,
               ),
               cellStyle: pw.TextStyle(
-                fontSize: 12,
+                fontSize: 10,
                 color: PdfColors.black,
               ),
-              headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-              cellHeight: 40,
+              headerDecoration: pw.BoxDecoration(color: PdfColors.grey800),
+              oddRowDecoration: pw.BoxDecoration(color: PdfColors.grey100),
+              cellPadding: pw.EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              columnWidths: {
+                0: pw.IntrinsicColumnWidth(),
+                1: pw.FlexColumnWidth(1),
+                2: pw.IntrinsicColumnWidth(),
+              },
               cellAlignments: {
                 0: pw.Alignment.centerLeft,
                 1: pw.Alignment.center,
+                2: pw.Alignment.centerRight,
               },
-              headers: ['Product', 'Quantity'],
+              headers: ['Product', 'Description', 'Quantity'],
               data: orderItem.map((item) {
+                final descriptionInvoice = invoiceDescriptions[item];
                 return [
                   item.name?.toString() ?? 'N/A',
+                  descriptionInvoice ?? 'N/A',
                   item.quantityCount?.toString() ?? '0',
                 ];
               }).toList(),

@@ -613,6 +613,7 @@ class Product {
   final dynamic subCategoryId;
   final dynamic productImage;
   final List<dynamic>? media;
+  final String? descriptionInvoice;
 
   Product({
     this.id,
@@ -630,6 +631,7 @@ class Product {
     this.subCategoryId,
     this.productImage,
     this.media,
+    this.descriptionInvoice,
   });
 
   Product.fromJson(Map<String, dynamic> json)
@@ -647,7 +649,8 @@ class Product {
         taxId = json['tax_id'] as int?,
         subCategoryId = json['sub_category_id'],
         productImage = json['product_image'],
-        media = json['media'] as List?;
+        media = json['media'] as List?,
+        descriptionInvoice = json['description_invoice'] as String?;
 
   Map<String, dynamic> toJson() => {
         'id': id,
