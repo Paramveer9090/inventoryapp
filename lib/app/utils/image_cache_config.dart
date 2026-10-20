@@ -52,6 +52,15 @@ class OptimizedNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Decode at physical-pixel resolution; setting only one dimension keeps aspect ratio.
+    final dpr = MediaQuery.devicePixelRatioOf(context);
+    final memWidth = width != null && width!.isFinite && width! > 0
+        ? (width! * dpr).round()
+        : null;
+    final memHeight = height != null && height!.isFinite && height! > 0
+        ? (height! * dpr).round()
+        : null;
+
     Widget imageWidget = CachedNetworkImage(
       imageUrl: _buildFullUrl(imageUrl),
       width: width,
@@ -62,8 +71,9 @@ class OptimizedNetworkImage extends StatelessWidget {
       errorWidget: (context, url, error) => _buildErrorWidget(),
       fadeInDuration: Duration(milliseconds: 200),
       fadeOutDuration: Duration(milliseconds: 100),
-      memCacheWidth: width != null && width!.isFinite ? width!.toInt() : null,
-      memCacheHeight: height != null && height!.isFinite ? height!.toInt() : null,
+      filterQuality: FilterQuality.high,
+      memCacheWidth: memWidth,
+      memCacheHeight: memWidth == null ? memHeight : null,
     );
 
     if (borderRadius != null) {
