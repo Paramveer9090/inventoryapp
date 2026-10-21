@@ -469,8 +469,10 @@ class OrdersController extends GetxController {
 
   // worked on it
 
+  num _quantityValue(double value) =>
+      value == value.roundToDouble() ? value.toInt() : value;
+
   editOrderAPI() async {
-    // Get order ID
     String currentOrderId = orderId.toString();
 
     if (currentOrderId.isEmpty || currentOrderId == "0") {
@@ -495,11 +497,12 @@ class OrdersController extends GetxController {
 
             if (orderProductId == newProductId && orderProductId.isNotEmpty) {
               // Update existing product quantity
-              final existingQty =
-                  int.tryParse(orderItem[j].quantityCount?.toString() ?? "0") ??
-                      0;
-              final newQty = int.tryParse(quantityStr) ?? 0;
-              orderItem[j].quantityCount = (existingQty + newQty).toString();
+              final existingQty = double.tryParse(
+                      orderItem[j].quantityCount?.toString() ?? "0") ??
+                  0;
+              final newQty = double.tryParse(quantityStr) ?? 0;
+              orderItem[j].quantityCount =
+                  _quantityValue(existingQty + newQty).toString();
               productExists = true;
               break;
             }
@@ -558,8 +561,8 @@ class OrdersController extends GetxController {
           subCategoryList.add(item.subCategoryId ?? 0);
           productAPIList.add(item.productId ?? item.id ?? 0);
           packageList.add(item.boxSize ?? 1);
-          quantityList
-              .add(int.tryParse(item.quantityCount?.toString() ?? "0") ?? 0);
+          quantityList.add(_quantityValue(
+              double.tryParse(item.quantityCount?.toString() ?? "0") ?? 0));
 
           // Handle price fields safely
           final salePrice = item.salePrice ?? item.sellingPrice;
