@@ -131,7 +131,7 @@ class _AdjustStockSheetState extends State<_AdjustStockSheet> {
           ),
           SizedBox(height: 1.5.h),
           DropdownButtonFormField<StockMovementReason>(
-            value: _reason,
+            initialValue: _reason,
             decoration: const InputDecoration(
               labelText: 'Reason',
               border: OutlineInputBorder(),

@@ -95,7 +95,8 @@ class _DriverAppBar extends StatelessWidget implements PreferredSizeWidget {
 class _DriverBottomNav extends StatelessWidget {
   final HomeController controller;
 
-  const _DriverBottomNav({Key? key, required this.controller}) : super(key: key);
+  const _DriverBottomNav({Key? key, required this.controller})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -114,21 +115,35 @@ class _DriverBottomNav extends StatelessWidget {
           children: [
             ...List.generate(
               controller.iconDeliveryList.length,
-              (index) => GestureDetector(
-                onTap: () {
-                  controller.isSelected.value = index;
-                  if (controller.isOrderDetails.value) {
-                    controller.isOrderDetails.value = false;
-                  }
-                  controller.update();
-                },
-                child: ConsistentIcon(
-                  iconPath: controller.isSelected.value == index
-                      ? controller.selectedDeliveryIconList[index]
-                      : controller.iconDeliveryList[index],
-                  isSelected: controller.isSelected.value == index,
-                  containerSize: 5.h,
-                  iconSize: 3.2.h,
+              (index) => Semantics(
+                button: true,
+                label: controller.titleDeliveryList[index].toString(),
+                selected: controller.isSelected.value == index,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    controller.isSelected.value = index;
+                    if (controller.isOrderDetails.value) {
+                      controller.isOrderDetails.value = false;
+                    }
+                    controller.update();
+                  },
+                  child: SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: Center(
+                      child: ExcludeSemantics(
+                        child: ConsistentIcon(
+                          iconPath: controller.isSelected.value == index
+                              ? controller.selectedDeliveryIconList[index]
+                              : controller.iconDeliveryList[index],
+                          isSelected: controller.isSelected.value == index,
+                          containerSize: 5.h,
+                          iconSize: 3.2.h,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

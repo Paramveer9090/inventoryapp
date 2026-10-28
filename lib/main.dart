@@ -43,26 +43,10 @@ class MyApp extends GetView<MainController> {
               getPages: AppPages.routes,
               theme: AppColors.lightTheme,
               builder: (context, child) {
-                // Responsive text scaling using textScaler (textScaleFactor deprecated)
-                final width = MediaQuery.of(context).size.width;
-                TextScaler textScaler = const TextScaler.linear(1.0);
-                if (width > 1200) {
-                  textScaler = const TextScaler.linear(1.15);
-                } else if (width > 900) {
-                  textScaler = const TextScaler.linear(1.1);
-                } else if (width > 600) {
-                  textScaler = const TextScaler.linear(1.05);
-                }
-
-                return MediaQuery(
-                  data: MediaQuery.of(context).copyWith(
-                    textScaler: textScaler,
-                  ),
-                  child: SafeArea(
-                    top: false, // Let status bar show
-                    bottom: true, // Handle navigation bar
-                    child: EasyLoading.init()(context, child),
-                  ),
+                return SafeArea(
+                  top: false,
+                  bottom: true,
+                  child: EasyLoading.init()(context, child),
                 );
               },
               debugShowCheckedModeBanner: false,

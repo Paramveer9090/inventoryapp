@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
@@ -6,15 +8,15 @@ import 'app_text.dart';
 
 class AppButton extends StatelessWidget {
   final String title;
-  final Function()? onTap;
+  final VoidCallback? onTap;
   final double? width;
   final double? height;
   final Color? color;
   final double? fontSize;
   final String? image;
   final IconData? icon;
-  final bool? isImage;
-  final bool? isIcon;
+  final bool isImage;
+  final bool isIcon;
 
   AppButton({
     required this.title,
@@ -31,42 +33,52 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    final borderRadius = BorderRadius.circular(40);
+    final minHeight = math.max(height ?? 0, 48).toDouble();
+
+    return Semantics(
+      button: true,
+      label: title,
+      enabled: onTap != null,
       onTap: onTap,
-      child: Container(
-        width: width,
-        padding: EdgeInsets.symmetric(horizontal: 3.h, vertical: 1.5.h),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
+      child: ExcludeSemantics(
+        child: Material(
           color: color ?? AppColors.secondPrimaryColor,
-          borderRadius: BorderRadius.circular(40),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            isIcon!
-                ? Icon(
-                    icon,
-                    size: 3.h,
-                    color: AppColors.whiteColor,
-                  )
-                : isImage!
-                    ? Image.asset(
-                        image!,
-                        color: AppColors.whiteColor,
-                        height: 3.h,
-                        width: 3.h,
-                      )
-                    : Container(),
-            SizedBox(width: isImage! || isIcon! ? 2.h : 0),
-            Center(
-              child: AppText(
-                title,
-                color: AppColors.whiteColor,
-                fontSize: fontSize ?? 15.sp,
+          borderRadius: borderRadius,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: borderRadius,
+            child: Container(
+              width: width,
+              constraints: BoxConstraints(minHeight: minHeight),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (isIcon && icon != null)
+                    Icon(icon, size: 24, color: AppColors.whiteColor)
+                  else if (isImage && image != null)
+                    Image.asset(
+                      image!,
+                      color: AppColors.whiteColor,
+                      height: 24,
+                      width: 24,
+                    ),
+                  if (isImage || isIcon) const SizedBox(width: 8),
+                  Flexible(
+                    child: AppText(
+                      title,
+                      color: AppColors.whiteColor,
+                      fontSize: fontSize ?? 15.sp,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

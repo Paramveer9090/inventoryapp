@@ -24,13 +24,21 @@ class AppColors {
 
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
+    colorScheme: const ColorScheme.light(
+      primary: primaryColor,
+      onPrimary: whiteColor,
+      secondary: secondPrimaryColor,
+      onSecondary: whiteColor,
+      surface: scaffoldBackgroundColor,
+      onSurface: blackColor,
+      error: darkRedColor,
+      onError: whiteColor,
+    ),
     scaffoldBackgroundColor: scaffoldBackgroundColor,
-    //
     appBarTheme: const AppBarTheme(
       backgroundColor: scaffoldBackgroundColor,
       surfaceTintColor: scaffoldBackgroundColor,
     ),
-    //
     inputDecorationTheme: InputDecorationTheme(
       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       border: OutlineInputBorder(
@@ -41,7 +49,6 @@ class AppColors {
         borderRadius: BorderRadius.circular(8),
       ),
     ),
-    //
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: elevatedButtonColor,

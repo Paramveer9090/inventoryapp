@@ -32,13 +32,16 @@ class DashboardHeader extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
+            ExcludeSemantics(
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child:
+                    const Icon(Icons.dashboard, color: Colors.white, size: 24),
               ),
-              child: Icon(Icons.dashboard, color: Colors.white, size: 24),
             ),
             SizedBox(width: 2.h),
             Expanded(
@@ -64,7 +67,6 @@ class DashboardHeader extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.notifications_outlined, color: Colors.white, size: 24),
           ],
         ),
       ),

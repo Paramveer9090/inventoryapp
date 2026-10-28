@@ -5,7 +5,8 @@ import 'order_card.dart';
 class RecentOrdersCard extends StatelessWidget {
   final DashboardController controller;
 
-  const RecentOrdersCard({Key? key, required this.controller}) : super(key: key);
+  const RecentOrdersCard({Key? key, required this.controller})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,8 @@ class RecentOrdersCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.history, size: 20, color: AppColors.primaryColor),
+                    Icon(Icons.history,
+                        size: 20, color: AppColors.primaryColor),
                     SizedBox(width: 1.h),
                     AppText(
                       'Recent Orders',
@@ -33,17 +35,22 @@ class RecentOrdersCard extends StatelessWidget {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppColors.primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: AppText('Last 5', fontSize: 10.sp, color: AppColors.primaryColor),
+                  child: AppText('Last 5',
+                      fontSize: 10.sp, color: AppColors.primaryColor),
                 ),
               ],
             ),
             SizedBox(height: 2.h),
-            if (controller.myOrderList.isEmpty) _buildEmptyState() else _buildOrdersList(),
+            if (controller.myOrderList.isEmpty)
+              _buildEmptyState()
+            else
+              _buildOrdersList(),
           ],
         ),
       ),
@@ -57,8 +64,10 @@ class RecentOrdersCard extends StatelessWidget {
         children: [
           Icon(Icons.inbox_outlined, size: 48, color: Colors.grey[400]),
           SizedBox(height: 1.h),
-          AppText('No recent orders', fontSize: 14.sp, color: Colors.grey[600]!),
-          AppText('Your recent orders will appear here', fontSize: 12.sp, color: Colors.grey[500]!),
+          AppText('No recent orders',
+              fontSize: 14.sp, color: Colors.grey[600]!),
+          AppText('Your recent orders will appear here',
+              fontSize: 12.sp, color: Colors.grey[500]!),
         ],
       ),
     );
@@ -67,25 +76,50 @@ class RecentOrdersCard extends StatelessWidget {
   Widget _buildOrdersList() {
     return Column(
       children: controller.myOrderList.take(5).map((order) {
-        DateTime currentDate = DateTime.now();
-        DateTime dueDate = DateTime.parse(order.dueDate.toString());
         String statusText;
         Color statusColor;
 
-        if (order.payment!.paymentStatus == "1") {
+        if (order.payment?.paymentStatus == "1") {
           statusText = "Closed";
           statusColor = AppColors.lightGreen;
-        } else if (currentDate.isAfter(dueDate)) {
-          int overdueDays = currentDate.difference(dueDate).inDays;
-          statusText = "Overdue $overdueDays days";
-          statusColor = AppColors.lightRed;
         } else {
-          int daysLeft = dueDate.difference(currentDate).inDays;
-          statusText = "$daysLeft days left";
-          statusColor = AppColors.lightYellow;
+          final dueDateText = order.dueDate?.trim();
+          final parsedDueDate = dueDateText == null || dueDateText.isEmpty
+              ? null
+              : DateTime.tryParse(dueDateText)?.toLocal();
+
+          if (parsedDueDate == null) {
+            statusText = 'Due date unavailable';
+            statusColor = AppColors.greyColor;
+          } else {
+            final today = DateTime.now();
+            final todayDate = DateTime(today.year, today.month, today.day);
+            final dueDate = DateTime(
+              parsedDueDate.year,
+              parsedDueDate.month,
+              parsedDueDate.day,
+            );
+            final daysUntilDue = dueDate.difference(todayDate).inDays;
+
+            if (daysUntilDue < 0) {
+              final overdueDays = daysUntilDue.abs();
+              statusText =
+                  'Overdue $overdueDays ${overdueDays == 1 ? 'day' : 'days'}';
+              statusColor = AppColors.lightRed;
+            } else {
+              statusText =
+                  '$daysUntilDue ${daysUntilDue == 1 ? 'day' : 'days'} left';
+              statusColor = AppColors.lightYellow;
+            }
+          }
         }
 
-        return OrderCard(order: order, statusText: statusText, statusColor: statusColor, controller: controller);
+        return OrderCard(
+          order: order,
+          statusText: statusText,
+          statusColor: statusColor,
+          controller: controller,
+        );
       }).toList(),
     );
   }

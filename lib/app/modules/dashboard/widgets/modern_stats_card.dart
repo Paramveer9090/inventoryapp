@@ -41,7 +41,13 @@ class ModernStatsCard extends StatelessWidget {
                   ),
                   child: Icon(icon, color: color, size: 20),
                 ),
-                Icon(Icons.trending_up, color: color.withValues(alpha: 0.7), size: 16),
+                ExcludeSemantics(
+                  child: Icon(
+                    Icons.trending_up,
+                    color: color.withValues(alpha: 0.7),
+                    size: 16,
+                  ),
+                ),
               ],
             ),
             SizedBox(height: 1.5.h),
@@ -55,7 +61,7 @@ class ModernStatsCard extends StatelessWidget {
             AppText(
               title,
               fontSize: 12.sp,
-              color: color.withValues(alpha: 0.8),
+              color: color,
               maxLines: 2,
             ),
           ],

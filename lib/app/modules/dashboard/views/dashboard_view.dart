@@ -27,21 +27,24 @@ class DashboardView extends GetView<DashboardController> {
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.all(2.h),
                 children: [
-                  // Header
-                  DashboardHeader(controller: controller),
-                  SizedBox(height: 3.h),
-
-                  // Stats Cards
-                  _buildStatsSection(controller),
-                  SizedBox(height: 3.h),
-
-                  // Recent Orders Section
-                  _buildRecentOrdersSection(controller),
-                  SizedBox(height: 2.h),
-
-                  // Quick Action
-                  _buildQuickActionSection(),
-                  SizedBox(height: 2.h),
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1000),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          DashboardHeader(controller: controller),
+                          SizedBox(height: 3.h),
+                          _buildStatsSection(controller),
+                          SizedBox(height: 3.h),
+                          _buildRecentOrdersSection(controller),
+                          SizedBox(height: 2.h),
+                          _buildQuickActionSection(),
+                          SizedBox(height: 2.h),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -52,45 +55,60 @@ class DashboardView extends GetView<DashboardController> {
   }
 
   Widget _buildStatsSection(DashboardController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 1.h),
-          child: AppText(
-            'Order Summary',
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            color: AppColors.blackColor,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cards = [
+          ModernStatsCard(
+            title: "Accepted Orders",
+            count: controller.isAccepted.value,
+            icon: Icons.check_circle_outline,
+            color: const Color(0xff2E7D32),
+            backgroundColor: const Color(0xffE8F5E8),
           ),
-        ),
-        SizedBox(height: 1.5.h),
-        Row(
+          ModernStatsCard(
+            title: "Under Review",
+            count: controller.isReview.value,
+            icon: Icons.schedule_outlined,
+            color: const Color(0xffB45309),
+            backgroundColor: const Color(0xffFFF3E0),
+          ),
+        ];
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: ModernStatsCard(
-                title: "Accepted Orders",
-                count: controller.isAccepted.value,
-                icon: Icons.check_circle_outline,
-                color: const Color(0xff4CAF50),
-                backgroundColor: const Color(0xffE8F5E8),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 1.h),
+              child: AppText(
+                'Order Summary',
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColors.blackColor,
               ),
             ),
-            SizedBox(width: 2.h),
-            Expanded(
-              child: ModernStatsCard(
-                title: "Under Review",
-                count: controller.isReview.value,
-                icon: Icons.schedule_outlined,
-                color: const Color(0xffFF9800),
-                backgroundColor: const Color(0xffFFF3E0),
+            SizedBox(height: 1.5.h),
+            if (constraints.maxWidth < 320)
+              Column(
+                children: [
+                  cards[0],
+                  SizedBox(height: 1.h),
+                  cards[1],
+                ],
+              )
+            else
+              Row(
+                children: [
+                  Expanded(child: cards[0]),
+                  SizedBox(width: 2.h),
+                  Expanded(child: cards[1]),
+                ],
               ),
-            ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
+
   Widget _buildRecentOrdersSection(DashboardController controller) {
     return RecentOrdersCard(controller: controller);
   }
@@ -99,4 +117,3 @@ class DashboardView extends GetView<DashboardController> {
     return QuickActionCard();
   }
 }
-

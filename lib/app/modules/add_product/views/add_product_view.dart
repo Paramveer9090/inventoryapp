@@ -59,9 +59,14 @@ class AddProductView extends GetView<AddProductController> {
 
                   // Form Content
                   Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.all(2.h),
-                      child: Column(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 760),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.all(2.h),
+                            child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Product Name (Required)
@@ -211,54 +216,40 @@ class AddProductView extends GetView<AddProductController> {
                           // Pricing Information
                           _buildSectionTitle("Pricing & Stock *", required: true),
                           SizedBox(height: 1.h),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildTextField(
-                                  controller: controller.sellingPriceController,
-                                  label: "Selling Price *",
-                                  hint: "0.00",
-                                  icon: Icons.attach_money,
-                                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: _buildTextField(
-                                  controller: controller.maximumSellingPriceController,
-                                  label: "Max Price",
-                                  hint: "0.00",
-                                  icon: Icons.price_change_outlined,
-                                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                                ),
-                              ),
-                            ],
+                          _buildAdaptiveFieldPair(
+                            _buildTextField(
+                              controller: controller.sellingPriceController,
+                              label: "Selling Price *",
+                              hint: "0.00",
+                              icon: Icons.attach_money,
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                            ),
+                            _buildTextField(
+                              controller: controller.maximumSellingPriceController,
+                              label: "Max Price",
+                              hint: "0.00",
+                              icon: Icons.price_change_outlined,
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                            ),
                           ),
                           SizedBox(height: 2.h),
 
                           // Stock & Box Size
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildTextField(
-                                  controller: controller.stockController,
-                                  label: "Stock Quantity *",
-                                  hint: "0",
-                                  icon: Icons.inventory_outlined,
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: _buildTextField(
-                                  controller: controller.boxSizeController,
-                                  label: "Box Size",
-                                  hint: "0",
-                                  icon: Icons.shopping_bag_outlined,
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                            ],
+                          _buildAdaptiveFieldPair(
+                            _buildTextField(
+                              controller: controller.stockController,
+                              label: "Stock Quantity *",
+                              hint: "0",
+                              icon: Icons.inventory_outlined,
+                              keyboardType: TextInputType.number,
+                            ),
+                            _buildTextField(
+                              controller: controller.boxSizeController,
+                              label: "Box Size",
+                              hint: "0",
+                              icon: Icons.shopping_bag_outlined,
+                              keyboardType: TextInputType.number,
+                            ),
                           ),
                           SizedBox(height: 2.h),
 
@@ -418,11 +409,37 @@ class AddProductView extends GetView<AddProductController> {
                         ],
                       ),
                     ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAdaptiveFieldPair(Widget first, Widget second) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 480) {
+          return Column(
+            children: [
+              first,
+              SizedBox(height: 1.h),
+              second,
+            ],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: first),
+            SizedBox(width: 2.w),
+            Expanded(child: second),
+          ],
         );
       },
     );

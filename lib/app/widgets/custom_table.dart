@@ -70,7 +70,7 @@ class _CustomTableState extends State<CustomTable> {
                       width: 0.5,
                       color: AppColors.whiteColor,
                     ),
-                    headingRowColor: WidgetStatePropertyAll (
+                    headingRowColor: WidgetStatePropertyAll(
                       AppColors.tableColor,
                     ),
                     columns: widget.columns,
@@ -85,40 +85,43 @@ class _CustomTableState extends State<CustomTable> {
                 SizedBox(height: widget.isBottom == false ? 0 : 12),
                 widget.isBottom == false
                     ? Container()
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        mainAxisSize: MainAxisSize.min,
+                    : Wrap(
+                        alignment: WrapAlignment.end,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          Text(
-                            '${rowCount + 1} - ${(rowCount + widget.rowsPerPage) > widget.dataLength ? widget.dataLength : (rowCount + widget.rowsPerPage)} of ${widget.dataLength}',
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Text(
+                              '${widget.dataLength == 0 ? 0 : rowCount + 1} - ${(rowCount + widget.rowsPerPage) > widget.dataLength ? widget.dataLength : (rowCount + widget.rowsPerPage)} of ${widget.dataLength}',
+                            ),
                           ),
-                          const SizedBox(width: 16),
-                          InkWell(
-                            onTap: rowCount <= 0
+                          IconButton(
+                            tooltip: 'Previous page',
+                            onPressed: rowCount <= 0
                                 ? null
                                 : () {
                                     rowCount -= widget.rowsPerPage;
                                     pageIndex -= 1;
                                     setState(() {});
                                   },
-                            child: const Icon(
+                            icon: const Icon(
                               Icons.arrow_back_ios_outlined,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          InkWell(
-                            onTap: rowCount + widget.rowsPerPage >= widget.dataLength
+                          IconButton(
+                            tooltip: 'Next page',
+                            onPressed: rowCount + widget.rowsPerPage >=
+                                    widget.dataLength
                                 ? null
                                 : () {
                                     rowCount += widget.rowsPerPage;
                                     pageIndex += 1;
                                     setState(() {});
                                   },
-                            child: const Icon(
+                            icon: const Icon(
                               Icons.arrow_forward_ios_outlined,
                             ),
                           ),
-                          const SizedBox(width: 12),
                         ],
                       ),
                 SizedBox(height: widget.isBottom == false ? 0 : 12),

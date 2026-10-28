@@ -19,7 +19,8 @@ class SalesHomeShell extends StatelessWidget {
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
 
-        if (Get.find<ProductsController>().productDetails.value && controller.isSelected.value == 3) {
+        if (Get.find<ProductsController>().productDetails.value &&
+            controller.isSelected.value == 3) {
           Get.find<ProductsController>().productDetails.value = false;
           Get.find<ProductsController>().update();
           controller.update();
@@ -36,7 +37,8 @@ class SalesHomeShell extends StatelessWidget {
           controller.isSelected.value = 2;
           controller.isOrderDetails.value = true;
           controller.update();
-        } else if (controller.isOrderDetails.value && controller.isOrderEdit.value) {
+        } else if (controller.isOrderDetails.value &&
+            controller.isOrderEdit.value) {
           controller.isOrderDetails.value = false;
           controller.isOrderEdit.value = false;
           if (controller.isSelected.value == 2) {
@@ -68,12 +70,6 @@ class SalesHomeShell extends StatelessWidget {
         backgroundColor: AppColors.primaryColor,
         appBar: _SalesAppBar(controller: controller),
         bottomNavigationBar: _SalesBottomNav(controller: controller),
-        onDrawerChanged: (value) {
-          if (value == false && controller.isDrawerSelected.value == 0) {
-            controller.isSelected.value = 0;
-            controller.update();
-          }
-        },
         drawer: _SalesDrawer(controller: controller),
         body: _SalesBody(controller: controller),
       ),
@@ -100,7 +96,8 @@ class _SalesAppBar extends StatelessWidget implements PreferredSizeWidget {
             ? AppStrings.productDetails
             : controller.addOrder.value
                 ? AppStrings.orders
-                : controller.isOrderDetails.value && controller.isOrderEdit.value
+                : controller.isOrderDetails.value &&
+                        controller.isOrderEdit.value
                     ? AppStrings.editOrder
                     : controller.isOrderDetails.value
                         ? AppStrings.orderDetail
@@ -108,7 +105,8 @@ class _SalesAppBar extends StatelessWidget implements PreferredSizeWidget {
                             ? AppStrings.cart
                             : controller.isCustomerDetails.value
                                 ? AppStrings.customersDetails
-                                : controller.titleList[controller.isSelected.value],
+                                : controller
+                                    .titleList[controller.isSelected.value],
         fontSize: 14.sp,
         color: AppColors.whiteColor,
       ),
@@ -164,7 +162,8 @@ class _SalesAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildLeading(BuildContext context) {
-    if (Get.find<ProductsController>().productDetails.value && controller.isSelected.value == 3) {
+    if (Get.find<ProductsController>().productDetails.value &&
+        controller.isSelected.value == 3) {
       return GestureDetector(
         onTap: () {
           Get.find<ProductsController>().productDetails.value = false;
@@ -293,43 +292,68 @@ class _SalesBottomNav extends StatelessWidget {
           children: [
             ...List.generate(
               controller.iconList.length,
-              (index) => GestureDetector(
-                onTap: () {
-                  if (controller.isDrawerSelected.value != 0) {
-                    controller.isDrawerSelected.value = 0;
-                  }
-                  if (controller.addOrder.value) {
-                    controller.addOrder.value = false;
-                  }
-                  if (controller.isCustomerDetails.value) {
-                    controller.isCustomerDetails.value = false;
-                  }
-                  if (controller.isCart.value) {
-                    controller.isCart.value = false;
-                  }
-                  if (controller.isOrderDetails.value && controller.isOrderEdit.value) {
-                    controller.isOrderDetails.value = false;
-                    controller.isOrderEdit.value = false;
-                  }
-                  if (controller.isOrderDetails.value) {
-                    controller.isOrderDetails.value = false;
-                  }
+              (index) {
+                final isMenu = index == 4;
+                final isSelected =
+                    !isMenu && controller.isSelected.value == index;
+                final label = isMenu
+                    ? 'More options'
+                    : controller.titleList[index].toString();
 
-                  controller.isSelected.value = index;
-                  controller.update();
-                  if (controller.isSelected.value == 4) {
-                    controller.key.currentState!.openDrawer();
-                  }
-                },
-                child: ConsistentIcon(
-                  iconPath: controller.isSelected.value == index
-                      ? controller.selectedIconList[index]
-                      : controller.iconList[index],
-                  isSelected: controller.isSelected.value == index,
-                  containerSize: 5.h,
-                  iconSize: 3.2.h,
-                ),
-              ),
+                return Semantics(
+                  button: true,
+                  label: label,
+                  selected: isSelected,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      if (isMenu) {
+                        controller.key.currentState?.openDrawer();
+                        return;
+                      }
+                      if (controller.isDrawerSelected.value != 0) {
+                        controller.isDrawerSelected.value = 0;
+                      }
+                      if (controller.addOrder.value) {
+                        controller.addOrder.value = false;
+                      }
+                      if (controller.isCustomerDetails.value) {
+                        controller.isCustomerDetails.value = false;
+                      }
+                      if (controller.isCart.value) {
+                        controller.isCart.value = false;
+                      }
+                      if (controller.isOrderDetails.value &&
+                          controller.isOrderEdit.value) {
+                        controller.isOrderDetails.value = false;
+                        controller.isOrderEdit.value = false;
+                      }
+                      if (controller.isOrderDetails.value) {
+                        controller.isOrderDetails.value = false;
+                      }
+
+                      controller.isSelected.value = index;
+                      controller.update();
+                    },
+                    child: SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: Center(
+                        child: ExcludeSemantics(
+                          child: ConsistentIcon(
+                            iconPath: isSelected
+                                ? controller.selectedIconList[index]
+                                : controller.iconList[index],
+                            isSelected: isSelected,
+                            containerSize: 5.h,
+                            iconSize: 3.2.h,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -371,7 +395,8 @@ class _SalesDrawer extends StatelessWidget {
                       SizedBox(height: 1.h),
                       const Divider(),
                       SizedBox(height: 1.h),
-                      ...List.generate(controller.drawerList.length, (drawerIndex) {
+                      ...List.generate(controller.drawerList.length,
+                          (drawerIndex) {
                         return GestureDetector(
                           onTap: () {
                             controller.isDrawerSelected.value = drawerIndex + 1;
@@ -401,7 +426,8 @@ class _SalesDrawer extends StatelessWidget {
                             controller.update();
                           },
                           child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 2.5.h, horizontal: 3.h),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 2.5.h, horizontal: 3.h),
                             margin: EdgeInsets.symmetric(vertical: 1.h),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(30),
@@ -418,7 +444,9 @@ class _SalesDrawer extends StatelessWidget {
                                 Flexible(
                                   child: AppText(
                                     controller.drawerList[drawerIndex],
-                                    fontSize: ResponsiveHelper.getResponsiveFontSize(context, 11.sp, 14.sp),
+                                    fontSize:
+                                        ResponsiveHelper.getResponsiveFontSize(
+                                            context, 11.sp, 14.sp),
                                     color: Colors.white,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
@@ -431,8 +459,10 @@ class _SalesDrawer extends StatelessWidget {
                       }),
                       ListTile(
                         contentPadding: EdgeInsets.symmetric(horizontal: 3.h),
-                        leading: const Icon(Icons.inventory_2_outlined, color: Colors.white),
-                        title: AppText('Inventory', fontSize: 14.sp, color: Colors.white),
+                        leading: const Icon(Icons.inventory_2_outlined,
+                            color: Colors.white),
+                        title: AppText('Inventory',
+                            fontSize: 14.sp, color: Colors.white),
                         onTap: () {
                           Get.back();
                           Get.toNamed(Routes.INVENTORY);
@@ -465,14 +495,14 @@ class _SalesBody extends StatelessWidget {
       ),
       child: Center(
         child: controller.isSelected.value == 3
-          ? ProductsView()
-          : controller.addOrder.value
-            ? OrdersView(customerId: controller.isCustomerId.value)
-            : controller.isCart.value
-              ? CartView()
-              : controller.isOrderDetails.value
-                ? OrderDetailsView(id: orderId)
-                : controller.screens[controller.isSelected.value],
+            ? ProductsView()
+            : controller.addOrder.value
+                ? OrdersView(customerId: controller.isCustomerId.value)
+                : controller.isCart.value
+                    ? CartView()
+                    : controller.isOrderDetails.value
+                        ? OrderDetailsView(id: orderId)
+                        : controller.screens[controller.isSelected.value],
       ),
     );
   }

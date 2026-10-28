@@ -44,17 +44,24 @@ class CustomersHeader extends StatelessWidget {
           SizedBox(height: 1.h),
           Row(
             children: [
-              Icon(
-                Icons.people_outline,
-                size: 1.6.h,
-                color: Colors.grey[600],
+              ExcludeSemantics(
+                child: Icon(
+                  Icons.people_outline,
+                  size: 1.6.h,
+                  color: Colors.grey[600],
+                ),
               ),
               SizedBox(width: 0.5.h),
-              Text(
-                _buildCountLabel(context),
-                style: TextStyle(
-                  fontSize: ResponsiveHelper.getResponsiveFontSize(context, 9.sp, 12.sp),
-                  color: Colors.grey[600],
+              Expanded(
+                child: Text(
+                  _buildCountLabel(context),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: ResponsiveHelper.getResponsiveFontSize(
+                        context, 9.sp, 12.sp),
+                    color: Colors.grey[600],
+                  ),
                 ),
               ),
             ],

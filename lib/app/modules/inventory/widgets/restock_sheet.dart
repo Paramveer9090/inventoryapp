@@ -111,7 +111,7 @@ class _RestockSheetState extends State<_RestockSheet> {
           Text('${widget.productName} - current stock ${widget.currentStock}'),
           SizedBox(height: 2.h),
           DropdownButtonFormField<String>(
-            value: _supplier,
+            initialValue: _supplier,
             isExpanded: true,
             decoration: const InputDecoration(
               labelText: 'Supplier (optional)',
