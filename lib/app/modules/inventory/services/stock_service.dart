@@ -7,6 +7,9 @@ import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 /// Applies stock changes without needing the inventory screen's state.
 class StockService {
+  static const int inStockDisplayQuantity = 10;
+  static const int outOfStockDisplayQuantity = 9;
+
   StockService({
     ProductDetailsRepository? repository,
     StockMovementStore? store,
@@ -38,14 +41,65 @@ class StockService {
       return false;
     }
 
-    final response =
-        await _repository.updateProduct(productId.toString(), {'stock': newStock});
+    return _saveStock(
+      productId: productId,
+      productName: productName,
+      currentStock: current,
+      newStock: newStock,
+      reason: reason,
+      note: note,
+      supplierName: supplierName,
+      unitCost: unitCost,
+    );
+  }
+
+  Future<bool> setStock({
+    required int productId,
+    required String productName,
+    required int newStock,
+    StockMovementReason reason = StockMovementReason.correction,
+    String note = '',
+  }) async {
+    if (newStock < 0) {
+      throw ArgumentError.value(newStock, 'newStock', 'Cannot be negative');
+    }
+
+    final details = await _repository.fetchProductDetails(productId.toString());
+    final current = int.tryParse('${details.data?.stock}');
+    if (current == null) return false;
+    if (current == newStock) {
+      _notifyStockChanged(productId, newStock);
+      return true;
+    }
+
+    return _saveStock(
+      productId: productId,
+      productName: productName,
+      currentStock: current,
+      newStock: newStock,
+      reason: reason,
+      note: note,
+    );
+  }
+
+  Future<bool> _saveStock({
+    required int productId,
+    required String productName,
+    required int currentStock,
+    required int newStock,
+    required StockMovementReason reason,
+    required String note,
+    String supplierName = '',
+    double? unitCost,
+  }) async {
+    final response = await _repository
+        .updateProduct(productId.toString(), {'stock': newStock});
     if (response == null) return false;
 
     await _store.add(StockMovement(
       productId: productId,
       productName: productName,
-      previousStock: current,
+      previousStock: currentStock,
       newStock: newStock,
       reason: reason,
       note: note.trim(),
@@ -54,13 +108,17 @@ class StockService {
       createdAt: DateTime.now(),
     ));
 
+    _notifyStockChanged(productId, newStock);
+    return true;
+  }
+
+  void _notifyStockChanged(int productId, int newStock) {
     if (Get.isRegistered<InventoryController>()) {
       Get.find<InventoryController>().onStockChanged(productId, newStock);
     }
     if (Get.isRegistered<ProductsController>()) {
       Get.find<ProductsController>().getProductAPI(isLoading: false);
     }
-    return true;
   }
 
   Future<List<String>> fetchSupplierNames() async {

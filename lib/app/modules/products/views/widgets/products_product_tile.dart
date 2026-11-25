@@ -1,7 +1,10 @@
- import 'dart:io';
+import 'dart:io';
 
 import 'package:true_leaf_inventory_app/app/utils/responsive_helper.dart';
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
+import 'package:true_leaf_inventory_app/app/modules/inventory/models/stock_movement.dart';
+import 'package:true_leaf_inventory_app/app/modules/inventory/services/stock_service.dart';
+import 'package:true_leaf_inventory_app/app/modules/inventory/widgets/adjust_stock_sheet.dart';
 import 'package:true_leaf_inventory_app/app/widgets/all_import.dart';
 
 class ProductsProductTile extends StatelessWidget {
@@ -254,28 +257,7 @@ class ProductsProductTile extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: (product.stock ?? 0) > 0
-                                  ? Colors.green.withValues(alpha: 0.1)
-                                  : Colors.red.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              'Stock: ${product.stock ?? 0}',
-                              style: TextStyle(
-                                fontSize: 7.sp,
-                                color: (product.stock ?? 0) > 0
-                                    ? Colors.green
-                                    : Colors.red,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
+                          _buildStockStatusMenu(fontSize: 7.sp, compact: true),
                         ],
                       ),
                     ],
@@ -481,31 +463,11 @@ class ProductsProductTile extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: (product.stock ?? 0) > 0
-                                  ? Colors.green.withValues(alpha: 0.1)
-                                  : Colors.red.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              'Stock: ${product.stock ?? 0}',
-                              style: TextStyle(
-                                fontSize:
-                                    ResponsiveHelper.getResponsiveFontSize(
-                                  context,
-                                  8.sp,
-                                  10.sp,
-                                ),
-                                color: (product.stock ?? 0) > 0
-                                    ? Colors.green
-                                    : Colors.red,
-                                fontWeight: FontWeight.w500,
-                              ),
+                          _buildStockStatusMenu(
+                            fontSize: ResponsiveHelper.getResponsiveFontSize(
+                              context,
+                              8.sp,
+                              10.sp,
                             ),
                           ),
                         ],
@@ -535,6 +497,126 @@ class ProductsProductTile extends StatelessWidget {
 
   void _openDetails() {
     controller.openProductDetails(product);
+  }
+
+  Widget _buildStockStatusMenu({
+    required double fontSize,
+    bool compact = false,
+  }) {
+    final outOfStock = product.stock == StockService.outOfStockDisplayQuantity;
+    final inStock = (product.stock ?? 0) > 0 && !outOfStock;
+    final badge = Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 6 : 8,
+        vertical: compact ? 2 : 4,
+      ),
+      decoration: BoxDecoration(
+        color: inStock
+            ? Colors.green.withValues(alpha: 0.1)
+            : Colors.red.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(compact ? 8 : 12),
+      ),
+      child: Text(
+        inStock ? 'In Stock' : 'Out of Stock',
+        style: TextStyle(
+          fontSize: fontSize,
+          color: inStock ? Colors.green : Colors.red,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+
+    if (controller.isSelectionMode.value) return badge;
+
+    return PopupMenuButton<String>(
+      tooltip: 'Stock options',
+      onSelected: _handleStockAction,
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 'toggle_stock_status',
+          child: Text(
+            outOfStock ? 'Mark In Stock' : 'Mark Out of Stock',
+            style: TextStyle(color: outOfStock ? Colors.green : Colors.red),
+          ),
+        ),
+        const PopupMenuItem(
+          value: 'adjust_stock',
+          child: Text('Adjust Stock'),
+        ),
+      ],
+      child: badge,
+    );
+  }
+
+  Future<void> _handleStockAction(String action) async {
+    final productId = product.id;
+    if (productId == null) {
+      EasyLoading.showError('Could not update stock for this product');
+      return;
+    }
+
+    if (action == 'adjust_stock') {
+      await showAdjustStockSheet(
+        productId: productId,
+        productName: product.name ?? '',
+        currentStock: product.stock ?? 0,
+      );
+      return;
+    }
+
+    final markOutOfStock =
+        product.stock != StockService.outOfStockDisplayQuantity;
+    final targetStock = markOutOfStock
+        ? StockService.outOfStockDisplayQuantity
+        : StockService.inStockDisplayQuantity;
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text(markOutOfStock ? 'Mark Out of Stock?' : 'Mark In Stock?'),
+        content: Text(
+          '${product.name ?? 'This product'} will remain in your product list '
+          'with a stock quantity of $targetStock.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: Text(
+              markOutOfStock ? 'Mark Out of Stock' : 'Mark In Stock',
+              style: TextStyle(
+                color: markOutOfStock ? Colors.red : Colors.green,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      final updated = await StockService().setStock(
+        productId: productId,
+        productName: product.name ?? '',
+        newStock: targetStock,
+        reason: StockMovementReason.correction,
+        note: markOutOfStock ? 'Marked out of stock' : 'Marked in stock',
+      );
+      if (updated) {
+        EasyLoading.showSuccess(
+          markOutOfStock
+              ? 'Product marked out of stock'
+              : 'Product marked in stock',
+        );
+      } else {
+        EasyLoading.showError('Could not update stock');
+      }
+    } catch (error, stackTrace) {
+      debugPrint('Failed to mark product out of stock: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      EasyLoading.showError('Could not update stock');
+    }
   }
 
   Widget _buildCategoryBadge(BuildContext context) {

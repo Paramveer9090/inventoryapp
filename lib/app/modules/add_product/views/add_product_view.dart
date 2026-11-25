@@ -236,13 +236,46 @@ class AddProductView extends GetView<AddProductController> {
 
                           // Stock & Box Size
                           _buildAdaptiveFieldPair(
-                            _buildTextField(
-                              controller: controller.stockController,
-                              label: "Stock Quantity *",
-                              hint: "0",
-                              icon: Icons.inventory_outlined,
-                              keyboardType: TextInputType.number,
-                            ),
+                            Obx(() => Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                _buildTextField(
+                                  controller: controller.stockController,
+                                  label: controller.isOutOfStock.value
+                                      ? "Out of Stock"
+                                      : "In Stock",
+                                  hint: "0",
+                                  icon: Icons.inventory_outlined,
+                                  keyboardType: TextInputType.number,
+                                  enabled: !controller.isOutOfStock.value,
+                                  labelColor: controller.isOutOfStock.value
+                                      ? Colors.red
+                                      : null,
+                                ),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton.icon(
+                                    onPressed: controller.toggleStockStatus,
+                                    style: TextButton.styleFrom(
+                                      foregroundColor:
+                                          controller.isOutOfStock.value
+                                              ? AppColors.primaryColor
+                                              : Colors.red,
+                                    ),
+                                    icon: Icon(
+                                      controller.isOutOfStock.value
+                                          ? Icons.inventory_outlined
+                                          : Icons.remove_shopping_cart_outlined,
+                                    ),
+                                    label: Text(
+                                      controller.isOutOfStock.value
+                                          ? "In Stock"
+                                          : "Out of Stock",
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )),
                             _buildTextField(
                               controller: controller.boxSizeController,
                               label: "Box Size",
@@ -463,6 +496,8 @@ class AddProductView extends GetView<AddProductController> {
     required IconData icon,
     int maxLines = 1,
     TextInputType? keyboardType,
+    bool enabled = true,
+    Color? labelColor,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -480,10 +515,14 @@ class AddProductView extends GetView<AddProductController> {
         controller: controller,
         keyboardType: keyboardType,
         maxLines: maxLines,
+        enabled: enabled,
         decoration: InputDecoration(
           labelText: label,
+          labelStyle: labelColor == null ? null : TextStyle(color: labelColor),
+          floatingLabelStyle:
+              labelColor == null ? null : TextStyle(color: labelColor),
           hintText: hint,
-          prefixIcon: Icon(icon, color: AppColors.primaryColor),
+          prefixIcon: Icon(icon, color: labelColor ?? AppColors.primaryColor),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,

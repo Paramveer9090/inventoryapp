@@ -3,6 +3,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:true_leaf_inventory_app/app/models/get_all_data_model.dart';
+import 'package:true_leaf_inventory_app/app/modules/inventory/services/stock_service.dart';
 import '../../../widgets/all_import.dart';
 
 class AddProductController extends GetxController {
@@ -11,18 +12,21 @@ class AddProductController extends GetxController {
   // Form Controllers
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController descriptionInvoiceController = TextEditingController();
-  final TextEditingController descriptionWebsiteController = TextEditingController();
+  final TextEditingController descriptionInvoiceController =
+      TextEditingController();
+  final TextEditingController descriptionWebsiteController =
+      TextEditingController();
   final TextEditingController sellingPriceController = TextEditingController();
-  final TextEditingController maximumSellingPriceController = TextEditingController();
+  final TextEditingController maximumSellingPriceController =
+      TextEditingController();
   final TextEditingController stockController = TextEditingController();
   final TextEditingController boxSizeController = TextEditingController();
-  
+
   // Dropdown data
   List<GetDataListResponseData> categoryList = <GetDataListResponseData>[];
   List<GetDataListResponseData> subCategoryList = <GetDataListResponseData>[];
   List<GetDataListResponseData> taxList = <GetDataListResponseData>[];
-  
+
   // Selected values
   var selectedCategoryId = "".obs;
   var selectedSubCategoryId = "".obs;
@@ -30,11 +34,12 @@ class AddProductController extends GetxController {
   var selectedCategoryName = "".obs;
   var selectedSubCategoryName = "".obs;
   var selectedTaxName = "".obs;
-  
+
   // Status
   var selectedStatus = "active".obs;
+  var isOutOfStock = false.obs;
   var isLoading = false.obs;
-  
+
   // Image
   var selectedImagePath = "".obs;
   var selectedImageName = "".obs;
@@ -81,7 +86,7 @@ class AddProductController extends GetxController {
   /// Get SubCategories for selected category
   getSubCategoriesAPI(String categoryId) async {
     if (categoryId.isEmpty) return;
-    
+
     final data = await APIFunction().apiCall(
       apiName: "${Constants.categories}/$categoryId",
       context: Get.context!,
@@ -144,12 +149,12 @@ class AddProductController extends GetxController {
   void selectCategory(String id, String name) {
     selectedCategoryId.value = id;
     selectedCategoryName.value = name;
-    
+
     // Reset subcategory when category changes
     selectedSubCategoryId.value = "";
     selectedSubCategoryName.value = "";
     subCategoryList.clear();
-    
+
     // Load subcategories
     getSubCategoriesAPI(id);
     update();
@@ -187,20 +192,20 @@ class AddProductController extends GetxController {
       _showError("Please enter product name");
       return false;
     }
-    
+
     if (selectedCategoryId.value.isEmpty) {
       _debugLog("Validation failed: category not selected");
       _showError("Please select a category");
       return false;
     }
-    
+
     if (sellingPriceController.text.trim().isEmpty) {
       _debugLog("Validation failed: selling price is empty");
       _showError("Please enter selling price");
       return false;
     }
-    
-    if (stockController.text.trim().isEmpty) {
+
+    if (!isOutOfStock.value && stockController.text.trim().isEmpty) {
       _debugLog("Validation failed: stock is empty");
       _showError("Please enter stock quantity");
       return false;
@@ -215,14 +220,21 @@ class AddProductController extends GetxController {
       return false;
     }
 
-    if (int.tryParse(stockController.text) == null) {
+    if (!isOutOfStock.value && int.tryParse(stockController.text) == null) {
       _debugLog("Validation failed: stock is not numeric", data: {
         "stock": stockController.text,
       });
       _showError("Stock must be a valid number");
       return false;
     }
-    
+
+    if (!isOutOfStock.value &&
+        int.tryParse(stockController.text) ==
+            StockService.outOfStockDisplayQuantity) {
+      _showError("Stock quantity 9 is reserved for Out of Stock");
+      return false;
+    }
+
     // Check if image is selected
     if (selectedImagePath.value.isEmpty) {
       _debugLog("Validation failed: image not selected");
@@ -234,7 +246,11 @@ class AddProductController extends GetxController {
 
     return true;
   }
-  
+
+  void toggleStockStatus() {
+    isOutOfStock.toggle();
+  }
+
   /// Show error message with better formatting
   void _showError(String message) {
     EasyLoading.showError(message, duration: Duration(seconds: 2));
@@ -247,16 +263,17 @@ class AddProductController extends GetxController {
         "is_web": kIsWeb,
         "is_android": !kIsWeb && Platform.isAndroid,
         "is_ios": !kIsWeb && Platform.isIOS,
-        "is_desktop": !kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux),
+        "is_desktop": !kIsWeb &&
+            (Platform.isWindows || Platform.isMacOS || Platform.isLinux),
       });
 
       XFile? picked;
-      
+
       // Check if running on mobile (Android/iOS)
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
         // Use image_picker for mobile
         final ImagePicker picker = ImagePicker();
-        
+
         // Show options to pick from gallery or camera
         final ImageSource? source = await _showImageSourceDialog();
         if (source == null) {
@@ -264,7 +281,7 @@ class AddProductController extends GetxController {
           return;
         }
         _debugLog("Image source selected", data: {"source": source.name});
-        
+
         picked = await picker.pickImage(
           source: source,
           maxWidth: 1920,
@@ -279,7 +296,7 @@ class AddProductController extends GetxController {
         );
         picked = await openFile(acceptedTypeGroups: [typeGroup]);
       }
-      
+
       if (picked != null) {
         selectedImageFile = picked; // Store the XFile object
         selectedImagePath.value = picked.path;
@@ -311,7 +328,7 @@ class AddProductController extends GetxController {
       _showError("Failed to select image");
     }
   }
-  
+
   /// Show dialog to choose image source (Gallery or Camera) - for mobile only
   Future<ImageSource?> _showImageSourceDialog() async {
     return await Get.dialog<ImageSource>(
@@ -335,7 +352,7 @@ class AddProductController extends GetxController {
       ),
     );
   }
-  
+
   /// Remove selected image
   void removeImage() {
     selectedImageFile = null;
@@ -387,7 +404,9 @@ class AddProductController extends GetxController {
         isLoading: false,
       );
 
-      if (data != null && data['data'] != null && data['data']['image_url'] != null) {
+      if (data != null &&
+          data['data'] != null &&
+          data['data']['image_url'] != null) {
         String imageUrl = data['data']['image_url'];
         _debugLog("Image upload success", data: {
           "image_url": imageUrl,
@@ -431,26 +450,28 @@ class AddProductController extends GetxController {
     try {
       isLoading.value = true;
       _debugLog("Add product flow started");
-      
+
       // Step 1: Upload image first and get the image_url
       EasyLoading.show(status: 'Uploading image...');
       String? uploadedImageUrl = await uploadImageAPI();
-      
+
       if (uploadedImageUrl == null || uploadedImageUrl.isEmpty) {
         _debugLog("Add product flow failed: upload returned empty url");
         throw Exception("Failed to upload image");
       }
-      
+
       _debugLog("Image URL received", data: {"image_url": uploadedImageUrl});
-      
+
       // Step 2: Prepare product data with the uploaded image URL
       EasyLoading.show(status: 'Creating product...');
-      
+
       FormData formData = FormData.fromMap({
         "name": nameController.text.trim(),
         "category_id": selectedCategoryId.value,
         "selling_price": sellingPriceController.text,
-        "stock": stockController.text,
+        "stock": isOutOfStock.value
+            ? StockService.outOfStockDisplayQuantity.toString()
+            : stockController.text,
         "status": selectedStatus.value,
         "product_image": uploadedImageUrl,
         "image_url": uploadedImageUrl,
@@ -458,29 +479,34 @@ class AddProductController extends GetxController {
 
       // Add optional fields if they have values
       if (selectedSubCategoryId.value.isNotEmpty) {
-        formData.fields.add(MapEntry("sub_category_id", selectedSubCategoryId.value));
+        formData.fields
+            .add(MapEntry("sub_category_id", selectedSubCategoryId.value));
       }
-      
+
       if (selectedTaxId.value.isNotEmpty) {
         formData.fields.add(MapEntry("tax_id", selectedTaxId.value));
       }
-      
+
       if (descriptionController.text.trim().isNotEmpty) {
-        formData.fields.add(MapEntry("description", descriptionController.text.trim()));
+        formData.fields
+            .add(MapEntry("description", descriptionController.text.trim()));
       }
-      
+
       if (descriptionInvoiceController.text.trim().isNotEmpty) {
-        formData.fields.add(MapEntry("description_invoice", descriptionInvoiceController.text.trim()));
+        formData.fields.add(MapEntry(
+            "description_invoice", descriptionInvoiceController.text.trim()));
       }
-      
+
       if (descriptionWebsiteController.text.trim().isNotEmpty) {
-        formData.fields.add(MapEntry("description_website", descriptionWebsiteController.text.trim()));
+        formData.fields.add(MapEntry(
+            "description_website", descriptionWebsiteController.text.trim()));
       }
-      
+
       if (maximumSellingPriceController.text.trim().isNotEmpty) {
-        formData.fields.add(MapEntry("maximum_selling_price", maximumSellingPriceController.text));
+        formData.fields.add(MapEntry(
+            "maximum_selling_price", maximumSellingPriceController.text));
       }
-      
+
       if (boxSizeController.text.trim().isNotEmpty) {
         formData.fields.add(MapEntry("box_size", boxSizeController.text));
       }
@@ -509,21 +535,23 @@ class AddProductController extends GetxController {
 
         final dynamic serverImage = data["data"]?["product_image"];
         if (serverImage == null || serverImage.toString().trim().isEmpty) {
-          _debugLog("Warning: product created but image not persisted by server", data: {
-            "server_product_image": serverImage,
-            "sent_product_image": uploadedImageUrl,
-            "sent_image_url": uploadedImageUrl,
-          });
+          _debugLog(
+              "Warning: product created but image not persisted by server",
+              data: {
+                "server_product_image": serverImage,
+                "sent_product_image": uploadedImageUrl,
+                "sent_image_url": uploadedImageUrl,
+              });
         }
 
         EasyLoading.showSuccess(
           "Product added successfully!",
           duration: Duration(seconds: 2),
         );
-        
+
         // Navigate back and refresh product list
         Get.back();
-        
+
         // Refresh products list if controller exists
         if (Get.isRegistered<ProductsController>()) {
           Get.find<ProductsController>().getProductAPI(isLoading: false);
@@ -542,12 +570,15 @@ class AddProductController extends GetxController {
         "error": e.toString(),
         "stack_trace": stackTrace.toString(),
       });
-      
+
       String errorMessage = "Failed to add product";
-      final String responseData = e.response?.data?.toString().toLowerCase() ?? "";
-      if (responseData.contains("image") || e.requestOptions.path.contains(Constants.uploadImage)) {
+      final String responseData =
+          e.response?.data?.toString().toLowerCase() ?? "";
+      if (responseData.contains("image") ||
+          e.requestOptions.path.contains(Constants.uploadImage)) {
         errorMessage = "Failed to upload image to server";
-      } else if (e.response?.statusCode == 422 || responseData.contains("validation")) {
+      } else if (e.response?.statusCode == 422 ||
+          responseData.contains("validation")) {
         errorMessage = "Please check all required fields";
       } else if (e.type == DioErrorType.connectTimeout ||
           e.type == DioErrorType.receiveTimeout ||
@@ -567,7 +598,7 @@ class AddProductController extends GetxController {
         "error": e.toString(),
         "stack_trace": stackTrace.toString(),
       });
-      
+
       String errorMessage = "Failed to add product";
       if (e.toString().contains("Failed to upload image")) {
         errorMessage = "Failed to upload image to server";
@@ -576,7 +607,7 @@ class AddProductController extends GetxController {
       } else if (e.toString().contains("network")) {
         errorMessage = "Network error. Please try again";
       }
-      
+
       EasyLoading.showError(
         errorMessage,
         duration: Duration(seconds: 3),
@@ -610,6 +641,7 @@ class AddProductController extends GetxController {
     selectedSubCategoryName.value = "";
     selectedTaxName.value = "";
     selectedStatus.value = "active";
+    isOutOfStock.value = false;
     selectedImageFile = null;
     selectedImagePath.value = "";
     selectedImageName.value = "";
